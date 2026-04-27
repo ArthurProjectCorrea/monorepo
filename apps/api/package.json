@@ -1,0 +1,11 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "dotnet build Api.slnx",
+    "lint": "dotnet format Api.slnx --verify-no-changes",
+    "format": "dotnet format Api.slnx",
+    "dev": "dotnet watch run --project Api.Web/Api.Web.csproj"
+  }
+}
