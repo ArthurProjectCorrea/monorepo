@@ -1,0 +1,17 @@
+**/.bin/
+**/.obj/
+**/bin/
+**/obj/
+**/node_modules/
+**/.next/
+**/.turbo/
+**/.vs/
+**/.vscode/
+**/*.user
+**/*.db
+**/*.log
+.git/
+.env/
+dist/
+out/
+publish/

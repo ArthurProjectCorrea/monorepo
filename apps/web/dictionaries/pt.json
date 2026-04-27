@@ -1,0 +1,139 @@
+{
+  "sign_in": {
+    "title": "Bem vindo",
+    "description": "Insira seu e-mail e senha para acessar sua conta",
+    "email_label": "Email",
+    "email_placeholder": "nome@exemplo.com",
+    "password_label": "Senha",
+    "password_placeholder": "••••••••",
+    "forgot_password": "Esqueceu sua senha?",
+    "submit_button": "Entrar",
+    "loading_button": "Acessando..."
+  },
+  "notifications": {
+    "sign_in": {
+      "defaults": {
+        "success": "Login realizado com sucesso.",
+        "info": "Solicitacao processada.",
+        "warning": "Aguarde antes de tentar novamente.",
+        "error": "Nao foi possivel concluir o login agora."
+      },
+      "http_status": {
+        "200": "Login realizado com sucesso.",
+        "400": "Revise os dados informados e tente novamente.",
+        "401": "Nao foi possivel concluir o login.",
+        "403": "Acesso negado.",
+        "404": "Rota do servico de autenticacao nao encontrada.",
+        "409": "Conflito na solicitacao de login. Tente novamente.",
+        "429": "Muitas tentativas. Tente novamente em alguns minutos.",
+        "500": "Servico de autenticacao temporariamente indisponivel."
+      }
+    },
+    "forgot_password": {
+      "defaults": {
+        "success": "Instrucoes de recuperacao enviadas se a conta existir.",
+        "info": "Solicitacao processada.",
+        "warning": "Aguarde antes de tentar novamente.",
+        "error": "Nao foi possivel processar a recuperacao agora."
+      },
+      "http_status": {
+        "200": "Instrucoes de recuperacao enviadas se a conta existir.",
+        "400": "Revise os dados informados e tente novamente.",
+        "401": "Nao foi possivel concluir a recuperacao.",
+        "403": "Acesso negado.",
+        "404": "Rota do servico de recuperacao nao encontrada.",
+        "409": "Conflito na solicitacao de recuperacao. Tente novamente.",
+        "429": "Muitas tentativas. Tente novamente em alguns minutos.",
+        "500": "Servico de recuperacao temporariamente indisponivel."
+      }
+    },
+    "verify_otp": {
+      "defaults": {
+        "success": "Codigo validado com sucesso.",
+        "info": "Solicitacao processada.",
+        "warning": "Aguarde antes de tentar novamente.",
+        "error": "Nao foi possivel validar o codigo agora."
+      },
+      "http_status": {
+        "200": "Codigo validado com sucesso.",
+        "400": "Informe um codigo valido e tente novamente.",
+        "401": "Falha na validacao do codigo.",
+        "403": "Acesso negado.",
+        "404": "Rota do servico de validacao nao encontrada.",
+        "409": "Conflito na solicitacao de validacao. Tente novamente.",
+        "429": "Muitas tentativas. Tente novamente em alguns minutos.",
+        "500": "Servico de validacao temporariamente indisponivel."
+      }
+    },
+    "reset_password": {
+      "defaults": {
+        "success": "Senha atualizada com sucesso.",
+        "info": "Solicitacao processada.",
+        "warning": "Aguarde antes de tentar novamente.",
+        "error": "Nao foi possivel redefinir a senha agora."
+      },
+      "http_status": {
+        "200": "Senha atualizada com sucesso.",
+        "400": "Revise os dados informados e tente novamente.",
+        "401": "Nao foi possivel concluir a redefinicao da senha.",
+        "403": "Acesso negado.",
+        "404": "Rota do servico de redefinicao nao encontrada.",
+        "409": "Conflito na solicitacao de redefinicao. Tente novamente.",
+        "429": "Muitas tentativas. Tente novamente em alguns minutos.",
+        "500": "Servico de redefinicao temporariamente indisponivel."
+      }
+    }
+  },
+  "theme_toggle": {
+    "label": "Alternar tema",
+    "light": "Claro",
+    "dark": "Escuro",
+    "system": "Sistema"
+  },
+  "forgot_password": {
+    "title": "Esqueceu a senha?",
+    "description": "Insira seu e-mail para receber as instruções de recuperação",
+    "email_label": "Email",
+    "email_placeholder": "nome@exemplo.com",
+    "submit_button": "Enviar instruções",
+    "loading_button": "Enviando...",
+    "back_to_login": "Voltar para o login"
+  },
+  "locale_switcher": {
+    "label": "Mudar idioma",
+    "en": "Inglês",
+    "pt": "Português"
+  },
+  "footer": {
+    "rights": "© {year} {name}. Todos os direitos reservados.",
+    "privacy_terms": "Termos de Privacidade",
+    "system_policies": "Políticas do Sistema",
+    "close": "Fechar"
+  },
+  "verify_otp": {
+    "title": "Verificar Código",
+    "description": "Insira o código de 6 dígitos enviado para seu e-mail",
+    "submit_button": "Verificar",
+    "loading_button": "Verificando...",
+    "resend_button": "Reenviar código",
+    "back_to_login": "Voltar para o login"
+  },
+  "reset_password": {
+    "title": "Redefinir Senha",
+    "description": "Crie uma nova senha segura para sua conta",
+    "email_label": "Email",
+    "password_label": "Nova Senha",
+    "confirm_password_label": "Confirmar Senha",
+    "password_placeholder": "••••••••",
+    "submit_button": "Redefinir Senha",
+    "loading_button": "Redefinindo...",
+    "security_rules": {
+      "title": "Requisitos de segurança",
+      "min_chars": "Mínimo 8 caracteres",
+      "number": "Pelo menos um número",
+      "uppercase": "Uma letra maiúscula",
+      "lowercase": "Uma letra minúscula",
+      "special": "Um caractere especial"
+    }
+  }
+}
