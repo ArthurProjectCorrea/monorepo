@@ -10,6 +10,8 @@ public class AppDbContext : IdentityDbContext<User>
     {
     }
 
+    public DbSet<PasswordRecoveryRequest> PasswordRecoveryRequests { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

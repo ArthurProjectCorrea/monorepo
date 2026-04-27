@@ -1,6 +1,7 @@
 'use server'
 
 import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { api, ApiRequestError } from '@/lib/api'
 import {
   RECOVERY_IDENTIFIER_COOKIE,
@@ -8,6 +9,7 @@ import {
   RECOVERY_RESET_TOKEN_COOKIE,
   RECOVERY_RESET_TOKEN_MAX_AGE_SECONDS,
 } from '@/lib/recovery-session'
+import { getDictionary, type Locale } from '@/app/[lang]/dictionaries'
 import type {
   ResendRecoveryOtpRequest,
   ResendRecoveryOtpResponse,
@@ -26,17 +28,20 @@ export async function verifyRecoveryOtpAction(
   formData: FormData,
 ): Promise<VerifyOtpActionState> {
   const otpCode = getStringField(formData, 'otp_code')
+  const lang = (getStringField(formData, 'lang') || 'pt') as Locale
+  const dict = await getDictionary(lang)
+
   const cookieStore = await cookies()
   const identifier = cookieStore.get(RECOVERY_IDENTIFIER_COOKIE)?.value ?? ''
 
   const fieldErrors: VerifyOtpActionState['fieldErrors'] = {}
 
   if (!identifier) {
-    fieldErrors.identifier = 'Identificador invalido. Retorne para recuperar senha.'
+    fieldErrors.identifier = dict.validation.invalid_credentials // Re-using general error or could be specific
   }
 
   if (!otpCode || otpCode.length !== 6) {
-    fieldErrors.otp_code = 'Informe o codigo de 6 digitos.'
+    fieldErrors.otp_code = dict.validation.required_otp
   }
 
   if (Object.keys(fieldErrors).length > 0) {
@@ -72,15 +77,24 @@ export async function verifyRecoveryOtpAction(
       priority: 'high',
     })
 
-    return {
-      status: 'success',
-      nextStep: 'password_reset',
-      identifier,
-      httpStatus: 200,
-      notificationToken: crypto.randomUUID(),
-    }
+    redirect(`/${lang}/reset-password?verified=true`)
   } catch (error) {
+    // Re-throw Next.js redirect (it uses thrown exceptions internally)
+    if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+      throw error
+    }
+
     if (error instanceof ApiRequestError) {
+      if (error.code === 'INVALID_OTP' || error.status === 400 || error.status === 401) {
+        fieldErrors.otp_code = dict.validation.invalid_otp
+        return {
+          status: 'error',
+          fieldErrors,
+          httpStatus: error.status,
+          notificationToken: crypto.randomUUID(),
+        }
+      }
+
       return {
         status: 'error',
         httpStatus: error.status,

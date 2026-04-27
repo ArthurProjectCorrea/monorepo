@@ -92,6 +92,10 @@ export interface SignInActionState {
     identifier?: string
     password?: string
   }
+  fields?: {
+    identifier?: string
+    password?: string
+  }
   nextStep?: 'authenticated'
   httpStatus?: number
   notificationToken?: string

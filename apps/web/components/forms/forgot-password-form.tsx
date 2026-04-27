@@ -31,6 +31,7 @@ export function ForgotPasswordForm({ dict, notificationsDict }: ForgotPasswordFo
     forgotPasswordAction,
     initialForgotPasswordState,
   )
+  const [isRedirecting, setIsRedirecting] = React.useState(false)
   const router = useRouter()
   const params = useParams()
   const lang = params.lang as string
@@ -47,6 +48,7 @@ export function ForgotPasswordForm({ dict, notificationsDict }: ForgotPasswordFo
     })
 
     if (state.nextStep === 'otp_verification') {
+      setIsRedirecting(true)
       router.push(`/${lang}/verify-otp`)
     }
   }, [lang, notificationsDict, router, state.httpStatus, state.nextStep, state.notificationToken])
@@ -59,7 +61,8 @@ export function ForgotPasswordForm({ dict, notificationsDict }: ForgotPasswordFo
       </div>
 
       <form action={formAction} className="grid gap-4">
-        <Field>
+        <input type="hidden" name="lang" value={lang} />
+        <Field data-invalid={!!state.fieldErrors?.identifier}>
           <FieldLabel htmlFor="email">
             <FieldTitle>{dict.email_label}</FieldTitle>
           </FieldLabel>
@@ -74,6 +77,7 @@ export function ForgotPasswordForm({ dict, notificationsDict }: ForgotPasswordFo
               autoCorrect="off"
               required
               disabled={isPending}
+              aria-invalid={!!state.fieldErrors?.identifier}
               className="bg-background/50"
             />
             {state.fieldErrors?.identifier ? (
@@ -82,7 +86,11 @@ export function ForgotPasswordForm({ dict, notificationsDict }: ForgotPasswordFo
           </FieldContent>
         </Field>
 
-        <SubmitButton submitLabel={dict.submit_button} loadingLabel={dict.loading_button} />
+        <SubmitButton
+          submitLabel={dict.submit_button}
+          loadingLabel={dict.loading_button}
+          isRedirecting={isRedirecting}
+        />
       </form>
 
       <Button variant="link" size="sm" className="mx-auto h-auto p-0 text-xs font-medium" asChild>
@@ -95,19 +103,22 @@ export function ForgotPasswordForm({ dict, notificationsDict }: ForgotPasswordFo
 function SubmitButton({
   submitLabel,
   loadingLabel,
+  isRedirecting,
 }: {
   submitLabel: string
   loadingLabel: string
+  isRedirecting: boolean
 }) {
   const { pending } = useFormStatus()
+  const isLoading = pending || isRedirecting
 
   return (
     <Button
       type="submit"
-      disabled={pending}
+      disabled={isLoading}
       className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
     >
-      {pending ? (
+      {isLoading ? (
         <div className="flex items-center gap-2">
           <Spinner />
           <span>{loadingLabel}</span>

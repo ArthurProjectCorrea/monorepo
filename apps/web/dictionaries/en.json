@@ -1,4 +1,12 @@
 {
+  "validation": {
+    "required_email": "Email is required.",
+    "required_password": "Password is required.",
+    "invalid_credentials": "Incorrect email or password.",
+    "passwords_dont_match": "Passwords do not match.",
+    "invalid_otp": "Invalid or expired code.",
+    "required_otp": "Verification code is required."
+  },
   "sign_in": {
     "title": "Welcome",
     "description": "Enter your email and password to access your account",
@@ -21,12 +29,23 @@
       "http_status": {
         "200": "Signed in successfully.",
         "400": "Please review the information and try again.",
-        "401": "Sign-in could not be completed.",
+        "401": "Incorrect email or password.",
         "403": "Access denied.",
         "404": "Authentication service route not found.",
         "409": "Sign-in request conflict. Please try again.",
         "429": "Too many attempts. Try again in a few minutes.",
         "500": "Authentication service is temporarily unavailable."
+      }
+    },
+    "sign_out": {
+      "defaults": {
+        "success": "Signed out successfully.",
+        "info": "Session ended.",
+        "warning": "Please wait before trying again.",
+        "error": "Unable to sign out right now."
+      },
+      "http_status": {
+        "200": "Signed out successfully."
       }
     },
     "forgot_password": {
@@ -116,6 +135,7 @@
     "submit_button": "Verify",
     "loading_button": "Verifying...",
     "resend_button": "Resend code",
+    "resend_success": "Code resent successfully.",
     "back_to_login": "Back to login"
   },
   "reset_password": {

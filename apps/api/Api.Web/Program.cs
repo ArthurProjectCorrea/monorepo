@@ -1,10 +1,18 @@
 using Api.Core.Entities;
+using Api.Core.Interfaces;
 using Api.Infrastructure.Data;
+using Api.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllers();
+builder.Services.AddOpenApi();
+
+builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 
 // 1. Database
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
@@ -25,11 +33,18 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 .AddDefaultTokenProviders();
 
 // 3. Redis
-var redisConfig = builder.Configuration["Redis:Configuration"] ?? "localhost:6379";
-builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConfig));
+var redisConfig = builder.Configuration["Redis:Configuration"]
+    ?? builder.Configuration["REDIS_CONFIGURATION"]
+    ?? "localhost:6379";
+var redisOptions = ConfigurationOptions.Parse(redisConfig);
+redisOptions.AbortOnConnectFail = false;
+
+var multiplexer = ConnectionMultiplexer.Connect(redisOptions);
+builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = redisConfig;
+    options.ConfigurationOptions = redisOptions;
 });
 
 // 4. API Services

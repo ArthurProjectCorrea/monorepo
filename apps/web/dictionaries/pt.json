@@ -1,8 +1,16 @@
 {
+  "validation": {
+    "required_email": "Informe o e-mail.",
+    "required_password": "Informe a senha.",
+    "invalid_credentials": "E-mail ou senha incorretos.",
+    "passwords_dont_match": "As senhas não coincidem.",
+    "invalid_otp": "Código inválido ou expirado.",
+    "required_otp": "Informe o código de verificação."
+  },
   "sign_in": {
-    "title": "Bem vindo",
+    "title": "Bem-vindo",
     "description": "Insira seu e-mail e senha para acessar sua conta",
-    "email_label": "Email",
+    "email_label": "E-mail",
     "email_placeholder": "nome@exemplo.com",
     "password_label": "Senha",
     "password_placeholder": "••••••••",
@@ -14,73 +22,84 @@
     "sign_in": {
       "defaults": {
         "success": "Login realizado com sucesso.",
-        "info": "Solicitacao processada.",
+        "info": "Solicitação processada.",
         "warning": "Aguarde antes de tentar novamente.",
-        "error": "Nao foi possivel concluir o login agora."
+        "error": "Não foi possível concluir o login agora."
       },
       "http_status": {
         "200": "Login realizado com sucesso.",
         "400": "Revise os dados informados e tente novamente.",
-        "401": "Nao foi possivel concluir o login.",
+        "401": "E-mail ou senha incorretos.",
         "403": "Acesso negado.",
-        "404": "Rota do servico de autenticacao nao encontrada.",
-        "409": "Conflito na solicitacao de login. Tente novamente.",
+        "404": "Rota do serviço de autenticação não encontrada.",
+        "409": "Conflito na solicitação de login. Tente novamente.",
         "429": "Muitas tentativas. Tente novamente em alguns minutos.",
-        "500": "Servico de autenticacao temporariamente indisponivel."
+        "500": "Serviço de autenticação temporariamente indisponível."
+      }
+    },
+    "sign_out": {
+      "defaults": {
+        "success": "Sessão encerrada com sucesso.",
+        "info": "Sessão encerrada.",
+        "warning": "Aguarde antes de tentar novamente.",
+        "error": "Não foi possível encerrar a sessão agora."
+      },
+      "http_status": {
+        "200": "Sessão encerrada com sucesso."
       }
     },
     "forgot_password": {
       "defaults": {
-        "success": "Instrucoes de recuperacao enviadas se a conta existir.",
-        "info": "Solicitacao processada.",
+        "success": "Instruções de recuperação enviadas se a conta existir.",
+        "info": "Solicitação processada.",
         "warning": "Aguarde antes de tentar novamente.",
-        "error": "Nao foi possivel processar a recuperacao agora."
+        "error": "Não foi possível processar a recuperação agora."
       },
       "http_status": {
-        "200": "Instrucoes de recuperacao enviadas se a conta existir.",
+        "200": "Instruções de recuperação enviadas se a conta existir.",
         "400": "Revise os dados informados e tente novamente.",
-        "401": "Nao foi possivel concluir a recuperacao.",
+        "401": "Não foi possível concluir a recuperação.",
         "403": "Acesso negado.",
-        "404": "Rota do servico de recuperacao nao encontrada.",
-        "409": "Conflito na solicitacao de recuperacao. Tente novamente.",
+        "404": "Rota do serviço de recuperação não encontrada.",
+        "409": "Conflito na solicitação de recuperação. Tente novamente.",
         "429": "Muitas tentativas. Tente novamente em alguns minutos.",
-        "500": "Servico de recuperacao temporariamente indisponivel."
+        "500": "Serviço de recuperação temporariamente indisponível."
       }
     },
     "verify_otp": {
       "defaults": {
-        "success": "Codigo validado com sucesso.",
-        "info": "Solicitacao processada.",
+        "success": "Código validado com sucesso.",
+        "info": "Solicitação processada.",
         "warning": "Aguarde antes de tentar novamente.",
-        "error": "Nao foi possivel validar o codigo agora."
+        "error": "Não foi possível validar o código agora."
       },
       "http_status": {
-        "200": "Codigo validado com sucesso.",
-        "400": "Informe um codigo valido e tente novamente.",
-        "401": "Falha na validacao do codigo.",
+        "200": "Código validado com sucesso.",
+        "400": "Informe um código válido e tente novamente.",
+        "401": "Falha na validação do código.",
         "403": "Acesso negado.",
-        "404": "Rota do servico de validacao nao encontrada.",
-        "409": "Conflito na solicitacao de validacao. Tente novamente.",
+        "404": "Rota do serviço de validação não encontrada.",
+        "409": "Conflito na solicitação de validação. Tente novamente.",
         "429": "Muitas tentativas. Tente novamente em alguns minutos.",
-        "500": "Servico de validacao temporariamente indisponivel."
+        "500": "Serviço de validação temporariamente indisponível."
       }
     },
     "reset_password": {
       "defaults": {
         "success": "Senha atualizada com sucesso.",
-        "info": "Solicitacao processada.",
+        "info": "Solicitação processada.",
         "warning": "Aguarde antes de tentar novamente.",
-        "error": "Nao foi possivel redefinir a senha agora."
+        "error": "Não foi possível redefinir a senha agora."
       },
       "http_status": {
         "200": "Senha atualizada com sucesso.",
         "400": "Revise os dados informados e tente novamente.",
-        "401": "Nao foi possivel concluir a redefinicao da senha.",
+        "401": "Não foi possível concluir a redefinição da senha.",
         "403": "Acesso negado.",
-        "404": "Rota do servico de redefinicao nao encontrada.",
-        "409": "Conflito na solicitacao de redefinicao. Tente novamente.",
+        "404": "Rota do serviço de redefinição não encontrada.",
+        "409": "Conflito na solicitação de redefinição. Tente novamente.",
         "429": "Muitas tentativas. Tente novamente em alguns minutos.",
-        "500": "Servico de redefinicao temporariamente indisponivel."
+        "500": "Serviço de redefinição temporariamente indisponível."
       }
     }
   },
@@ -93,7 +112,7 @@
   "forgot_password": {
     "title": "Esqueceu a senha?",
     "description": "Insira seu e-mail para receber as instruções de recuperação",
-    "email_label": "Email",
+    "email_label": "E-mail",
     "email_placeholder": "nome@exemplo.com",
     "submit_button": "Enviar instruções",
     "loading_button": "Enviando...",
@@ -116,12 +135,13 @@
     "submit_button": "Verificar",
     "loading_button": "Verificando...",
     "resend_button": "Reenviar código",
+    "resend_success": "Código reenviado com sucesso.",
     "back_to_login": "Voltar para o login"
   },
   "reset_password": {
     "title": "Redefinir Senha",
     "description": "Crie uma nova senha segura para sua conta",
-    "email_label": "Email",
+    "email_label": "E-mail",
     "password_label": "Nova Senha",
     "confirm_password_label": "Confirmar Senha",
     "password_placeholder": "••••••••",

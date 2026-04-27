@@ -1,7 +1,8 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  cacheHandler:
+    process.env.NODE_ENV === 'production' ? require.resolve('./lib/cache-handler.ts') : undefined,
 }
 
 export default nextConfig

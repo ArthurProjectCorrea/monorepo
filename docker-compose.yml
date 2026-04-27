@@ -33,11 +33,15 @@ services:
       dockerfile: apps/api/Dockerfile
     container_name: project-api
     restart: always
+    env_file:
+      - ./apps/api/.env
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=postgres;Database=${DB_NAME:-project_db};Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-postgres}
       - Redis__Configuration=redis:6379
-      - EXTERNAL_API_BASE_URL=http://localhost:5000
+      - SMTP_HOST=mailhog
+      - SMTP_PORT=1025
+      - SMTP_FROM=no-reply@project.com
     ports:
       - "5000:8080"
     depends_on:

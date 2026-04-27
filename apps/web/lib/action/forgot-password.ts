@@ -12,6 +12,7 @@ import type {
   ForgotPasswordRequest,
   ForgotPasswordResponse,
 } from '@/types'
+import { getDictionary, type Locale } from '@/app/[lang]/dictionaries'
 
 function getStringField(formData: FormData, key: string): string {
   const value = formData.get(key)
@@ -23,12 +24,14 @@ export async function forgotPasswordAction(
   formData: FormData,
 ): Promise<ForgotPasswordActionState> {
   const identifier = getStringField(formData, 'identifier')
+  const lang = (getStringField(formData, 'lang') || 'pt') as Locale
+  const dict = await getDictionary(lang)
 
   if (!identifier) {
     return {
       status: 'error',
       fieldErrors: {
-        identifier: 'Informe o e-mail.',
+        identifier: dict.validation.required_email,
       },
       httpStatus: 400,
       notificationToken: crypto.randomUUID(),

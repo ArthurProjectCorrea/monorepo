@@ -3,6 +3,7 @@
 import { cookies } from 'next/headers'
 import { api, ApiRequestError } from '@/lib/api'
 import { AUTH_SESSION_COOKIE } from '@/lib/auth-session'
+import { getDictionary, type Locale } from '@/app/[lang]/dictionaries'
 import type { SignInActionState, SignInRequest, SignInResponse } from '@/types'
 
 function getStringField(formData: FormData, key: string): string {
@@ -16,20 +17,24 @@ export async function signInAction(
 ): Promise<SignInActionState> {
   const identifier = getStringField(formData, 'identifier')
   const password = getStringField(formData, 'password')
+  const lang = (getStringField(formData, 'lang') || 'pt') as Locale
+  const dict = await getDictionary(lang)
+  const fields = { identifier, password }
 
   const fieldErrors: SignInActionState['fieldErrors'] = {}
 
   if (!identifier) {
-    fieldErrors.identifier = 'Informe o e-mail.'
+    fieldErrors.identifier = dict.validation.required_email
   }
 
   if (!password) {
-    fieldErrors.password = 'Informe a senha.'
+    fieldErrors.password = dict.validation.required_password
   }
 
   if (Object.keys(fieldErrors).length > 0) {
     return {
       status: 'error',
+      fields,
       fieldErrors,
       httpStatus: 400,
       notificationToken: crypto.randomUUID(),
@@ -62,8 +67,22 @@ export async function signInAction(
     }
   } catch (error) {
     if (error instanceof ApiRequestError) {
+      if (error.code === 'INVALID_CREDENTIALS' || error.status === 401) {
+        fieldErrors.identifier = dict.validation.invalid_credentials
+        fieldErrors.password = dict.validation.invalid_credentials
+
+        return {
+          status: 'error',
+          fields,
+          fieldErrors,
+          httpStatus: error.status,
+          notificationToken: crypto.randomUUID(),
+        }
+      }
+
       return {
         status: 'error',
+        fields,
         httpStatus: error.status,
         notificationToken: crypto.randomUUID(),
       }
@@ -71,6 +90,7 @@ export async function signInAction(
 
     return {
       status: 'error',
+      fields,
       httpStatus: 500,
       notificationToken: crypto.randomUUID(),
     }

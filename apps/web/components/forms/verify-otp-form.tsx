@@ -2,8 +2,9 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { useFormStatus } from 'react-dom'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@/components/ui/input-otp'
 import { Field, FieldContent } from '@/components/ui/field'
@@ -21,6 +22,7 @@ interface VerifyOTPFormProps {
     loading_button: string
     resend_button: string
     back_to_login: string
+    resend_success: string
   }
   notificationsDict: NotificationDictionary
 }
@@ -31,10 +33,9 @@ export function VerifyOTPForm({ dict, notificationsDict }: VerifyOTPFormProps) {
     initialVerifyOtpState,
   )
   const [value, setValue] = React.useState('')
-  const [countdown, setCountdown] = React.useState<number>(0)
+  const [countdown, setCountdown] = React.useState<number>(20)
   const [isResending, startResendTransition] = React.useTransition()
   const [resendStatus, setResendStatus] = React.useState<number | null>(null)
-  const router = useRouter()
   const params = useParams()
   const lang = params.lang as string
 
@@ -56,23 +57,23 @@ export function VerifyOTPForm({ dict, notificationsDict }: VerifyOTPFormProps) {
       dictionary: notificationsDict,
       lang,
     })
-
-    if (state.nextStep === 'password_reset') {
-      router.push(`/${lang}/reset-password`)
-    }
-  }, [lang, notificationsDict, router, state.httpStatus, state.nextStep, state.notificationToken])
+  }, [lang, notificationsDict, state.httpStatus, state.notificationToken])
 
   React.useEffect(() => {
     if (!resendStatus) {
       return
     }
 
-    notifyFromApi({
-      httpStatus: resendStatus,
-      dictionary: notificationsDict,
-      lang,
-    })
-  }, [lang, notificationsDict, resendStatus])
+    if (resendStatus === 200) {
+      toast.success(dict.resend_success)
+    } else {
+      notifyFromApi({
+        httpStatus: resendStatus,
+        dictionary: notificationsDict,
+        lang,
+      })
+    }
+  }, [lang, notificationsDict, resendStatus, dict.resend_success])
 
   function handleResend() {
     if (countdown > 0 || isPending || isResending) return
@@ -95,6 +96,7 @@ export function VerifyOTPForm({ dict, notificationsDict }: VerifyOTPFormProps) {
 
       <form action={formAction} className="flex flex-col gap-4">
         <input type="hidden" name="otp_code" value={value} />
+        <input type="hidden" name="lang" value={lang} />
         <Field className="items-center p-2">
           <FieldContent>
             <InputOTP
@@ -104,31 +106,52 @@ export function VerifyOTPForm({ dict, notificationsDict }: VerifyOTPFormProps) {
               disabled={isPending}
             >
               <InputOTPGroup>
-                <InputOTPSlot index={0} className="h-12 w-12 text-lg" />
-                <InputOTPSlot index={1} className="h-12 w-12 text-lg" />
+                <InputOTPSlot
+                  index={0}
+                  className="h-12 w-12 text-lg"
+                  aria-invalid={!!state.fieldErrors?.otp_code}
+                />
+                <InputOTPSlot
+                  index={1}
+                  className="h-12 w-12 text-lg"
+                  aria-invalid={!!state.fieldErrors?.otp_code}
+                />
               </InputOTPGroup>
               <InputOTPSeparator className="mx-2" />
               <InputOTPGroup>
-                <InputOTPSlot index={2} className="h-12 w-12 text-lg" />
-                <InputOTPSlot index={3} className="h-12 w-12 text-lg" />
+                <InputOTPSlot
+                  index={2}
+                  className="h-12 w-12 text-lg"
+                  aria-invalid={!!state.fieldErrors?.otp_code}
+                />
+                <InputOTPSlot
+                  index={3}
+                  className="h-12 w-12 text-lg"
+                  aria-invalid={!!state.fieldErrors?.otp_code}
+                />
               </InputOTPGroup>
               <InputOTPSeparator className="mx-2" />
               <InputOTPGroup>
-                <InputOTPSlot index={4} className="h-12 w-12 text-lg" />
-                <InputOTPSlot index={5} className="h-12 w-12 text-lg" />
+                <InputOTPSlot
+                  index={4}
+                  className="h-12 w-12 text-lg"
+                  aria-invalid={!!state.fieldErrors?.otp_code}
+                />
+                <InputOTPSlot
+                  index={5}
+                  className="h-12 w-12 text-lg"
+                  aria-invalid={!!state.fieldErrors?.otp_code}
+                />
               </InputOTPGroup>
             </InputOTP>
           </FieldContent>
         </Field>
 
-        {state.fieldErrors?.otp_code ? (
-          <p className="text-xs text-destructive">{state.fieldErrors.otp_code}</p>
-        ) : null}
-
         <SubmitButton
           submitLabel={dict.submit_button}
           loadingLabel={dict.loading_button}
           canSubmit={value.length === 6}
+          isRedirecting={isPending}
         />
       </form>
 
@@ -154,20 +177,23 @@ function SubmitButton({
   submitLabel,
   loadingLabel,
   canSubmit,
+  isRedirecting,
 }: {
   submitLabel: string
   loadingLabel: string
   canSubmit: boolean
+  isRedirecting: boolean
 }) {
   const { pending } = useFormStatus()
+  const isLoading = pending || isRedirecting
 
   return (
     <Button
       type="submit"
-      disabled={pending || !canSubmit}
+      disabled={isLoading || !canSubmit}
       className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
     >
-      {pending ? (
+      {isLoading ? (
         <div className="flex items-center gap-2">
           <Spinner />
           <span>{loadingLabel}</span>

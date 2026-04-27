@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { ShieldCheck, Check, X } from 'lucide-react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import { useFormStatus } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -37,17 +37,23 @@ interface ResetPasswordFormProps {
     }
   }
   notificationsDict: NotificationDictionary
+  verifyOtpNotificationsDict: NotificationDictionary
 }
 
-export function ResetPasswordForm({ identifier, dict, notificationsDict }: ResetPasswordFormProps) {
+export function ResetPasswordForm({
+  identifier,
+  dict,
+  notificationsDict,
+  verifyOtpNotificationsDict,
+}: ResetPasswordFormProps) {
   const [state, formAction, isPending] = React.useActionState(
     resetPasswordAction,
     initialResetPasswordState,
   )
   const [password, setPassword] = React.useState('')
   const [confirmPassword, setConfirmPassword] = React.useState('')
-  const router = useRouter()
   const params = useParams()
+  const searchParams = useSearchParams()
   const lang = params.lang as string
 
   const rules = {
@@ -70,11 +76,20 @@ export function ResetPasswordForm({ identifier, dict, notificationsDict }: Reset
       dictionary: notificationsDict,
       lang,
     })
+  }, [lang, notificationsDict, state.httpStatus, state.notificationToken])
 
-    if (state.nextStep === 'signed_in') {
-      router.push(`/${lang}/sign-in`)
+  React.useEffect(() => {
+    if (searchParams.get('verified') === 'true') {
+      notifyFromApi({
+        httpStatus: 200,
+        dictionary: verifyOtpNotificationsDict,
+        lang,
+      })
+
+      // Clean up the URL to prevent showing the toast again on refresh
+      window.history.replaceState({}, '', `/${lang}/reset-password`)
     }
-  }, [lang, notificationsDict, router, state.httpStatus, state.nextStep, state.notificationToken])
+  }, [lang, verifyOtpNotificationsDict, searchParams])
 
   return (
     <div className="flex flex-col gap-6">
@@ -84,6 +99,7 @@ export function ResetPasswordForm({ identifier, dict, notificationsDict }: Reset
       </div>
 
       <form action={formAction} className="grid gap-4">
+        <input type="hidden" name="lang" value={lang} />
         <Field>
           <FieldLabel htmlFor="email">
             <FieldTitle>{dict.email_label}</FieldTitle>
@@ -93,7 +109,7 @@ export function ResetPasswordForm({ identifier, dict, notificationsDict }: Reset
           </FieldContent>
         </Field>
 
-        <Field>
+        <Field data-invalid={!!state.fieldErrors?.new_password}>
           <div className="flex items-center justify-between">
             <FieldLabel htmlFor="password">
               <FieldTitle>{dict.password_label}</FieldTitle>
@@ -157,6 +173,7 @@ export function ResetPasswordForm({ identifier, dict, notificationsDict }: Reset
               onChange={e => setPassword(e.target.value)}
               required
               disabled={isPending}
+              aria-invalid={!!state.fieldErrors?.new_password}
               className="bg-background/50"
             />
             {state.fieldErrors?.new_password ? (
@@ -165,7 +182,7 @@ export function ResetPasswordForm({ identifier, dict, notificationsDict }: Reset
           </FieldContent>
         </Field>
 
-        <Field>
+        <Field data-invalid={!!state.fieldErrors?.confirm_password}>
           <FieldLabel htmlFor="confirm_password">
             <FieldTitle>{dict.confirm_password_label}</FieldTitle>
           </FieldLabel>
@@ -178,6 +195,7 @@ export function ResetPasswordForm({ identifier, dict, notificationsDict }: Reset
               onChange={e => setConfirmPassword(e.target.value)}
               required
               disabled={isPending}
+              aria-invalid={!!state.fieldErrors?.confirm_password}
               className="bg-background/50"
             />
             {state.fieldErrors?.confirm_password ? (
@@ -190,6 +208,7 @@ export function ResetPasswordForm({ identifier, dict, notificationsDict }: Reset
           submitLabel={dict.submit_button}
           loadingLabel={dict.loading_button}
           canSubmit={allRulesMet && password === confirmPassword}
+          isRedirecting={isPending}
         />
       </form>
     </div>
@@ -200,20 +219,23 @@ function SubmitButton({
   submitLabel,
   loadingLabel,
   canSubmit,
+  isRedirecting,
 }: {
   submitLabel: string
   loadingLabel: string
   canSubmit: boolean
+  isRedirecting: boolean
 }) {
   const { pending } = useFormStatus()
+  const isLoading = pending || isRedirecting
 
   return (
     <Button
       type="submit"
-      disabled={pending || !canSubmit}
+      disabled={isLoading || !canSubmit}
       className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
     >
-      {pending ? (
+      {isLoading ? (
         <div className="flex items-center gap-2">
           <Spinner />
           <span>{loadingLabel}</span>

@@ -2,6 +2,7 @@ import { getDictionary, hasLocale, Locale } from '@/app/[lang]/dictionaries'
 import { RECOVERY_IDENTIFIER_COOKIE, RECOVERY_RESET_TOKEN_COOKIE } from '@/lib/recovery-session'
 import { cookies } from 'next/headers'
 import { notFound, redirect } from 'next/navigation'
+import { Suspense } from 'react'
 import { ResetPasswordForm } from '@/components/forms/reset-password-form'
 
 export default async function ResetPasswordPage({ params }: { params: Promise<{ lang: string }> }) {
@@ -26,11 +27,14 @@ export default async function ResetPasswordPage({ params }: { params: Promise<{ 
 
   return (
     <div className="w-full">
-      <ResetPasswordForm
-        identifier={identifier}
-        dict={dict.reset_password}
-        notificationsDict={dict.notifications.reset_password}
-      />
+      <Suspense>
+        <ResetPasswordForm
+          identifier={identifier}
+          dict={dict.reset_password}
+          notificationsDict={dict.notifications.reset_password}
+          verifyOtpNotificationsDict={dict.notifications.verify_otp}
+        />
+      </Suspense>
     </div>
   )
 }

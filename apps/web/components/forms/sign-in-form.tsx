@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useFormStatus } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -28,12 +28,21 @@ interface SignInFormProps {
     loading_button: string
   }
   notificationsDict: NotificationDictionary
+  resetNotificationsDict: NotificationDictionary
+  signOutNotificationsDict: NotificationDictionary
 }
 
-export function SignInForm({ dict, notificationsDict }: SignInFormProps) {
+export function SignInForm({
+  dict,
+  notificationsDict,
+  resetNotificationsDict,
+  signOutNotificationsDict,
+}: SignInFormProps) {
   const [state, formAction, isPending] = React.useActionState(signInAction, initialSignInState)
+  const [isRedirecting, setIsRedirecting] = React.useState(false)
   const router = useRouter()
   const params = useParams()
+  const searchParams = useSearchParams()
   const lang = params.lang as string
 
   React.useEffect(() => {
@@ -48,9 +57,30 @@ export function SignInForm({ dict, notificationsDict }: SignInFormProps) {
     })
 
     if (state.nextStep === 'authenticated') {
+      setIsRedirecting(true)
       router.push(`/${lang}/dashboard`)
     }
   }, [lang, notificationsDict, router, state.httpStatus, state.nextStep, state.notificationToken])
+
+  React.useEffect(() => {
+    if (searchParams.get('reset') === 'true') {
+      notifyFromApi({
+        httpStatus: 200,
+        dictionary: resetNotificationsDict,
+        lang,
+      })
+
+      // Clean up the URL to prevent showing the toast again on refresh
+      window.history.replaceState({}, '', `/${lang}/sign-in`)
+    } else if (searchParams.get('logout') === 'true') {
+      notifyFromApi({
+        httpStatus: 200,
+        dictionary: signOutNotificationsDict,
+        lang,
+      })
+      window.history.replaceState({}, '', `/${lang}/sign-in`)
+    }
+  }, [lang, resetNotificationsDict, signOutNotificationsDict, searchParams])
 
   return (
     <div className="flex flex-col gap-6">
@@ -62,7 +92,9 @@ export function SignInForm({ dict, notificationsDict }: SignInFormProps) {
       </div>
 
       <form action={formAction} className="grid gap-4">
-        <Field>
+        <input type="hidden" name="lang" value={lang} />
+
+        <Field data-invalid={!!state.fieldErrors?.identifier}>
           <FieldLabel htmlFor="email">
             <FieldTitle>{dict.email_label}</FieldTitle>
           </FieldLabel>
@@ -77,15 +109,14 @@ export function SignInForm({ dict, notificationsDict }: SignInFormProps) {
               autoCorrect="off"
               required
               disabled={isPending}
+              defaultValue={state.fields?.identifier}
+              aria-invalid={!!state.fieldErrors?.identifier}
               className="bg-background/50"
             />
-            {state.fieldErrors?.identifier ? (
-              <p className="mt-1 text-xs text-destructive">{state.fieldErrors.identifier}</p>
-            ) : null}
           </FieldContent>
         </Field>
 
-        <Field>
+        <Field data-invalid={!!state.fieldErrors?.password}>
           <div className="flex items-center justify-between">
             <FieldLabel htmlFor="password">
               <FieldTitle>{dict.password_label}</FieldTitle>
@@ -103,15 +134,18 @@ export function SignInForm({ dict, notificationsDict }: SignInFormProps) {
               autoComplete="current-password"
               required
               disabled={isPending}
+              defaultValue={state.fields?.password}
+              aria-invalid={!!state.fieldErrors?.password}
               className="bg-background/50"
             />
-            {state.fieldErrors?.password ? (
-              <p className="mt-1 text-xs text-destructive">{state.fieldErrors.password}</p>
-            ) : null}
           </FieldContent>
         </Field>
 
-        <SubmitButton submitLabel={dict.submit_button} loadingLabel={dict.loading_button} />
+        <SubmitButton
+          submitLabel={dict.submit_button}
+          loadingLabel={dict.loading_button}
+          isRedirecting={isRedirecting}
+        />
       </form>
     </div>
   )
@@ -120,19 +154,22 @@ export function SignInForm({ dict, notificationsDict }: SignInFormProps) {
 function SubmitButton({
   submitLabel,
   loadingLabel,
+  isRedirecting,
 }: {
   submitLabel: string
   loadingLabel: string
+  isRedirecting: boolean
 }) {
   const { pending } = useFormStatus()
+  const isLoading = pending || isRedirecting
 
   return (
     <Button
       type="submit"
-      disabled={pending}
+      disabled={isLoading}
       className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
     >
-      {pending ? (
+      {isLoading ? (
         <div className="flex items-center gap-2">
           <Spinner />
           <span>{loadingLabel}</span>
