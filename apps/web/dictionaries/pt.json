@@ -155,5 +155,36 @@
       "lowercase": "Uma letra minúscula",
       "special": "Um caractere especial"
     }
+  },
+  "input_upload": {
+    "title": "Enviar arquivo",
+    "title_dragging": "Solte o arquivo aqui",
+    "description_single": "Máx. {maxSize}",
+    "description_multiple": "Até {maxFiles} arquivos · máx. {maxSize} cada",
+    "browse": "Selecionar arquivos",
+    "aria_label": "Envio de arquivo",
+    "aria_upload_area": "Área de upload",
+    "aria_remove": "Remover {name}",
+    "replace": "Substituir",
+    "remove": "Remover",
+    "error_max_files": "Limite de {maxFiles} arquivo atingido.",
+    "error_max_files_plural": "Limite de {maxFiles} arquivos atingido.",
+    "error_size": "O arquivo excede o limite de {maxSize}.",
+    "error_size_plural": "Os arquivos excedem o limite de {maxSize}."
+  },
+  "general_form": {
+    "breadcrumb_settings": "Configurações",
+    "media_title": "Mídia",
+    "media_description": "Envie uma imagem de capa ou arquivo para este item.",
+    "info_title": "Informações gerais",
+    "info_description": "Detalhes básicos sobre este item.",
+    "name_label": "Nome",
+    "name_placeholder": "ex: Meu projeto",
+    "name_description": "Um nome curto e descritivo.",
+    "description_label": "Descrição",
+    "description_placeholder": "Descreva este item…",
+    "description_description": "Opcional. Exibida em listagens e resultados de busca.",
+    "discard": "Descartar",
+    "save": "Salvar alterações"
   }
 }

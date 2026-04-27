@@ -5,6 +5,7 @@ import { locales } from '@/app/[lang]/dictionaries'
 import system from '@/data/system.json'
 import { ThemeProvider } from '@/components/provider/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
+import { TooltipProvider } from '@/components/ui/tooltip'
 
 const geistSans = Geist({
   variable: '--font-sans',
@@ -48,7 +49,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <TooltipProvider>{children}</TooltipProvider>
           <Toaster />
         </ThemeProvider>
       </body>

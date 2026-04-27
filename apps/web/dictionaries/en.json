@@ -155,5 +155,36 @@
       "lowercase": "One lowercase letter",
       "special": "One special character"
     }
+  },
+  "input_upload": {
+    "title": "Upload file",
+    "title_dragging": "Drop your file here",
+    "description_single": "Max {maxSize}",
+    "description_multiple": "Up to {maxFiles} files · max {maxSize} each",
+    "browse": "Browse files",
+    "aria_label": "File upload",
+    "aria_upload_area": "Upload area",
+    "aria_remove": "Remove {name}",
+    "replace": "Replace",
+    "remove": "Remove",
+    "error_max_files": "Maximum of {maxFiles} file reached.",
+    "error_max_files_plural": "Maximum of {maxFiles} files reached.",
+    "error_size": "File exceeds the {maxSize} limit.",
+    "error_size_plural": "Files exceed the {maxSize} limit."
+  },
+  "general_form": {
+    "breadcrumb_settings": "Settings",
+    "media_title": "Media",
+    "media_description": "Upload a cover image or file for this item.",
+    "info_title": "General information",
+    "info_description": "Basic details about this item.",
+    "name_label": "Name",
+    "name_placeholder": "e.g. My project",
+    "name_description": "A short, descriptive name.",
+    "description_label": "Description",
+    "description_placeholder": "Describe this item…",
+    "description_description": "Optional. Shown in listings and search results.",
+    "discard": "Discard",
+    "save": "Save changes"
   }
 }
