@@ -55,13 +55,32 @@ public partial class AuthController : ControllerBase
                 user_id = user.Id,
                 email = user.Email,
                 display_name = user.DisplayName,
-                roles = roles
+                roles = roles,
+                client_id = user.ClientId
             };
 
             var sessionJson = JsonSerializer.Serialize(sessionData);
 
             // Store session in Redis
             await _redis.StringSetAsync($"session:{sessionId}", sessionJson, TimeSpan.FromSeconds(expiresInSeconds));
+
+            string? domain = null;
+            if (user.ClientId.HasValue)
+            {
+                var client = await _context.Clients.FindAsync(user.ClientId.Value);
+                if (client != null)
+                {
+                    domain = client.Domain;
+                    var clientCache = new
+                    {
+                        id = client.Id,
+                        name = client.Name,
+                        domain = client.Domain,
+                        logo_url = client.LogoUrl
+                    };
+                    await _redis.StringSetAsync($"client:{client.Id}", JsonSerializer.Serialize(clientCache), TimeSpan.FromDays(7));
+                }
+            }
 
             // Store session mapping for global logout (set of session IDs for a user)
             await _redis.SetAddAsync($"user_sessions:{user.Id}", sessionId);
@@ -81,7 +100,9 @@ public partial class AuthController : ControllerBase
                     id = user.Id,
                     email = user.Email,
                     display_name = user.DisplayName,
-                    roles = roles
+                    roles = roles,
+                    client_id = user.ClientId,
+                    domain = domain
                 }
             });
         }
@@ -120,6 +141,7 @@ public partial class AuthController : ControllerBase
 
         var sessionData = JsonSerializer.Deserialize<Dictionary<string, object>>((string)sessionJson!);
         var userId = sessionData?["user_id"]?.ToString();
+        var clientId = sessionData?.ContainsKey("client_id") == true ? sessionData["client_id"]?.ToString() : null;
 
         if (userId == null) return Unauthorized();
 
@@ -131,6 +153,35 @@ public partial class AuthController : ControllerBase
             await _redis.KeyExpireAsync($"user_sessions:{userId}", TimeSpan.FromDays(7));
         }
 
+        // Fetch client info from cache or DB
+        object? clientInfo = null;
+        if (!string.IsNullOrEmpty(clientId))
+        {
+            var clientCacheKey = $"client:{clientId}";
+            var clientJson = await _redis.StringGetAsync(clientCacheKey);
+
+            if (clientJson.HasValue)
+            {
+                clientInfo = JsonSerializer.Deserialize<object>((string)clientJson!);
+            }
+            else
+            {
+                var client = await _context.Clients.FindAsync(Guid.Parse(clientId));
+                if (client != null)
+                {
+                    var clientCache = new
+                    {
+                        id = client.Id,
+                        name = client.Name,
+                        domain = client.Domain,
+                        logo_url = client.LogoUrl
+                    };
+                    clientInfo = clientCache;
+                    await _redis.StringSetAsync(clientCacheKey, JsonSerializer.Serialize(clientCache), TimeSpan.FromDays(7));
+                }
+            }
+        }
+
         return Ok(new
         {
             status = "active",
@@ -139,8 +190,10 @@ public partial class AuthController : ControllerBase
                 id = userId,
                 email = sessionData?["email"]?.ToString(),
                 display_name = sessionData?["display_name"]?.ToString(),
-                roles = sessionData?["roles"]
-            }
+                roles = sessionData?["roles"],
+                client_id = clientId
+            },
+            client = clientInfo
         });
     }
 

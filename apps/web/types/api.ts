@@ -49,6 +49,8 @@ export interface AuthUser {
   roles: string[]
   permissions?: string[]
   mfa_enabled?: boolean
+  client_id?: string
+  domain?: string
 }
 
 export interface SignInResponse {
@@ -97,6 +99,7 @@ export interface SignInActionState {
     password?: string
   }
   nextStep?: 'authenticated'
+  domain?: string
   httpStatus?: number
   notificationToken?: string
 }
@@ -149,3 +152,17 @@ export interface NotificationDictionary {
 }
 
 export type NotificationVariant = 'success' | 'info' | 'warning' | 'error'
+
+export interface ClientActionState {
+  status: 'idle' | 'success' | 'error'
+  fieldErrors?: {
+    name?: string
+    domain?: string
+    description?: string
+  }
+  httpStatus?: number
+  notificationToken?: string
+  data?: {
+    logo_url?: string
+  }
+}

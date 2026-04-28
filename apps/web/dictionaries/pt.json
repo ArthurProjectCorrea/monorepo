@@ -5,7 +5,9 @@
     "invalid_credentials": "E-mail ou senha incorretos.",
     "passwords_dont_match": "As senhas não coincidem.",
     "invalid_otp": "Código inválido ou expirado.",
-    "required_otp": "Informe o código de verificação."
+    "required_otp": "Informe o código de verificação.",
+    "required_name": "Informe o nome.",
+    "required_domain": "Informe o domínio."
   },
   "sign_in": {
     "title": "Bem-vindo",
@@ -101,6 +103,23 @@
         "429": "Muitas tentativas. Tente novamente em alguns minutos.",
         "500": "Serviço de redefinição temporariamente indisponível."
       }
+    },
+    "client_update": {
+      "defaults": {
+        "success": "Configurações atualizadas com sucesso.",
+        "info": "Solicitação processada.",
+        "warning": "Aguarde antes de tentar novamente.",
+        "error": "Não foi possível atualizar as configurações agora."
+      },
+      "http_status": {
+        "200": "Configurações atualizadas com sucesso.",
+        "400": "Revise os dados informados e tente novamente.",
+        "401": "Sessão expirada. Faça login novamente.",
+        "403": "Acesso negado.",
+        "404": "Serviço não encontrado.",
+        "429": "Muitas tentativas. Tente novamente em alguns minutos.",
+        "500": "Erro interno no servidor."
+      }
     }
   },
   "theme_toggle": {
@@ -127,7 +146,9 @@
     "rights": "© {year} {name}. Todos os direitos reservados.",
     "privacy_terms": "Termos de Privacidade",
     "system_policies": "Políticas do Sistema",
-    "close": "Fechar"
+    "close": "Fechar",
+    "privacy_content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+    "policies_content": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt."
   },
   "verify_otp": {
     "title": "Verificar Código",
@@ -174,17 +195,40 @@
   },
   "general_form": {
     "breadcrumb_settings": "Configurações",
-    "media_title": "Mídia",
-    "media_description": "Envie uma imagem de capa ou arquivo para este item.",
+    "media_title": "Logotipo",
+    "media_description": "Envie o logotipo da sua marca ou empresa.",
     "info_title": "Informações gerais",
-    "info_description": "Detalhes básicos sobre este item.",
+    "info_description": "Detalhes básicos sobre sua empresa.",
     "name_label": "Nome",
-    "name_placeholder": "ex: Meu projeto",
-    "name_description": "Um nome curto e descritivo.",
+    "name_placeholder": "ex: Minha Empresa",
+    "name_description": "O nome oficial da sua organização.",
     "description_label": "Descrição",
-    "description_placeholder": "Descreva este item…",
-    "description_description": "Opcional. Exibida em listagens e resultados de busca.",
+    "description_placeholder": "Descreva sua empresa…",
+    "description_description": "Uma breve descrição do que sua empresa faz.",
+    "domain_label": "Domínio",
+    "domain_placeholder": "ex: minhaempresa.com",
+    "domain_description": "O endereço personalizado para acessar seu portal.",
     "discard": "Descartar",
-    "save": "Salvar alterações"
+    "save": "Salvar alterações",
+    "saving": "Salvando..."
+  },
+  "auth": {
+    "typewriter_phrases": [
+      "Bem-vindo à nossa plataforma!",
+      "Sua produtividade em primeiro lugar.",
+      "Segurança e agilidade para sua equipe."
+    ]
+  },
+  "sidebar": {
+    "groups": {
+      "platform": "Plataforma",
+      "projects": "Projetos"
+    },
+    "nav_main": {
+      "dashboard": "Visão Geral",
+      "settings": "Configurações",
+      "general": "Geral",
+      "team": "Equipe"
+    }
   }
 }

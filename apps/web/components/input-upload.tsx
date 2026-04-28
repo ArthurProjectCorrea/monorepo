@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { UploadCloudIcon, FileIcon, XIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -50,6 +50,8 @@ export interface InputUploadProps {
   maxFiles?: number
   /** Called whenever the file list changes */
   onChange?: (files: UploadedFile[]) => void
+  initialUrl?: string
+  name?: string
   className?: string
 }
 
@@ -106,30 +108,37 @@ export function InputUpload({
   maxSize = 5 * 1024 * 1024,
   maxFiles = 1,
   onChange,
+  initialUrl,
+  name,
   className,
 }: InputUploadProps) {
-  const t = { ...defaultDict, ...dict }
+  const t = useMemo(() => ({ ...defaultDict, ...dict }), [dict])
 
   const inputRef = useRef<HTMLInputElement>(null)
   const [files, setFiles] = useState<UploadedFile[]>([])
   const [isDragging, setIsDragging] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showInitial, setShowInitial] = useState(!!initialUrl)
 
   const isMultiple = maxFiles > 1
 
   // ── Process raw File objects ──────────────────────────────────────────────
   const processFiles = useCallback(
-    async (incoming: File[]) => {
+    async (incoming: File[], replaceIndex?: number) => {
       setError(null)
 
-      const remaining = maxFiles - files.length
-      if (remaining <= 0) {
-        const key = maxFiles > 1 ? 'error_max_files_plural' : 'error_max_files'
-        setError(interpolate(t[key], { maxFiles }))
-        return
+      if (replaceIndex === undefined) {
+        const remaining = maxFiles - files.length
+        if (remaining <= 0) {
+          const key = maxFiles > 1 ? 'error_max_files_plural' : 'error_max_files'
+          setError(interpolate(t[key], { maxFiles }))
+          return
+        }
       }
 
-      const candidates = incoming.slice(0, remaining)
+      const candidates =
+        replaceIndex !== undefined ? [incoming[0]] : incoming.slice(0, maxFiles - files.length)
+
       const oversized = candidates.filter(f => f.size > maxSize)
       if (oversized.length) {
         const key = oversized.length > 1 ? 'error_size_plural' : 'error_size'
@@ -144,8 +153,16 @@ export function InputUpload({
         })),
       )
 
-      const updated = [...files, ...next]
+      let updated: UploadedFile[]
+      if (replaceIndex !== undefined) {
+        updated = [...files]
+        updated[replaceIndex] = next[0]
+      } else {
+        updated = [...files, ...next]
+      }
+
       setFiles(updated)
+      setShowInitial(false)
       onChange?.(updated)
     },
     [files, maxFiles, maxSize, onChange, t],
@@ -156,6 +173,7 @@ export function InputUpload({
     (index: number) => {
       const updated = files.filter((_, i) => i !== index)
       setFiles(updated)
+      setShowInitial(false)
       onChange?.(updated)
       setError(null)
       if (inputRef.current) inputRef.current.value = ''
@@ -164,11 +182,16 @@ export function InputUpload({
   )
 
   // ── Native input change ───────────────────────────────────────────────────
+  const [replaceIdx, setReplaceIdx] = useState<number | undefined>(undefined)
+
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files) processFiles(Array.from(e.target.files))
+      if (e.target.files) {
+        processFiles(Array.from(e.target.files), replaceIdx)
+        setReplaceIdx(undefined)
+      }
     },
-    [processFiles],
+    [processFiles, replaceIdx],
   )
 
   // ── Drag & drop ───────────────────────────────────────────────────────────
@@ -205,6 +228,7 @@ export function InputUpload({
       <input
         ref={inputRef}
         type="file"
+        name={name}
         accept={accept}
         multiple={isMultiple}
         className="sr-only"
@@ -213,7 +237,7 @@ export function InputUpload({
       />
 
       {/* ── Drop zone / preview area ─────────────────────────────────── */}
-      {!hasFiles ? (
+      {!hasFiles && !showInitial ? (
         /* Empty state — click or drag to upload */
         <Empty
           role="button"
@@ -289,9 +313,12 @@ export function InputUpload({
       ) : (
         /* ── Single file preview (full width) ─────────────────────────── */
         <SingleFilePreview
-          uploaded={files[0]}
+          uploaded={files[0] || { file: new File([], ''), previewUrl: initialUrl }}
           onRemove={() => remove(0)}
-          onReplace={() => inputRef.current?.click()}
+          onReplace={() => {
+            setReplaceIdx(0)
+            inputRef.current?.click()
+          }}
           labelReplace={t.replace}
           labelRemove={t.remove}
         />
@@ -363,12 +390,12 @@ function SingleFilePreview({
     <div className="group relative overflow-hidden rounded-xl border bg-muted">
       {uploaded.previewUrl ? (
         /* Image preview fills the container */
-        <div className="relative aspect-video w-full">
+        <div className="relative flex max-h-[240px] w-full items-center justify-center bg-black/5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={uploaded.previewUrl}
             alt={uploaded.file.name}
-            className="h-full w-full object-cover"
+            className="max-h-[240px] w-auto object-contain"
           />
         </div>
       ) : (

@@ -16,7 +16,7 @@ import type {
   VerifyOtpActionState,
   VerifyRecoveryOtpRequest,
   VerifyRecoveryOtpResponse,
-} from '@/types'
+} from '@/types/api'
 
 function getStringField(formData: FormData, key: string): string {
   const value = formData.get(key)

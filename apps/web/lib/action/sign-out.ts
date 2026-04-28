@@ -2,10 +2,10 @@
 
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { api, ApiRequestError } from '@/lib/api'
+import { api } from '@/lib/api'
 import { AUTH_SESSION_COOKIE } from '@/lib/auth-session'
 
-export async function signOutAction(formData?: FormData) {
+export async function signOutAction() {
   try {
     const cookieStore = await cookies()
     const sessionToken = cookieStore.get(AUTH_SESSION_COOKIE)?.value

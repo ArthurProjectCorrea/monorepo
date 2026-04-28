@@ -12,7 +12,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { initialVerifyOtpState } from '@/lib/action/verify-otp-state'
 import { resendRecoveryOtpAction, verifyRecoveryOtpAction } from '@/lib/action/verify-otp'
 import { notifyFromApi } from '@/lib/notifications'
-import type { NotificationDictionary } from '@/types'
+import type { NotificationDictionary } from '@/types/api'
 
 interface VerifyOTPFormProps {
   dict: {

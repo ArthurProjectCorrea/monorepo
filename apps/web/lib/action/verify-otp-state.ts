@@ -1,4 +1,4 @@
-import type { VerifyOtpActionState } from '@/types'
+import type { VerifyOtpActionState } from '@/types/api'
 
 export const initialVerifyOtpState: VerifyOtpActionState = {
   status: 'idle',

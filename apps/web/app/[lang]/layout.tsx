@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import '@/app/globals.css'
 import { locales } from '@/app/[lang]/dictionaries'
-import system from '@/data/system.json'
 import { ThemeProvider } from '@/components/provider/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -18,8 +17,8 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: system.name,
-  description: system.description,
+  title: process.env.NEXT_PUBLIC_APP_NAME,
+  description: process.env.NEXT_PUBLIC_APP_DESCRIPTION,
 }
 
 export async function generateStaticParams() {

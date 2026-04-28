@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 import { api, ApiRequestError } from '@/lib/api'
 import { AUTH_SESSION_COOKIE } from '@/lib/auth-session'
 import { getDictionary, type Locale } from '@/app/[lang]/dictionaries'
-import type { SignInActionState, SignInRequest, SignInResponse } from '@/types'
+import type { SignInActionState, SignInRequest, SignInResponse } from '@/types/api'
 
 function getStringField(formData: FormData, key: string): string {
   const value = formData.get(key)
@@ -62,6 +62,7 @@ export async function signInAction(
     return {
       status: 'success',
       nextStep: 'authenticated',
+      domain: response.user.domain,
       httpStatus: 200,
       notificationToken: crypto.randomUUID(),
     }

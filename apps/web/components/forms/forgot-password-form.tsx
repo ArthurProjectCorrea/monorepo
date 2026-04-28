@@ -11,7 +11,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { forgotPasswordAction } from '@/lib/action/forgot-password'
 import { initialForgotPasswordState } from '@/lib/action/forgot-password-state'
 import { notifyFromApi } from '@/lib/notifications'
-import type { NotificationDictionary } from '@/types'
+import type { NotificationDictionary } from '@/types/api'
 
 interface ForgotPasswordFormProps {
   dict: {

@@ -12,8 +12,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { signInAction } from '@/lib/action/sign-in'
 import { initialSignInState } from '@/lib/action/sign-in-state'
 import { notifyFromApi } from '@/lib/notifications'
-import type { NotificationDictionary } from '@/types'
-import system from '@/data/system.json'
+import type { NotificationDictionary } from '@/types/api'
 
 interface SignInFormProps {
   dict: {
@@ -58,9 +57,18 @@ export function SignInForm({
 
     if (state.nextStep === 'authenticated') {
       setIsRedirecting(true)
-      router.push(`/${lang}/dashboard`)
+      const userDomain = state.domain || '1'
+      router.push(`/${lang}/${userDomain}/dashboard`)
     }
-  }, [lang, notificationsDict, router, state.httpStatus, state.nextStep, state.notificationToken])
+  }, [
+    lang,
+    notificationsDict,
+    router,
+    state.domain,
+    state.httpStatus,
+    state.nextStep,
+    state.notificationToken,
+  ])
 
   React.useEffect(() => {
     if (searchParams.get('reset') === 'true') {
@@ -86,7 +94,7 @@ export function SignInForm({
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2 text-center">
         <h1 className="text-2xl font-bold tracking-tight">
-          {dict.title} {system.name}
+          {dict.title} {process.env.NEXT_PUBLIC_APP_NAME}
         </h1>
         <p className="text-sm text-muted-foreground">{dict.description}</p>
       </div>

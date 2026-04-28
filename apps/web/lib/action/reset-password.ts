@@ -5,7 +5,11 @@ import { redirect } from 'next/navigation'
 import { api, ApiRequestError } from '@/lib/api'
 import { RECOVERY_IDENTIFIER_COOKIE, RECOVERY_RESET_TOKEN_COOKIE } from '@/lib/recovery-session'
 import { getDictionary, type Locale } from '@/app/[lang]/dictionaries'
-import type { ResetPasswordActionState, ResetPasswordRequest, ResetPasswordResponse } from '@/types'
+import type {
+  ResetPasswordActionState,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
+} from '@/types/api'
 
 function getStringField(formData: FormData, key: string): string {
   const value = formData.get(key)

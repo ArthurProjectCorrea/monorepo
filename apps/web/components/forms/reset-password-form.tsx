@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils'
 import { resetPasswordAction } from '@/lib/action/reset-password'
 import { initialResetPasswordState } from '@/lib/action/reset-password-state'
 import { notifyFromApi } from '@/lib/notifications'
-import type { NotificationDictionary } from '@/types'
+import type { NotificationDictionary } from '@/types/api'
 
 interface ResetPasswordFormProps {
   identifier: string

@@ -47,6 +47,9 @@ services:
     depends_on:
       - postgres
       - redis
+    volumes:
+      - api_uploads:/app/wwwroot/uploads
 
 volumes:
   postgres_data:
+  api_uploads:

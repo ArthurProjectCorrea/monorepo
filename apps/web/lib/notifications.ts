@@ -1,7 +1,7 @@
 'use client'
 
 import { toast } from 'sonner'
-import type { NotificationDictionary, NotificationVariant } from '@/types'
+import type { NotificationDictionary, NotificationVariant } from '@/types/api'
 
 interface NotifyFromApiParams {
   httpStatus: number

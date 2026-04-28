@@ -1,4 +1,3 @@
-import system from '@/data/system.json'
 import { Typewriter } from '@/components/animations/typewriter'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { LocaleSwitcher } from '@/components/locale-switcher'
@@ -54,19 +53,19 @@ export default async function AuthLayout({
           <p>
             {dict.footer.rights
               .replace('{year}', new Date().getFullYear().toString())
-              .replace('{name}', system.name)}
+              .replace('{name}', process.env.NEXT_PUBLIC_APP_NAME || '')}
           </p>
           <div className="flex items-center gap-6">
             <AuthDrawer
               triggerText={dict.footer.privacy_terms}
               title={dict.footer.privacy_terms}
-              content={system.privacyContent}
+              content={dict.footer.privacy_content}
               closeText={dict.footer.close}
             />
             <AuthDrawer
               triggerText={dict.footer.system_policies}
               title={dict.footer.system_policies}
-              content={system.policiesContent}
+              content={dict.footer.policies_content}
               closeText={dict.footer.close}
             />
           </div>
@@ -75,14 +74,9 @@ export default async function AuthLayout({
 
       {/* Side 2: Visual/Gradient */}
       <div className="relative hidden lg:flex items-center justify-center overflow-hidden">
-        {/* Dynamic Gradient Background from system.json using HEX codes directly */}
+        {/* Dynamic Gradient Background using theme tokens */}
         <div className="absolute inset-0 bg-zinc-950">
-          <div
-            className="absolute inset-0 opacity-90"
-            style={{
-              background: `linear-gradient(to bottom right, ${system.theme.gradientStart}, ${system.theme.gradientMiddle}, ${system.theme.gradientEnd})`,
-            }}
-          />
+          <div className="absolute inset-0 opacity-90 bg-gradient-to-br from-primary via-muted to-secondary" />
 
           {/* Animated Mesh Gradients for depth */}
           <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-white/10 blur-[100px] animate-pulse" />
@@ -91,7 +85,7 @@ export default async function AuthLayout({
 
         {/* Typewriter Animation */}
         <div className="relative z-10 p-12 text-center w-full max-w-2xl">
-          <Typewriter phrases={system.phrases} />
+          <Typewriter phrases={dict.auth.typewriter_phrases} />
         </div>
 
         {/* Grid Pattern Overlay */}

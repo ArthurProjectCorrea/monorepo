@@ -5,7 +5,9 @@
     "invalid_credentials": "Incorrect email or password.",
     "passwords_dont_match": "Passwords do not match.",
     "invalid_otp": "Invalid or expired code.",
-    "required_otp": "Verification code is required."
+    "required_otp": "Verification code is required.",
+    "required_name": "Name is required.",
+    "required_domain": "Domain is required."
   },
   "sign_in": {
     "title": "Welcome",
@@ -101,6 +103,23 @@
         "429": "Too many attempts. Try again in a few minutes.",
         "500": "Reset service is temporarily unavailable."
       }
+    },
+    "client_update": {
+      "defaults": {
+        "success": "Settings updated successfully.",
+        "info": "Request processed.",
+        "warning": "Please wait before trying again.",
+        "error": "Unable to update settings right now."
+      },
+      "http_status": {
+        "200": "Settings updated successfully.",
+        "400": "Please review the information and try again.",
+        "401": "Session expired. Please sign in again.",
+        "403": "Access denied.",
+        "404": "Service not found.",
+        "429": "Too many attempts. Try again in a few minutes.",
+        "500": "Internal server error."
+      }
     }
   },
   "theme_toggle": {
@@ -127,7 +146,9 @@
     "rights": "© {year} {name}. All rights reserved.",
     "privacy_terms": "Privacy Terms",
     "system_policies": "System Policies",
-    "close": "Close"
+    "close": "Close",
+    "privacy_content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+    "policies_content": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt."
   },
   "verify_otp": {
     "title": "Verify Code",
@@ -174,17 +195,40 @@
   },
   "general_form": {
     "breadcrumb_settings": "Settings",
-    "media_title": "Media",
-    "media_description": "Upload a cover image or file for this item.",
+    "media_title": "Logo",
+    "media_description": "Upload your brand or company logo.",
     "info_title": "General information",
-    "info_description": "Basic details about this item.",
+    "info_description": "Basic details about your company.",
     "name_label": "Name",
-    "name_placeholder": "e.g. My project",
-    "name_description": "A short, descriptive name.",
+    "name_placeholder": "e.g. My Company",
+    "name_description": "The official name of your organization.",
     "description_label": "Description",
-    "description_placeholder": "Describe this item…",
-    "description_description": "Optional. Shown in listings and search results.",
+    "description_placeholder": "Describe your company…",
+    "description_description": "A brief description of what your company does.",
+    "domain_label": "Domain",
+    "domain_placeholder": "e.g. mycompany.com",
+    "domain_description": "The custom address to access your portal.",
     "discard": "Discard",
-    "save": "Save changes"
+    "save": "Save changes",
+    "saving": "Saving..."
+  },
+  "auth": {
+    "typewriter_phrases": [
+      "Welcome to our platform!",
+      "Your productivity first.",
+      "Security and agility for your team."
+    ]
+  },
+  "sidebar": {
+    "groups": {
+      "platform": "Platform",
+      "projects": "Projects"
+    },
+    "nav_main": {
+      "dashboard": "Dashboard",
+      "settings": "Settings",
+      "general": "General",
+      "team": "Team"
+    }
   }
 }

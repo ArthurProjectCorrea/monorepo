@@ -21,7 +21,7 @@ function getLocale(request: NextRequest) {
   return match(languages, locales, defaultLocale)
 }
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Check if the pathname already has a locale
@@ -42,16 +42,67 @@ export function proxy(request: NextRequest) {
     const routePath = pathname.slice(locale.length + 1) || '/'
     const authSession = request.cookies.get(AUTH_SESSION_COOKIE)?.value
 
-    if (hasPrivateRoutePrefix(routePath) && !authSession) {
-      const redirectUrl = request.nextUrl.clone()
-      redirectUrl.pathname = `/${locale}/sign-in`
-      return NextResponse.redirect(redirectUrl)
+    if (hasPrivateRoutePrefix(routePath)) {
+      if (!authSession) {
+        const redirectUrl = request.nextUrl.clone()
+        redirectUrl.pathname = `/${locale}/sign-in`
+        return NextResponse.redirect(redirectUrl)
+      }
+
+      // Domain Validation: Check if the domain in the URL matches the user's client domain
+      const segments = routePath.split('/').filter(Boolean)
+      const urlDomain = segments[0]
+
+      if (urlDomain) {
+        try {
+          const apiBaseUrl = process.env.EXTERNAL_API_BASE_URL || 'http://localhost:5000'
+          const sessionResponse = await fetch(`${apiBaseUrl}/v1/auth/session`, {
+            headers: { Authorization: `Bearer ${authSession}` },
+          })
+
+          if (sessionResponse.ok) {
+            const sessionData = await sessionResponse.json()
+            const userDomain = sessionData.client?.domain
+
+            if (userDomain && urlDomain !== userDomain) {
+              // Redirect to the correct domain if mismatch
+              const redirectUrl = request.nextUrl.clone()
+              redirectUrl.pathname = `/${locale}/${userDomain}/dashboard`
+              return NextResponse.redirect(redirectUrl)
+            }
+          } else if (sessionResponse.status === 401) {
+            // Session expired or invalid
+            const redirectUrl = request.nextUrl.clone()
+            redirectUrl.pathname = `/${locale}/sign-in`
+            return NextResponse.redirect(redirectUrl)
+          }
+        } catch (error) {
+          console.error('Domain validation failed:', error)
+        }
+      }
+
+      return NextResponse.next()
     }
 
     if (hasAuthRoutePrefix(routePath) && authSession) {
       const redirectUrl = request.nextUrl.clone()
-      redirectUrl.pathname = `/${locale}/dashboard`
-      return NextResponse.redirect(redirectUrl)
+      // We don't know the domain here yet, so we fetch session to find out where to redirect
+      try {
+        const apiBaseUrl = process.env.EXTERNAL_API_BASE_URL || 'http://localhost:5000'
+        const sessionResponse = await fetch(`${apiBaseUrl}/v1/auth/session`, {
+          headers: { Authorization: `Bearer ${authSession}` },
+        })
+        if (sessionResponse.ok) {
+          const sessionData = await sessionResponse.json()
+          const userDomain = sessionData.client?.domain || '1'
+          redirectUrl.pathname = `/${locale}/${userDomain}/dashboard`
+          return NextResponse.redirect(redirectUrl)
+        }
+      } catch {
+        // Fallback if session fetch fails
+        redirectUrl.pathname = `/${locale}/1/dashboard`
+        return NextResponse.redirect(redirectUrl)
+      }
     }
 
     return NextResponse.next()

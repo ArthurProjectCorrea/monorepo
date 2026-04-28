@@ -13,6 +13,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+builder.Services.AddScoped<IStorageService, LocalStorageService>();
 
 // 1. Database
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
@@ -80,7 +81,7 @@ using (var scope = app.Services.CreateScope())
 
         var userManager = services.GetRequiredService<UserManager<User>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-        await DbInitializer.SeedAsync(userManager, roleManager);
+        await DbInitializer.SeedAsync(userManager, roleManager, context);
     }
     catch (Exception ex)
     {
@@ -94,6 +95,15 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+// Ensure wwwroot/uploads exists and is served as static files
+var wwwrootPath = app.Environment.WebRootPath;
+if (string.IsNullOrEmpty(wwwrootPath))
+{
+    wwwrootPath = Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+    app.Environment.WebRootPath = wwwrootPath;
+}
+Directory.CreateDirectory(Path.Combine(wwwrootPath, "uploads"));
+app.UseStaticFiles();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();

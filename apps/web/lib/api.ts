@@ -1,4 +1,4 @@
-import type { ApiErrorPayload } from '@/types'
+import type { ApiErrorPayload } from '@/types/api'
 
 interface ApiRequestOptions extends Omit<RequestInit, 'body'> {
   body?: unknown
@@ -61,14 +61,20 @@ async function request<T>(path: string, options: ApiRequestOptions = {}): Promis
   }
 
   const hasBody = options.body !== undefined
-  if (hasBody && !headers.has('Content-Type')) {
+  const isFormData = options.body instanceof FormData
+
+  if (hasBody && !headers.has('Content-Type') && !isFormData) {
     headers.set('Content-Type', 'application/json')
   }
 
   const response = await fetch(url, {
     ...options,
     headers,
-    body: hasBody ? JSON.stringify(options.body) : undefined,
+    body: isFormData
+      ? (options.body as FormData)
+      : hasBody
+        ? JSON.stringify(options.body)
+        : undefined,
     cache: 'no-store',
   })
 

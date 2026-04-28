@@ -11,7 +11,7 @@ import type {
   ForgotPasswordActionState,
   ForgotPasswordRequest,
   ForgotPasswordResponse,
-} from '@/types'
+} from '@/types/api'
 import { getDictionary, type Locale } from '@/app/[lang]/dictionaries'
 
 function getStringField(formData: FormData, key: string): string {
