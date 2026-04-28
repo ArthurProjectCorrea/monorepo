@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "skills": {
+    "aspnet-core": {
+      "source": "claude-dev-suite/claude-dev-suite",
+      "sourceType": "github",
+      "skillPath": "skills/backend-frameworks/aspnet-core/SKILL.md",
+      "computedHash": "95cf37547508e7b0dd50bebe809c78e9b45b3ebb0040d4a2694a8617ef27cf55"
+    },
+    "aspnet-identity": {
+      "source": "claude-dev-suite/claude-dev-suite",
+      "sourceType": "github",
+      "skillPath": "skills/backend-frameworks/aspnet-identity/SKILL.md",
+      "computedHash": "50761b004c1ac52b05e320926e4b561d4ebe633916a8061537229e1cf4c6c176"
+    },
+    "aspnet-minimal-api-openapi": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/aspnet-minimal-api-openapi/SKILL.md",
+      "computedHash": "2c4b990eba7b246b17c043a60b85f0910a98ce5e8aad13b92e34c260fdf23d4b"
+    },
+    "containerize-aspnet-framework": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/containerize-aspnet-framework/SKILL.md",
+      "computedHash": "e6608a11e7c5ce16ff1b7048902a1fd51aa98fa5373167002a73deb9b5570749"
+    },
+    "containerize-aspnetcore": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/containerize-aspnetcore/SKILL.md",
+      "computedHash": "23f73cb98109f2a56c0b49b5121fc6132a5fddf1fd3bb145db94085f36f7d205"
+    },
+    "nextjs": {
+      "source": "vercel-labs/vercel-plugin",
+      "sourceType": "github",
+      "skillPath": "skills/nextjs/SKILL.md",
+      "computedHash": "d3a48eada4dbae95856d643a0c9c54a38974ee7896a4d34f93aead13d26c343a"
+    },
+    "shadcn": {
+      "source": "shadcn/ui",
+      "sourceType": "github",
+      "skillPath": "skills/shadcn/SKILL.md",
+      "computedHash": "03365c7543539f6e6689a754e65b3d8ea023ba9d6ea12a9b5550462bf060af8c"
+    },
+    "update-docs": {
+      "source": "vercel/next.js",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/update-docs/SKILL.md",
+      "computedHash": "034e91004b30db6f2f432cecbc1fe09e8293a7baeaa2238eed25740bd3afb895"
+    }
+  }
+}
