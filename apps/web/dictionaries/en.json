@@ -195,6 +195,7 @@
   },
   "general_form": {
     "breadcrumb_settings": "Settings",
+    "breadcrumb_parameters": "Parameters",
     "media_title": "Logo",
     "media_description": "Upload your brand or company logo.",
     "info_title": "General information",
@@ -230,5 +231,31 @@
       "general": "General",
       "team": "Team"
     }
+  },
+  "screens_page": {
+    "table": {
+      "column_key": "Key",
+      "column_title": "Title",
+      "column_description": "Description",
+      "column_status": "Status",
+      "column_updated": "Last Update",
+      "status_active": "Active",
+      "status_inactive": "Inactive",
+      "actions": "Actions",
+      "action_edit": "Edit Screen",
+      "action_copy_key": "Copy Key"
+    }
+  },
+  "data_table": {
+    "search_placeholder": "Search...",
+    "columns_button": "Columns",
+    "next_button": "Next",
+    "previous_button": "Previous",
+    "rows_per_page": "Rows per page",
+    "selected_rows": "{count} of {total} row(s) selected.",
+    "no_results": "No results found.",
+    "actions": "Actions",
+    "action_edit": "Edit",
+    "action_delete": "Delete"
   }
 }

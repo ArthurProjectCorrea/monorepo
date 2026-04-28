@@ -195,6 +195,7 @@
   },
   "general_form": {
     "breadcrumb_settings": "Configurações",
+    "breadcrumb_parameters": "Parâmetros",
     "media_title": "Logotipo",
     "media_description": "Envie o logotipo da sua marca ou empresa.",
     "info_title": "Informações gerais",
@@ -230,5 +231,31 @@
       "general": "Geral",
       "team": "Equipe"
     }
+  },
+  "screens_page": {
+    "table": {
+      "column_key": "Chave",
+      "column_title": "Título",
+      "column_description": "Descrição",
+      "column_status": "Status",
+      "column_updated": "Última Atualização",
+      "status_active": "Ativo",
+      "status_inactive": "Inativo",
+      "actions": "Ações",
+      "action_edit": "Editar Tela",
+      "action_copy_key": "Copiar Chave"
+    }
+  },
+  "data_table": {
+    "search_placeholder": "Pesquisar...",
+    "columns_button": "Colunas",
+    "next_button": "Próximo",
+    "previous_button": "Anterior",
+    "rows_per_page": "Linhas por página",
+    "selected_rows": "{count} de {total} linha(s) selecionada(s).",
+    "no_results": "Nenhum resultado encontrado.",
+    "actions": "Ações",
+    "action_edit": "Editar",
+    "action_delete": "Excluir"
   }
 }
