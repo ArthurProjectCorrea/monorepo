@@ -23,7 +23,10 @@
       "next_button": "Siguiente",
       "previous_button": "Anterior",
       "rows_per_page": "Filas por página",
-      "selected_rows": "{count} de {total} fila(s) seleccionadas."
+      "selected_rows": "{count} de {total} fila(s) seleccionadas.",
+      "column_status": "Estado",
+      "column_updated_at": "Última actualización",
+      "column_created_at": "Creado en"
     },
     "dialogs": {
       "delete_confirm": {
@@ -109,6 +112,10 @@
     "screens": {
       "success": "Los parámetros se guardaron con éxito.",
       "error": "Error al guardar los parámetros."
+    },
+    "teams": {
+      "success": "Equipo guardado con éxito.",
+      "error": "Error al guardar el equipo."
     }
   },
   "theme_toggle": {
@@ -151,7 +158,7 @@
   },
   "reset_password": {
     "title": "Restablecer contraseña",
-    "description": "Cree una nueva contraseña segura para su cuenta",
+    "description": "Crie uma nova senha segura para sua conta",
     "email_label": "Correo electrónico",
     "password_label": "Nueva contraseña",
     "confirm_password_label": "Confirmar contraseña",
@@ -201,11 +208,11 @@
     "domain_description": "La dirección personalizada para acceder a su portal."
   },
   "auth": {
-    "typewriter_phrases": {
-      "0": "¡Bienvenido a nuestra plataforma!",
-      "1": "Su productividad es lo primero.",
-      "2": "Seguridad y agilidad para su equipo."
-    }
+    "typewriter_phrases": [
+      "¡Bienvenido a nuestra plataforma!",
+      "Su productividad es lo primero.",
+      "Seguridad y agilidad para su equipo."
+    ]
   },
   "sidebar": {
     "groups": {
@@ -217,7 +224,7 @@
       "settings": "Configuración",
       "general": "General",
       "team": "Equipo",
-      "parameters": "Parámetros",
+      "parameters": "Parâmetros",
       "screens": "Pantallas",
       "fields": "Campos"
     }
@@ -228,7 +235,7 @@
       "column_title": "Título",
       "column_description": "Descripción",
       "column_status": "Estado",
-      "column_updated": "Última actualización",
+      "column_updated_at": "Última actualización",
       "form": {
         "title_label": "Título",
         "title_placeholder": "Título de la pantalla",
@@ -239,6 +246,23 @@
         "status_label": "Estado activo",
         "status_description": "Activar o desactivar esta pantalla en el sistema."
       }
+    }
+  },
+  "teams_page": {
+    "table": {
+      "column_name": "Nombre",
+      "action_copy_key": "Copiar clave",
+      "form": {
+        "title_label": "Nombre",
+        "title_placeholder": "Ingrese el nombre del equipo",
+        "title_description": "Nombre de visualización del equipo",
+        "status_label": "Estado",
+        "status_description": "Habilitar o deshabilitar el equipo",
+        "icon_label": "Icono",
+        "icon_placeholder": "ej: TerminalIcon",
+        "icon_description": "El nombre del icono de la biblioteca Lucide"
+      },
+      "column_icon": "Icono"
     }
   }
 }

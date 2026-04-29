@@ -1,7 +1,7 @@
 import { getDictionary, hasLocale, type Locale } from '@/app/[lang]/dictionaries'
 import { notFound } from 'next/navigation'
 import { PageHeader } from '@/components/layout/page-header'
-import { ScreensTableClient } from '../../../../../components/table/screens-table-client'
+import { ScreensTableClient } from '../../../../../components/table/screen-table-client'
 
 import { getScreensData } from '@/lib/action/screens'
 
@@ -44,11 +44,16 @@ export default async function ScreensPage({ params }: { params: Promise<{ lang: 
             },
           }}
           dictScreensPage={{
-            table: dict.screens_page.table,
+            table: {
+              ...dict.screens_page.table,
+              column_status: dict.common.table.column_status,
+              column_updated_at: dict.common.table.column_updated_at,
+            },
             notifications: dict.notifications.screens,
             common: {
-              ...dict.common,
+              actions: dict.common.actions,
               notifications: dict.common.notifications,
+              table: dict.common.table,
             },
           }}
         />

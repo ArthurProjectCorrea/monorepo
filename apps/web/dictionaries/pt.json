@@ -23,7 +23,10 @@
       "next_button": "Próximo",
       "previous_button": "Anterior",
       "rows_per_page": "Linhas por página",
-      "selected_rows": "{count} de {total} linha(s) selecionada(s)."
+      "selected_rows": "{count} de {total} linha(s) selecionada(s).",
+      "column_status": "Status",
+      "column_updated_at": "Última atualização",
+      "column_created_at": "Criado em"
     },
     "dialogs": {
       "delete_confirm": {
@@ -109,6 +112,10 @@
     "screens": {
       "success": "Parâmetros salvos com sucesso.",
       "error": "Erro ao salvar os parâmetros."
+    },
+    "teams": {
+      "success": "Equipe salva com sucesso.",
+      "error": "Erro ao salvar a equipe."
     }
   },
   "theme_toggle": {
@@ -228,7 +235,7 @@
       "column_title": "Título",
       "column_description": "Descrição",
       "column_status": "Status",
-      "column_updated": "Última Atualização",
+      "column_updated_at": "Última atualização",
       "form": {
         "title_label": "Título",
         "title_placeholder": "Título da tela",
@@ -239,6 +246,23 @@
         "status_label": "Status Ativo",
         "status_description": "Ativar ou desativar esta tela no sistema."
       }
+    }
+  },
+  "teams_page": {
+    "table": {
+      "column_name": "Nome",
+      "action_copy_key": "Copiar chave",
+      "form": {
+        "title_label": "Nome",
+        "title_placeholder": "Digite o nome da equipe",
+        "title_description": "Nome de exibição da equipe",
+        "status_label": "Status",
+        "status_description": "Habilitar ou desabilitar a equipe",
+        "icon_label": "Ícone",
+        "icon_placeholder": "ex: TerminalIcon",
+        "icon_description": "O nome do ícone da biblioteca Lucide"
+      },
+      "column_icon": "Ícone"
     }
   }
 }

@@ -60,9 +60,9 @@ export function ScreenForm({ row, onSuccess, dict }: ScreenFormProps) {
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="description">{dict.table.form.description_label}</FieldLabel>
+          <FieldLabel htmlFor="screen-description">{dict.table.form.description_label}</FieldLabel>
           <Textarea
-            id="description"
+            id="screen-description"
             name="description"
             placeholder={dict.table.form.description_placeholder}
             defaultValue={row.description}

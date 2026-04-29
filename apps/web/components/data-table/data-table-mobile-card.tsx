@@ -47,10 +47,6 @@ export function DataTableRowMobileCard<TData>({
         <div className="flex flex-col gap-1 pr-4 truncate">
           {titleCell && (
             <div className="font-semibold text-base truncate">
-              <span className="text-muted-foreground mr-1 font-normal text-sm">
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                {(titleCell.column.columnDef.meta as any)?.title || titleCell.column.id}:
-              </span>
               {flexRender(titleCell.column.columnDef.cell, titleCell.getContext())}
             </div>
           )}

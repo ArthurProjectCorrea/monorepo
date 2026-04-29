@@ -23,7 +23,10 @@
       "next_button": "Next",
       "previous_button": "Previous",
       "rows_per_page": "Rows per page",
-      "selected_rows": "{count} of {total} row(s) selected."
+      "selected_rows": "{count} of {total} row(s) selected.",
+      "column_status": "Status",
+      "column_updated_at": "Last updated",
+      "column_created_at": "Created at"
     },
     "dialogs": {
       "delete_confirm": {
@@ -109,6 +112,10 @@
     "screens": {
       "success": "Parameters saved successfully.",
       "error": "Error saving parameters."
+    },
+    "teams": {
+      "success": "Team saved successfully.",
+      "error": "Error saving team."
     }
   },
   "theme_toggle": {
@@ -228,7 +235,7 @@
       "column_title": "Title",
       "column_description": "Description",
       "column_status": "Status",
-      "column_updated": "Last Update",
+      "column_updated_at": "Last updated",
       "form": {
         "title_label": "Title",
         "title_placeholder": "Screen title",
@@ -239,6 +246,23 @@
         "status_label": "Active Status",
         "status_description": "Enable or disable this screen in the system."
       }
+    }
+  },
+  "teams_page": {
+    "table": {
+      "column_name": "Name",
+      "action_copy_key": "Copy key",
+      "form": {
+        "title_label": "Name",
+        "title_placeholder": "Enter team name",
+        "title_description": "Team display name",
+        "status_label": "Status",
+        "status_description": "Enable or disable the team",
+        "icon_label": "Icon",
+        "icon_placeholder": "e.g. TerminalIcon",
+        "icon_description": "The name of the icon from the Lucide library"
+      },
+      "column_icon": "Icon"
     }
   }
 }

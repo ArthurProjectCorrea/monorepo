@@ -63,19 +63,45 @@ const deletePath = (obj, pathStr) => {
 // Interactive creation of variables
 const promptForVariables = async variableList => {
   const result = {}
-  for (const varName of variableList) {
-    const trimmed = varName.trim()
-    if (trimmed.endsWith('{}')) {
-      const nestedKey = trimmed.replace('{}', '')
-      console.log(chalk.blue(`\nDefining nested object: ${nestedKey}`))
-      const subVarsInput = await inquirer.prompt([
-        {
-          type: 'input',
-          name: 'subVars',
-          message: `Enter sub-variables for ${nestedKey} (comma separated, use {} for nesting):`,
-        },
-      ])
-      result[nestedKey] = await promptForVariables(subVarsInput.subVars.split(','))
+  // Filter out empty strings from the list
+  const cleanList = variableList.map(v => v.trim()).filter(v => v.length > 0)
+
+  for (const trimmed of cleanList) {
+    if (trimmed.endsWith('{}') || trimmed.includes('{')) {
+      // Handle nesting like "form{a,b}" or "obj{}"
+      const match = trimmed.match(/^([^{}]+)\{(.*)\}$|^([^{}]+)\{\}$/)
+      if (match) {
+        const nestedKey = (match[1] || match[3]).trim()
+        const innerContent = match[2] || ''
+        console.log(chalk.blue(`\nDefining nested object: ${nestedKey}`))
+
+        let subVars = []
+        if (innerContent) {
+          subVars = innerContent.split(',')
+        } else {
+          const subVarsInput = await inquirer.prompt([
+            {
+              type: 'input',
+              name: 'subVars',
+              message: `Enter sub-variables for ${nestedKey} (comma separated, use {} for nesting):`,
+            },
+          ])
+          subVars = subVarsInput.subVars.split(',')
+        }
+        result[nestedKey] = await promptForVariables(subVars)
+      } else {
+        // Fallback for simple "key{}" if regex fails
+        const nestedKey = trimmed.replace('{}', '').trim()
+        console.log(chalk.blue(`\nDefining nested object: ${nestedKey}`))
+        const subVarsInput = await inquirer.prompt([
+          {
+            type: 'input',
+            name: 'subVars',
+            message: `Enter sub-variables for ${nestedKey} (comma separated, use {} for nesting):`,
+          },
+        ])
+        result[nestedKey] = await promptForVariables(subVarsInput.subVars.split(','))
+      }
     } else {
       result[trimmed] = '' // Leaf node
     }

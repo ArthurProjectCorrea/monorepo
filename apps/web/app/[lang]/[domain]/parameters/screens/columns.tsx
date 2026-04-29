@@ -42,7 +42,7 @@ export const getColumns = (dict: ScreenFormDict): ColumnDef<Screen>[] => [
   {
     accessorKey: 'isActive',
     header: ({ column }: HeaderContext<Screen, unknown>) => (
-      <DataTableColumnHeader column={column} title={dict.table.column_status} />
+      <DataTableColumnHeader column={column} title={dict.common.table.column_status} />
     ),
     cell: ({ row }: CellContext<Screen, unknown>) => {
       const isActive = row.getValue('isActive') as boolean
@@ -52,17 +52,17 @@ export const getColumns = (dict: ScreenFormDict): ColumnDef<Screen>[] => [
         </Badge>
       )
     },
-    meta: { title: dict.table.column_status },
+    meta: { title: dict.common.table.column_status },
   },
   {
     accessorKey: 'updatedAt',
     header: ({ column }: HeaderContext<Screen, unknown>) => (
-      <DataTableColumnHeader column={column} title={dict.table.column_updated} />
+      <DataTableColumnHeader column={column} title={dict.common.table.column_updated_at} />
     ),
     cell: ({ row }: CellContext<Screen, unknown>) => {
       const date = new Date(row.getValue('updatedAt'))
       return <div className="text-muted-foreground">{date.toLocaleDateString()}</div>
     },
-    meta: { title: dict.table.column_updated },
+    meta: { title: dict.common.table.column_updated_at },
   },
 ]

@@ -50,7 +50,7 @@ export const getSidebarData = (domain: string, dict: { sidebar?: SidebarDict }) 
         type: 'colapsable',
         items: [
           { title: navMainDict.general || 'General', url: `/${domain}/settings/general` },
-          { title: navMainDict.team || 'Team', url: `/${domain}/settings/team` },
+          { title: navMainDict.team || 'Team', url: `/${domain}/settings/teams` },
         ],
       },
       {

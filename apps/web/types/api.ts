@@ -193,6 +193,9 @@ export interface ScreenFormDict {
     table: {
       status_active: string
       status_inactive: string
+      column_status: string
+      column_updated_at: string
+      column_created_at: string
     }
   }
   table: {
@@ -200,7 +203,7 @@ export interface ScreenFormDict {
     column_title: string
     column_description: string
     column_status: string
-    column_updated: string
+    column_updated_at: string
     form: {
       title_label: string
       title_placeholder: string
@@ -224,6 +227,61 @@ export interface ScreenActionState {
   notificationToken?: string
   fieldErrors?: {
     title?: string
+    description?: string
+  }
+}
+
+export interface Team {
+  id: string
+  name: string
+  status: boolean
+  updated_at: string
+  icon?: string
+}
+
+export interface TeamFormDict {
+  common: {
+    actions: {
+      discard: string
+      save: string
+      saving: string
+    }
+    notifications: CommonNotificationDictionary
+    table: {
+      status_active: string
+      status_inactive: string
+      column_status: string
+      column_updated_at: string
+      column_created_at: string
+    }
+  }
+  table: {
+    column_icon: string
+    column_name: string
+    action_copy_key: string
+    form: {
+      title_label: string
+      title_placeholder: string
+      title_description: string
+      icon_label: string
+      icon_placeholder: string
+      icon_description: string
+      status_label: string
+      status_description: string
+    }
+  }
+  notifications: {
+    success: string
+    error: string
+  }
+}
+
+export interface TeamActionState {
+  status: 'idle' | 'success' | 'error'
+  httpStatus?: number
+  notificationToken?: string
+  fieldErrors?: {
+    name?: string
     description?: string
   }
 }
