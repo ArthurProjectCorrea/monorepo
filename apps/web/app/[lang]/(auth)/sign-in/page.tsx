@@ -20,6 +20,7 @@ export default async function SignInPage({ params }: { params: Promise<{ lang: s
           notificationsDict={dict.notifications.sign_in}
           resetNotificationsDict={dict.notifications.reset_password}
           signOutNotificationsDict={dict.notifications.sign_out}
+          commonNotificationsDict={dict.common.notifications}
         />
       </Suspense>
     </div>

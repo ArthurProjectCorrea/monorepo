@@ -11,13 +11,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { locales } from '@/app/[lang]/config'
 
 interface LocaleSwitcherProps {
   dict: {
     label: string
-    en: string
-    pt: string
-  }
+  } & Record<string, string>
 }
 
 export function LocaleSwitcher({ dict }: LocaleSwitcherProps) {
@@ -30,6 +29,7 @@ export function LocaleSwitcher({ dict }: LocaleSwitcherProps) {
     if (locale === currentLocale) return
 
     // Save preference in cookie for proxy.ts to respect it
+    // eslint-disable-next-line react-hooks/immutability
     document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=31536000; SameSite=Lax`
 
     const newSegments = [...segments]
@@ -38,6 +38,7 @@ export function LocaleSwitcher({ dict }: LocaleSwitcherProps) {
 
     // Use window.location.href for a full reload to avoid hydration/script issues
     // when switching between different locale layouts/dictionaries.
+    // eslint-disable-next-line react-hooks/immutability
     window.location.href = newPath
   }
 
@@ -50,18 +51,15 @@ export function LocaleSwitcher({ dict }: LocaleSwitcherProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          onClick={() => switchLocale('en')}
-          className={currentLocale === 'en' ? 'bg-accent' : ''}
-        >
-          🇺🇸 {dict.en}
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => switchLocale('pt')}
-          className={currentLocale === 'pt' ? 'bg-accent' : ''}
-        >
-          🇧🇷 {dict.pt}
-        </DropdownMenuItem>
+        {locales.map(locale => (
+          <DropdownMenuItem
+            key={locale}
+            onClick={() => switchLocale(locale)}
+            className={currentLocale === locale ? 'bg-accent capitalize' : 'capitalize'}
+          >
+            {dict[locale] || locale}
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   )

@@ -17,6 +17,8 @@ export function Typewriter({ phrases, speed = 100, delay = 2000 }: TypewriterPro
   React.useEffect(() => {
     const currentPhrase = phrases[phraseIndex]
 
+    if (!currentPhrase) return
+
     const timeout = setTimeout(
       () => {
         if (!isDeleting) {
@@ -24,7 +26,7 @@ export function Typewriter({ phrases, speed = 100, delay = 2000 }: TypewriterPro
           setDisplayText(currentPhrase.substring(0, charIndex + 1))
           setCharIndex(prev => prev + 1)
 
-          if (charIndex === currentPhrase.length) {
+          if (charIndex >= currentPhrase.length) {
             // Finished typing, wait before deleting
             setTimeout(() => setIsDeleting(true), delay)
           }
@@ -33,7 +35,7 @@ export function Typewriter({ phrases, speed = 100, delay = 2000 }: TypewriterPro
           setDisplayText(currentPhrase.substring(0, charIndex - 1))
           setCharIndex(prev => prev - 1)
 
-          if (charIndex === 0) {
+          if (charIndex <= 0) {
             setIsDeleting(false)
             setPhraseIndex(prev => (prev + 1) % phrases.length)
           }

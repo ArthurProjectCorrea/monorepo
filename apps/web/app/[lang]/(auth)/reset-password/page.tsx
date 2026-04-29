@@ -33,6 +33,7 @@ export default async function ResetPasswordPage({ params }: { params: Promise<{ 
           dict={dict.reset_password}
           notificationsDict={dict.notifications.reset_password}
           verifyOtpNotificationsDict={dict.notifications.verify_otp}
+          commonNotificationsDict={dict.common.notifications}
         />
       </Suspense>
     </div>

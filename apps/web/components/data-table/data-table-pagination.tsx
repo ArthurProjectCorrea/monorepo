@@ -20,15 +20,15 @@ interface DataTablePaginationProps<TData> {
 
 export function DataTablePagination<TData>({ table, dict }: DataTablePaginationProps<TData>) {
   return (
-    <div className="flex items-center justify-between px-2">
-      <div className="flex-1 text-sm text-muted-foreground">
-        {dict.selected_rows
+    <div className="flex flex-col sm:flex-row items-center justify-between px-2 gap-4">
+      <div className="hidden sm:block flex-1 text-sm text-muted-foreground">
+        {dict.common.table.selected_rows
           .replace('{count}', table.getFilteredSelectedRowModel().rows.length.toString())
           .replace('{total}', table.getFilteredRowModel().rows.length.toString())}
       </div>
-      <div className="flex items-center space-x-6 lg:space-x-8">
-        <div className="flex items-center space-x-2">
-          <p className="text-sm font-medium">{dict.rows_per_page}</p>
+      <div className="flex items-center sm:space-x-6 lg:space-x-8 w-full sm:w-auto justify-between sm:justify-end">
+        <div className="hidden sm:flex items-center space-x-2">
+          <p className="text-sm font-medium">{dict.common.table.rows_per_page}</p>
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={value => {

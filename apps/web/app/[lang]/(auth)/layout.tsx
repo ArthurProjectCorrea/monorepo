@@ -85,7 +85,7 @@ export default async function AuthLayout({
 
         {/* Typewriter Animation */}
         <div className="relative z-10 p-12 text-center w-full max-w-2xl">
-          <Typewriter phrases={dict.auth.typewriter_phrases} />
+          <Typewriter phrases={Object.values(dict.auth.typewriter_phrases) as string[]} />
         </div>
 
         {/* Grid Pattern Overlay */}

@@ -27,17 +27,17 @@ export function DataTableViewOptions<TData>({ table, dict }: DataTableViewOption
         <Tooltip>
           <TooltipTrigger asChild>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" className="hidden md:flex">
                 <Columns2 className="h-4 w-4" />
-                <span className="sr-only">{dict.columns_button}</span>
+                <span className="sr-only">{dict.common.table.columns_button}</span>
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
-          <TooltipContent>{dict.columns_button}</TooltipContent>
+          <TooltipContent>{dict.common.table.columns_button}</TooltipContent>
         </Tooltip>
       </TooltipProvider>
       <DropdownMenuContent align="end" className="w-[180px]">
-        <DropdownMenuLabel>{dict.columns_button}</DropdownMenuLabel>
+        <DropdownMenuLabel>{dict.common.table.columns_button}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {table
           .getAllColumns()

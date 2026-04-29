@@ -28,17 +28,33 @@ public static class DbInitializer
         }
 
         // Seed Screens
-        var generalScreen = context.Screens.FirstOrDefault(s => s.ScreenKey == "general");
+        var generalScreen = context.Screens.FirstOrDefault(s => s.ScreenKey == "general" && s.ClientId == defaultClient.Id);
         if (generalScreen == null)
         {
             generalScreen = new Screen
             {
-                Title = "Configurações Gerais",
-                Description = "Gerencie suas preferências e configurações gerais.",
+                Title = "Informações Gerais",
+                Description = "Configurações básicas do sistema.",
                 ScreenKey = "general",
+                ClientId = defaultClient.Id,
                 IsActive = true
             };
             context.Screens.Add(generalScreen);
+            await context.SaveChangesAsync();
+        }
+
+        var screenParameters = context.Screens.FirstOrDefault(s => s.ScreenKey == "screen_parameters" && s.ClientId == defaultClient.Id);
+        if (screenParameters == null)
+        {
+            screenParameters = new Screen
+            {
+                Title = "Parâmetros de Tela",
+                Description = "Gerencie as telas, títulos e descrições do sistema.",
+                ScreenKey = "screen_parameters",
+                ClientId = defaultClient.Id,
+                IsActive = true
+            };
+            context.Screens.Add(screenParameters);
             await context.SaveChangesAsync();
         }
 

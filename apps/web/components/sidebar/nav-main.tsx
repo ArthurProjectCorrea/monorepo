@@ -41,7 +41,13 @@ export function NavMain({
   }[]
   dict: { sidebar?: SidebarDict }
 }) {
-  const { isMobile } = useSidebar()
+  const { isMobile, setOpenMobile } = useSidebar()
+
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setOpenMobile(false)
+    }
+  }
 
   return (
     <SidebarGroup>
@@ -56,7 +62,7 @@ export function NavMain({
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild tooltip={item.title}>
                   {item.url ? (
-                    <Link href={item.url}>
+                    <Link href={item.url} onClick={handleLinkClick}>
                       {item.icon}
                       <span>{item.title}</span>
                     </Link>
@@ -77,7 +83,7 @@ export function NavMain({
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild tooltip={item.title}>
                   {item.url ? (
-                    <Link href={item.url}>
+                    <Link href={item.url} onClick={handleLinkClick}>
                       {item.icon}
                       <span>{item.title}</span>
                     </Link>
@@ -102,7 +108,7 @@ export function NavMain({
                   >
                     {item.items?.map(subItem => (
                       <DropdownMenuItem key={subItem.title} asChild>
-                        <Link href={subItem.url}>
+                        <Link href={subItem.url} onClick={handleLinkClick}>
                           {subItem.icon}
                           <span>{subItem.title}</span>
                         </Link>
@@ -135,7 +141,7 @@ export function NavMain({
                     {item.items?.map(subItem => (
                       <SidebarMenuSubItem key={subItem.title}>
                         <SidebarMenuSubButton asChild>
-                          <Link href={subItem.url}>
+                          <Link href={subItem.url} onClick={handleLinkClick}>
                             <span>{subItem.title}</span>
                           </Link>
                         </SidebarMenuSubButton>

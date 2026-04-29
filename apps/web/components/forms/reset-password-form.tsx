@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils'
 import { resetPasswordAction } from '@/lib/action/reset-password'
 import { initialResetPasswordState } from '@/lib/action/reset-password-state'
 import { notifyFromApi } from '@/lib/notifications'
-import type { NotificationDictionary } from '@/types/api'
+import type { NotificationDictionary, CommonNotificationDictionary } from '@/types/api'
 
 interface ResetPasswordFormProps {
   identifier: string
@@ -38,6 +38,7 @@ interface ResetPasswordFormProps {
   }
   notificationsDict: NotificationDictionary
   verifyOtpNotificationsDict: NotificationDictionary
+  commonNotificationsDict: CommonNotificationDictionary
 }
 
 export function ResetPasswordForm({
@@ -45,6 +46,7 @@ export function ResetPasswordForm({
   dict,
   notificationsDict,
   verifyOtpNotificationsDict,
+  commonNotificationsDict,
 }: ResetPasswordFormProps) {
   const [state, formAction, isPending] = React.useActionState(
     resetPasswordAction,
@@ -74,22 +76,24 @@ export function ResetPasswordForm({
     notifyFromApi({
       httpStatus: state.httpStatus,
       dictionary: notificationsDict,
+      commonDictionary: commonNotificationsDict,
       lang,
     })
-  }, [lang, notificationsDict, state.httpStatus, state.notificationToken])
+  }, [lang, notificationsDict, commonNotificationsDict, state.httpStatus, state.notificationToken])
 
   React.useEffect(() => {
     if (searchParams.get('verified') === 'true') {
       notifyFromApi({
         httpStatus: 200,
         dictionary: verifyOtpNotificationsDict,
+        commonDictionary: commonNotificationsDict,
         lang,
       })
 
       // Clean up the URL to prevent showing the toast again on refresh
       window.history.replaceState({}, '', `/${lang}/reset-password`)
     }
-  }, [lang, verifyOtpNotificationsDict, searchParams])
+  }, [lang, verifyOtpNotificationsDict, commonNotificationsDict, searchParams])
 
   return (
     <div className="flex flex-col gap-6">

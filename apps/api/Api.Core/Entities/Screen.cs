@@ -19,5 +19,11 @@ public class Screen
 
     public bool IsActive { get; set; } = true;
 
+    [Required]
+    public Guid ClientId { get; set; }
+
+    public Client? Client { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

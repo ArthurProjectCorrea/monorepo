@@ -1,4 +1,62 @@
 {
+  "common": {
+    "actions": {
+      "save": "Save changes",
+      "saving": "Saving...",
+      "discard": "Discard",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "delete": "Delete",
+      "copy": "Copy",
+      "confirm": "Confirm",
+      "refresh": "Refresh",
+      "view_more": "View more",
+      "view_less": "View less"
+    },
+    "table": {
+      "status_active": "Active",
+      "status_inactive": "Inactive",
+      "no_results": "No results found.",
+      "actions_column": "Actions",
+      "search_placeholder": "Search...",
+      "columns_button": "Columns",
+      "next_button": "Next",
+      "previous_button": "Previous",
+      "rows_per_page": "Rows per page",
+      "selected_rows": "{count} of {total} row(s) selected."
+    },
+    "dialogs": {
+      "delete_confirm": {
+        "title": "Are you absolutely sure?",
+        "description": "This action cannot be undone. This will permanently delete the record.",
+        "confirm": "Delete",
+        "cancel": "Cancel"
+      },
+      "edit_dialog": {
+        "title": "Edit {item}",
+        "description": "Make changes here. Click save when you're done.",
+        "cancel": "Cancel",
+        "save": "Save changes"
+      }
+    },
+    "notifications": {
+      "success": "Action completed successfully.",
+      "error": "An error occurred while processing your request.",
+      "info": "Request processed.",
+      "warning": "Please wait before trying again.",
+      "deleted": "Item deleted successfully.",
+      "saved": "Changes saved successfully.",
+      "http_status": {
+        "400": "Please review the information and try again.",
+        "401": "Unauthorized access. Please sign in.",
+        "403": "Access denied.",
+        "404": "Service or resource not found.",
+        "409": "Conflict in the request. Please try again.",
+        "429": "Too many attempts. Try again in a few minutes.",
+        "500": "Internal server error. Our team has been notified."
+      }
+    }
+  },
   "validation": {
     "required_email": "Email is required.",
     "required_password": "Password is required.",
@@ -22,104 +80,35 @@
   },
   "notifications": {
     "sign_in": {
-      "defaults": {
-        "success": "Signed in successfully.",
-        "info": "Request processed.",
-        "warning": "Please wait before trying again.",
-        "error": "Unable to complete sign-in right now."
-      },
+      "success": "Signed in successfully.",
+      "error": "Unable to complete sign-in right now.",
       "http_status": {
-        "200": "Signed in successfully.",
-        "400": "Please review the information and try again.",
-        "401": "Incorrect email or password.",
-        "403": "Access denied.",
-        "404": "Authentication service route not found.",
-        "409": "Sign-in request conflict. Please try again.",
-        "429": "Too many attempts. Try again in a few minutes.",
-        "500": "Authentication service is temporarily unavailable."
+        "401": "Incorrect email or password."
       }
     },
     "sign_out": {
-      "defaults": {
-        "success": "Signed out successfully.",
-        "info": "Session ended.",
-        "warning": "Please wait before trying again.",
-        "error": "Unable to sign out right now."
-      },
-      "http_status": {
-        "200": "Signed out successfully."
-      }
+      "success": "Signed out successfully.",
+      "error": "Unable to sign out right now."
     },
     "forgot_password": {
-      "defaults": {
-        "success": "Recovery instructions sent if the account exists.",
-        "info": "Request processed.",
-        "warning": "Please wait before trying again.",
-        "error": "Unable to process password recovery right now."
-      },
-      "http_status": {
-        "200": "Recovery instructions sent if the account exists.",
-        "400": "Please review the information and try again.",
-        "401": "Recovery request could not be completed.",
-        "403": "Access denied.",
-        "404": "Recovery service route not found.",
-        "409": "Recovery request conflict. Please try again.",
-        "429": "Too many attempts. Try again in a few minutes.",
-        "500": "Recovery service is temporarily unavailable."
-      }
+      "success": "Recovery instructions sent if the account exists.",
+      "error": "Unable to process password recovery right now."
     },
     "verify_otp": {
-      "defaults": {
-        "success": "Code verified successfully.",
-        "info": "Request processed.",
-        "warning": "Please wait before trying again.",
-        "error": "Unable to validate the code right now."
-      },
-      "http_status": {
-        "200": "Code verified successfully.",
-        "400": "Please enter a valid code and try again.",
-        "401": "Code verification failed.",
-        "403": "Access denied.",
-        "404": "Verification service route not found.",
-        "409": "Verification request conflict. Please try again.",
-        "429": "Too many attempts. Try again in a few minutes.",
-        "500": "Verification service is temporarily unavailable."
-      }
+      "success": "Code verified successfully.",
+      "error": "Unable to validate the code right now."
     },
     "reset_password": {
-      "defaults": {
-        "success": "Password updated successfully.",
-        "info": "Request processed.",
-        "warning": "Please wait before trying again.",
-        "error": "Unable to reset password right now."
-      },
-      "http_status": {
-        "200": "Password updated successfully.",
-        "400": "Please review the information and try again.",
-        "401": "Password reset could not be completed.",
-        "403": "Access denied.",
-        "404": "Reset service route not found.",
-        "409": "Reset request conflict. Please try again.",
-        "429": "Too many attempts. Try again in a few minutes.",
-        "500": "Reset service is temporarily unavailable."
-      }
+      "success": "Password updated successfully.",
+      "error": "Unable to reset password right now."
     },
     "client_update": {
-      "defaults": {
-        "success": "Settings updated successfully.",
-        "info": "Request processed.",
-        "warning": "Please wait before trying again.",
-        "error": "Unable to update settings right now."
-      },
-      "http_status": {
-        "200": "Settings updated successfully.",
-        "400": "Please review the information and try again.",
-        "401": "Session expired. Please sign in again.",
-        "403": "Access denied.",
-        "404": "Service not found.",
-        "429": "Too many attempts. Try again in a few minutes.",
-        "500": "Internal server error."
-      }
+      "success": "Settings updated successfully.",
+      "error": "Unable to update settings right now."
+    },
+    "screens": {
+      "success": "Parameters saved successfully.",
+      "error": "Error saving parameters."
     }
   },
   "theme_toggle": {
@@ -140,7 +129,8 @@
   "locale_switcher": {
     "label": "Change language",
     "en": "English",
-    "pt": "Portuguese"
+    "pt": "Portuguese",
+    "es": "Spanish"
   },
   "footer": {
     "rights": "© {year} {name}. All rights reserved.",
@@ -208,10 +198,7 @@
     "description_description": "A brief description of what your company does.",
     "domain_label": "Domain",
     "domain_placeholder": "e.g. mycompany.com",
-    "domain_description": "The custom address to access your portal.",
-    "discard": "Discard",
-    "save": "Save changes",
-    "saving": "Saving..."
+    "domain_description": "The custom address to access your portal."
   },
   "auth": {
     "typewriter_phrases": [
@@ -229,7 +216,10 @@
       "dashboard": "Dashboard",
       "settings": "Settings",
       "general": "General",
-      "team": "Team"
+      "team": "Team",
+      "parameters": "Parameters",
+      "screens": "Screens",
+      "fields": "Fields"
     }
   },
   "screens_page": {
@@ -239,23 +229,16 @@
       "column_description": "Description",
       "column_status": "Status",
       "column_updated": "Last Update",
-      "status_active": "Active",
-      "status_inactive": "Inactive",
-      "actions": "Actions",
-      "action_edit": "Edit Screen",
-      "action_copy_key": "Copy Key"
+      "form": {
+        "title_label": "Title",
+        "title_placeholder": "Screen title",
+        "title_description": "The display name of the screen.",
+        "description_label": "Description",
+        "description_placeholder": "Brief description",
+        "description_description": "A short summary of what this screen does.",
+        "status_label": "Active Status",
+        "status_description": "Enable or disable this screen in the system."
+      }
     }
-  },
-  "data_table": {
-    "search_placeholder": "Search...",
-    "columns_button": "Columns",
-    "next_button": "Next",
-    "previous_button": "Previous",
-    "rows_per_page": "Rows per page",
-    "selected_rows": "{count} of {total} row(s) selected.",
-    "no_results": "No results found.",
-    "actions": "Actions",
-    "action_edit": "Edit",
-    "action_delete": "Delete"
   }
 }

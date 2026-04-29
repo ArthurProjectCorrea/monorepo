@@ -11,7 +11,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { forgotPasswordAction } from '@/lib/action/forgot-password'
 import { initialForgotPasswordState } from '@/lib/action/forgot-password-state'
 import { notifyFromApi } from '@/lib/notifications'
-import type { NotificationDictionary } from '@/types/api'
+import type { NotificationDictionary, CommonNotificationDictionary } from '@/types/api'
 
 interface ForgotPasswordFormProps {
   dict: {
@@ -24,9 +24,14 @@ interface ForgotPasswordFormProps {
     back_to_login: string
   }
   notificationsDict: NotificationDictionary
+  commonNotificationsDict: CommonNotificationDictionary
 }
 
-export function ForgotPasswordForm({ dict, notificationsDict }: ForgotPasswordFormProps) {
+export function ForgotPasswordForm({
+  dict,
+  notificationsDict,
+  commonNotificationsDict,
+}: ForgotPasswordFormProps) {
   const [state, formAction, isPending] = React.useActionState(
     forgotPasswordAction,
     initialForgotPasswordState,
@@ -44,6 +49,7 @@ export function ForgotPasswordForm({ dict, notificationsDict }: ForgotPasswordFo
     notifyFromApi({
       httpStatus: state.httpStatus,
       dictionary: notificationsDict,
+      commonDictionary: commonNotificationsDict,
       lang,
     })
 
@@ -51,7 +57,15 @@ export function ForgotPasswordForm({ dict, notificationsDict }: ForgotPasswordFo
       setIsRedirecting(true)
       router.push(`/${lang}/verify-otp`)
     }
-  }, [lang, notificationsDict, router, state.httpStatus, state.nextStep, state.notificationToken])
+  }, [
+    lang,
+    notificationsDict,
+    commonNotificationsDict,
+    router,
+    state.httpStatus,
+    state.nextStep,
+    state.notificationToken,
+  ])
 
   return (
     <div className="flex flex-col gap-6">

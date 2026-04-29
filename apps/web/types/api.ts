@@ -142,12 +142,18 @@ export interface ResetPasswordActionState {
 }
 
 export interface NotificationDictionary {
-  defaults: {
-    success: string
-    info: string
-    warning: string
-    error: string
-  }
+  success?: string
+  error?: string
+  http_status?: Record<string, string>
+}
+
+export interface CommonNotificationDictionary {
+  success: string
+  error: string
+  info: string
+  warning: string
+  deleted: string
+  saved: string
   http_status: Record<string, string>
 }
 
@@ -164,5 +170,60 @@ export interface ClientActionState {
   notificationToken?: string
   data?: {
     logo_url?: string
+  }
+}
+
+export interface Screen {
+  id: string
+  screenKey: string
+  title: string
+  description: string
+  isActive: boolean
+  updatedAt: string
+}
+
+export interface ScreenFormDict {
+  common: {
+    actions: {
+      discard: string
+      save: string
+      saving: string
+    }
+    notifications: CommonNotificationDictionary
+    table: {
+      status_active: string
+      status_inactive: string
+    }
+  }
+  table: {
+    column_key: string
+    column_title: string
+    column_description: string
+    column_status: string
+    column_updated: string
+    form: {
+      title_label: string
+      title_placeholder: string
+      title_description: string
+      description_label: string
+      description_placeholder: string
+      description_description: string
+      status_label: string
+      status_description: string
+    }
+  }
+  notifications: {
+    success: string
+    error: string
+  }
+}
+
+export interface ScreenActionState {
+  status: 'idle' | 'success' | 'error'
+  httpStatus?: number
+  notificationToken?: string
+  fieldErrors?: {
+    title?: string
+    description?: string
   }
 }

@@ -36,7 +36,13 @@ export default async function GeneralSettingsPage({
 
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0 md:gap-6 md:p-6 md:pt-0">
         <GeneralForm
-          dict={dict.general_form}
+          dict={{
+            ...dict.general_form,
+            common: {
+              ...dict.common,
+              notifications: dict.common.notifications,
+            },
+          }}
           dictUpload={dict.input_upload}
           notificationsDict={dict.notifications.client_update}
           lang={lang}

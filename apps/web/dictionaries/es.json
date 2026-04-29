@@ -1,0 +1,244 @@
+{
+  "common": {
+    "actions": {
+      "save": "Guardar cambios",
+      "saving": "Guardando...",
+      "discard": "Descartar",
+      "cancel": "Cancelar",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "copy": "Copiar",
+      "confirm": "Confirmar",
+      "refresh": "Recargar",
+      "view_more": "Ver más",
+      "view_less": "Ver menos"
+    },
+    "table": {
+      "status_active": "Activo",
+      "status_inactive": "Inactivo",
+      "no_results": "No se encontraron resultados.",
+      "actions_column": "Acciones",
+      "search_placeholder": "Buscar...",
+      "columns_button": "Columnas",
+      "next_button": "Siguiente",
+      "previous_button": "Anterior",
+      "rows_per_page": "Filas por página",
+      "selected_rows": "{count} de {total} fila(s) seleccionadas."
+    },
+    "dialogs": {
+      "delete_confirm": {
+        "title": "¿Está absolutamente seguro?",
+        "description": "Esta acción no se puede deshacer. Esto eliminará permanentemente el registro.",
+        "confirm": "Eliminar",
+        "cancel": "Cancelar"
+      },
+      "edit_dialog": {
+        "title": "Editar {item}",
+        "description": "Realice los cambios aquí. Haga clic en guardar cuando haya terminado.",
+        "cancel": "Cancelar",
+        "save": "Guardar cambios"
+      }
+    },
+    "notifications": {
+      "success": "Acción completada con éxito.",
+      "error": "Ocurrió un error al procesar su solicitud.",
+      "info": "Solicitud procesada.",
+      "warning": "Espere antes de volver a intentarlo.",
+      "deleted": "Elemento eliminado con éxito.",
+      "saved": "Cambios guardados con éxito.",
+      "http_status": {
+        "400": "Revise la información e inténtelo de nuevo.",
+        "401": "Acceso no autorizado. Por favor, inicie sesión.",
+        "403": "Acceso denegado.",
+        "404": "Servicio o recurso no encontrado.",
+        "409": "Conflicto en la solicitud. Inténtelo de nuevo.",
+        "429": "Demasiados intentos. Inténtelo de nuevo en unos minutos.",
+        "500": "Error interno del servidor. Nuestro equipo ha sido notificado."
+      }
+    }
+  },
+  "validation": {
+    "required_email": "El correo electrónico es obligatorio.",
+    "required_password": "La contraseña es obligatoria.",
+    "invalid_credentials": "Correo electrónico o contraseña incorrectos.",
+    "passwords_dont_match": "Las contraseñas no coinciden.",
+    "invalid_otp": "Código inválido o caducado.",
+    "required_otp": "El código de verificación es obligatorio.",
+    "required_name": "El nombre es obligatorio.",
+    "required_domain": "El dominio es obligatorio."
+  },
+  "sign_in": {
+    "title": "Bienvenido",
+    "description": "Ingrese su correo electrónico y contraseña para acceder a su cuenta",
+    "email_label": "Correo electrónico",
+    "email_placeholder": "nombre@ejemplo.com",
+    "password_label": "Contraseña",
+    "password_placeholder": "••••••••",
+    "forgot_password": "¿Olvidó su contraseña?",
+    "submit_button": "Iniciar sesión",
+    "loading_button": "Accediendo..."
+  },
+  "notifications": {
+    "sign_in": {
+      "success": "Sesión iniciada con éxito.",
+      "error": "No se pudo iniciar sesión en este momento.",
+      "http_status": {
+        "401": "Correo electrónico o contraseña incorrectos."
+      }
+    },
+    "sign_out": {
+      "success": "Sesión cerrada con éxito.",
+      "error": "No se pudo cerrar la sesión en este momento."
+    },
+    "forgot_password": {
+      "success": "Instrucciones de recuperación enviadas si la cuenta existe.",
+      "error": "No se pudo procesar la recuperación de contraseña en este momento."
+    },
+    "verify_otp": {
+      "success": "Código verificado con éxito.",
+      "error": "No se pudo validar el código en este momento."
+    },
+    "reset_password": {
+      "success": "Contraseña actualizada con éxito.",
+      "error": "No se pudo restablecer la contraseña en este momento."
+    },
+    "client_update": {
+      "success": "Configuración actualizada con éxito.",
+      "error": "No se pudo actualizar la configuración en este momento."
+    },
+    "screens": {
+      "success": "Los parámetros se guardaron con éxito.",
+      "error": "Error al guardar los parámetros."
+    }
+  },
+  "theme_toggle": {
+    "label": "Cambiar tema",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema"
+  },
+  "forgot_password": {
+    "title": "¿Olvidó su contraseña?",
+    "description": "Ingrese su correo electrónico para recibir instrucciones de recuperación",
+    "email_label": "Correo electrónico",
+    "email_placeholder": "nombre@ejemplo.com",
+    "submit_button": "Enviar instrucciones",
+    "loading_button": "Enviando...",
+    "back_to_login": "Volver al inicio de sesión"
+  },
+  "locale_switcher": {
+    "label": "Cambiar idioma",
+    "en": "Inglés",
+    "pt": "Portugués",
+    "es": "Español"
+  },
+  "footer": {
+    "rights": "© {year} {name}. Todos los derechos reservados.",
+    "privacy_terms": "Términos de privacidad",
+    "system_policies": "Políticas del sistema",
+    "close": "Cerrar",
+    "privacy_content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+    "policies_content": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt."
+  },
+  "verify_otp": {
+    "title": "Verificar código",
+    "description": "Ingrese el código de 6 dígitos enviado a su correo electrónico",
+    "submit_button": "Verificar",
+    "loading_button": "Verificando...",
+    "resend_button": "Reenviar código",
+    "resend_success": "Código reenviado con éxito.",
+    "back_to_login": "Volver al inicio de sesión"
+  },
+  "reset_password": {
+    "title": "Restablecer contraseña",
+    "description": "Cree una nueva contraseña segura para su cuenta",
+    "email_label": "Correo electrónico",
+    "password_label": "Nueva contraseña",
+    "confirm_password_label": "Confirmar contraseña",
+    "password_placeholder": "••••••••",
+    "submit_button": "Restablecer contraseña",
+    "loading_button": "Restableciendo...",
+    "security_rules": {
+      "title": "Requisitos de seguridad",
+      "min_chars": "Mínimo 8 caracteres",
+      "number": "Al menos un número",
+      "uppercase": "Una letra mayúscula",
+      "lowercase": "Una letra minúscula",
+      "special": "Un carácter especial"
+    }
+  },
+  "input_upload": {
+    "title": "Subir archivo",
+    "title_dragging": "Suelte su archivo aquí",
+    "description_single": "Máx {maxSize}",
+    "description_multiple": "Hasta {maxFiles} archivos · máx {maxSize} cada uno",
+    "browse": "Buscar archivos",
+    "aria_label": "Subida de archivos",
+    "aria_upload_area": "Área de subida",
+    "aria_remove": "Eliminar {name}",
+    "replace": "Reemplazar",
+    "remove": "Eliminar",
+    "error_max_files": "Se ha alcanzado el máximo de {maxFiles} archivo.",
+    "error_max_files_plural": "Se ha alcanzado el máximo de {maxFiles} archivos.",
+    "error_size": "El archivo excede el límite de {maxSize}.",
+    "error_size_plural": "Los archivos exceden el límite de {maxSize}."
+  },
+  "general_form": {
+    "breadcrumb_settings": "Configuración",
+    "breadcrumb_parameters": "Parámetros",
+    "media_title": "Logo",
+    "media_description": "Suba el logo de su marca o empresa.",
+    "info_title": "Información general",
+    "info_description": "Detalles básicos sobre su empresa.",
+    "name_label": "Nombre",
+    "name_placeholder": "ej. Mi Empresa",
+    "name_description": "El nombre oficial de su organización.",
+    "description_label": "Descripción",
+    "description_placeholder": "Describa su empresa...",
+    "description_description": "Una breve descripción de lo que hace su empresa.",
+    "domain_label": "Dominio",
+    "domain_placeholder": "ej. miempresa.com",
+    "domain_description": "La dirección personalizada para acceder a su portal."
+  },
+  "auth": {
+    "typewriter_phrases": {
+      "0": "¡Bienvenido a nuestra plataforma!",
+      "1": "Su productividad es lo primero.",
+      "2": "Seguridad y agilidad para su equipo."
+    }
+  },
+  "sidebar": {
+    "groups": {
+      "platform": "Plataforma",
+      "projects": "Proyectos"
+    },
+    "nav_main": {
+      "dashboard": "Tablero",
+      "settings": "Configuración",
+      "general": "General",
+      "team": "Equipo",
+      "parameters": "Parámetros",
+      "screens": "Pantallas",
+      "fields": "Campos"
+    }
+  },
+  "screens_page": {
+    "table": {
+      "column_key": "Clave",
+      "column_title": "Título",
+      "column_description": "Descripción",
+      "column_status": "Estado",
+      "column_updated": "Última actualización",
+      "form": {
+        "title_label": "Título",
+        "title_placeholder": "Título de la pantalla",
+        "title_description": "El nombre de visualización de la pantalla.",
+        "description_label": "Descripción",
+        "description_placeholder": "Breve descripción",
+        "description_description": "Un pequeño resumen de lo que hace esta pantalla.",
+        "status_label": "Estado activo",
+        "status_description": "Activar o desactivar esta pantalla en el sistema."
+      }
+    }
+  }
+}

@@ -8,7 +8,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "lang:create": "node scripts/lang-manager.js create",
+    "lang:update": "node scripts/lang-manager.js update",
+    "lang:delete": "node scripts/lang-manager.js delete",
+    "lang:add": "node scripts/lang-adder.js add",
+    "lang:remove": "node scripts/lang-adder.js remove"
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.8.4",
@@ -36,8 +41,12 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "chalk": "^4.1.2",
+    "commander": "^14.0.3",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
+    "glob": "^13.0.6",
+    "inquirer": "^13.4.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

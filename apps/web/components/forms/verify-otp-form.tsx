@@ -12,7 +12,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { initialVerifyOtpState } from '@/lib/action/verify-otp-state'
 import { resendRecoveryOtpAction, verifyRecoveryOtpAction } from '@/lib/action/verify-otp'
 import { notifyFromApi } from '@/lib/notifications'
-import type { NotificationDictionary } from '@/types/api'
+import type { NotificationDictionary, CommonNotificationDictionary } from '@/types/api'
 
 interface VerifyOTPFormProps {
   dict: {
@@ -25,9 +25,14 @@ interface VerifyOTPFormProps {
     resend_success: string
   }
   notificationsDict: NotificationDictionary
+  commonNotificationsDict: CommonNotificationDictionary
 }
 
-export function VerifyOTPForm({ dict, notificationsDict }: VerifyOTPFormProps) {
+export function VerifyOTPForm({
+  dict,
+  notificationsDict,
+  commonNotificationsDict,
+}: VerifyOTPFormProps) {
   const [state, formAction, isPending] = React.useActionState(
     verifyRecoveryOtpAction,
     initialVerifyOtpState,
@@ -55,9 +60,10 @@ export function VerifyOTPForm({ dict, notificationsDict }: VerifyOTPFormProps) {
     notifyFromApi({
       httpStatus: state.httpStatus,
       dictionary: notificationsDict,
+      commonDictionary: commonNotificationsDict,
       lang,
     })
-  }, [lang, notificationsDict, state.httpStatus, state.notificationToken])
+  }, [lang, notificationsDict, commonNotificationsDict, state.httpStatus, state.notificationToken])
 
   React.useEffect(() => {
     if (!resendStatus) {
@@ -70,10 +76,11 @@ export function VerifyOTPForm({ dict, notificationsDict }: VerifyOTPFormProps) {
       notifyFromApi({
         httpStatus: resendStatus,
         dictionary: notificationsDict,
+        commonDictionary: commonNotificationsDict,
         lang,
       })
     }
-  }, [lang, notificationsDict, resendStatus, dict.resend_success])
+  }, [lang, notificationsDict, commonNotificationsDict, resendStatus, dict.resend_success])
 
   function handleResend() {
     if (countdown > 0 || isPending || isResending) return

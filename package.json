@@ -13,7 +13,12 @@
     "lint": "turbo run lint",
     "test": "turbo run test",
     "format": "turbo run format",
-    "prepare": "husky"
+    "prepare": "husky",
+    "lang:create": "npm run lang:create --workspace=web",
+    "lang:update": "npm run lang:update --workspace=web",
+    "lang:delete": "npm run lang:delete --workspace=web",
+    "lang:add": "npm run lang:add --workspace=web",
+    "lang:remove": "npm run lang:remove --workspace=web"
   },
   "keywords": [],
   "author": "",

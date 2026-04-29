@@ -2,9 +2,6 @@ import {
   GalleryVerticalEndIcon,
   AudioLinesIcon,
   TerminalIcon,
-  FrameIcon,
-  PieChartIcon,
-  MapIcon,
   LayoutDashboardIcon,
   SettingsIcon,
   MonitorCog,
@@ -57,27 +54,22 @@ export const getSidebarData = (domain: string, dict: { sidebar?: SidebarDict }) 
         ],
       },
       {
-        title: 'Parameters',
+        title: navMainDict.parameters || 'Parameters',
         icon: createElement(MonitorCog),
         type: 'dropdown',
         items: [
-          { title: 'Screens', icon: createElement(Cast), url: `/${domain}/parameters/screens` },
-          { title: 'Fields', icon: createElement(MonitorCog), url: `/${domain}/parameters/fields` },
+          {
+            title: navMainDict.screens || 'Screens',
+            icon: createElement(Cast),
+            url: `/${domain}/parameters/screens`,
+          },
+          {
+            title: navMainDict.fields || 'Fields',
+            icon: createElement(MonitorCog),
+            url: `/${domain}/parameters/fields`,
+          },
         ],
       },
-    ],
-    projects: [
-      {
-        name: 'Design Engineering',
-        url: `/${domain}/projects/design`,
-        icon: createElement(FrameIcon),
-      },
-      {
-        name: 'Sales & Marketing',
-        url: `/${domain}/projects/sales`,
-        icon: createElement(PieChartIcon),
-      },
-      { name: 'Travel', url: `/${domain}/projects/travel`, icon: createElement(MapIcon) },
     ],
   }
 }

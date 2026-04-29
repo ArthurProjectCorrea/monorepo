@@ -2,7 +2,7 @@
   "screen": {
     "title": "Parâmetros de Tela",
     "description": "Gerencie as telas, títulos e descrições do sistema.",
-    "screenKey": "screens"
+    "screenKey": "screen_parameters"
   },
   "data": [
     {
@@ -31,6 +31,22 @@
     },
     {
       "id": "4",
+      "screenKey": "parameters",
+      "title": "System Parameters",
+      "description": "Advanced configuration for screens and fields.",
+      "isActive": false,
+      "updatedAt": "2024-04-25T14:20:00Z"
+    },
+    {
+      "id": "5",
+      "screenKey": "parameters",
+      "title": "System Parameters",
+      "description": "Advanced configuration for screens and fields.",
+      "isActive": false,
+      "updatedAt": "2024-04-25T14:20:00Z"
+    },
+    {
+      "id": "6",
       "screenKey": "parameters",
       "title": "System Parameters",
       "description": "Advanced configuration for screens and fields.",

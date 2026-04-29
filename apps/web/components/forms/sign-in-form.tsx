@@ -12,7 +12,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { signInAction } from '@/lib/action/sign-in'
 import { initialSignInState } from '@/lib/action/sign-in-state'
 import { notifyFromApi } from '@/lib/notifications'
-import type { NotificationDictionary } from '@/types/api'
+import type { NotificationDictionary, CommonNotificationDictionary } from '@/types/api'
 
 interface SignInFormProps {
   dict: {
@@ -29,6 +29,7 @@ interface SignInFormProps {
   notificationsDict: NotificationDictionary
   resetNotificationsDict: NotificationDictionary
   signOutNotificationsDict: NotificationDictionary
+  commonNotificationsDict: CommonNotificationDictionary
 }
 
 export function SignInForm({
@@ -36,6 +37,7 @@ export function SignInForm({
   notificationsDict,
   resetNotificationsDict,
   signOutNotificationsDict,
+  commonNotificationsDict,
 }: SignInFormProps) {
   const [state, formAction, isPending] = React.useActionState(signInAction, initialSignInState)
   const [isRedirecting, setIsRedirecting] = React.useState(false)
@@ -52,6 +54,7 @@ export function SignInForm({
     notifyFromApi({
       httpStatus: state.httpStatus,
       dictionary: notificationsDict,
+      commonDictionary: commonNotificationsDict,
       lang,
     })
 
@@ -63,6 +66,7 @@ export function SignInForm({
   }, [
     lang,
     notificationsDict,
+    commonNotificationsDict,
     router,
     state.domain,
     state.httpStatus,
@@ -75,6 +79,7 @@ export function SignInForm({
       notifyFromApi({
         httpStatus: 200,
         dictionary: resetNotificationsDict,
+        commonDictionary: commonNotificationsDict,
         lang,
       })
 
@@ -84,11 +89,18 @@ export function SignInForm({
       notifyFromApi({
         httpStatus: 200,
         dictionary: signOutNotificationsDict,
+        commonDictionary: commonNotificationsDict,
         lang,
       })
       window.history.replaceState({}, '', `/${lang}/sign-in`)
     }
-  }, [lang, resetNotificationsDict, signOutNotificationsDict, searchParams])
+  }, [
+    lang,
+    resetNotificationsDict,
+    signOutNotificationsDict,
+    commonNotificationsDict,
+    searchParams,
+  ])
 
   return (
     <div className="flex flex-col gap-6">

@@ -14,12 +14,12 @@ import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { InputUpload, type InputUploadDict, type UploadedFile } from '@/components/input-upload'
 import { Spinner } from '@/components/ui/spinner'
-import type { NotificationDictionary } from '@/types/api'
+import { notifyFromApi } from '@/lib/notifications'
+import type { NotificationDictionary, CommonNotificationDictionary } from '@/types/api'
 import * as React from 'react'
 import { useActionState, useEffect, useState } from 'react'
 import { updateClientAction, updateLogoAction } from '@/lib/action/client'
 import { initialClientState } from '@/lib/action/client-state'
-import { notifyFromApi } from '@/lib/notifications'
 import { toast } from 'sonner'
 
 // ─── Dict shape ───────────────────────────────────────────────────────────────
@@ -39,9 +39,14 @@ export interface GeneralFormDict {
   domain_label: string
   domain_placeholder: string
   domain_description: string
-  discard: string
-  save: string
-  saving: string
+  common: {
+    actions: {
+      discard: string
+      save: string
+      saving: string
+    }
+    notifications: CommonNotificationDictionary
+  }
 }
 
 export interface GeneralFormProps {
@@ -75,10 +80,18 @@ export function GeneralForm({
       notifyFromApi({
         httpStatus: state.httpStatus || 500,
         dictionary: notificationsDict,
+        commonDictionary: dict.common.notifications,
         lang,
       })
     }
-  }, [state.status, state.notificationToken, state.httpStatus, notificationsDict, lang])
+  }, [
+    state.status,
+    state.notificationToken,
+    state.httpStatus,
+    notificationsDict,
+    dict.common.notifications,
+    lang,
+  ])
 
   const handleLogoChange = async (uploadedFiles: UploadedFile[]) => {
     if (uploadedFiles.length > 0) {
@@ -91,13 +104,13 @@ export function GeneralForm({
         const newUrl = await updateLogoAction(formData)
         if (newUrl) {
           setCurrentLogoUrl(newUrl)
-          toast.success('Logo atualizado com sucesso!')
+          toast.success(dict.common.notifications.saved)
         } else {
-          toast.error('Falha ao atualizar o logo.')
+          toast.error(dict.common.notifications.error)
         }
       } catch (err) {
         console.error(err)
-        toast.error('Erro no upload.')
+        toast.error(dict.common.notifications.error)
       } finally {
         setIsUploadingLogo(false)
       }
@@ -167,16 +180,16 @@ export function GeneralForm({
 
             <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <Button variant="outline" type="reset" disabled={isPending}>
-                {dict.discard}
+                {dict.common.actions.discard}
               </Button>
               <Button type="submit" disabled={isPending}>
                 {isPending ? (
                   <>
                     <Spinner className="mr-2" />
-                    {dict.saving}
+                    {dict.common.actions.saving}
                   </>
                 ) : (
-                  dict.save
+                  dict.common.actions.save
                 )}
               </Button>
             </div>

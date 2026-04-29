@@ -1,4 +1,62 @@
 {
+  "common": {
+    "actions": {
+      "save": "Salvar alterações",
+      "saving": "Salvando...",
+      "discard": "Descartar",
+      "cancel": "Cancelar",
+      "edit": "Editar",
+      "delete": "Excluir",
+      "copy": "Copiar",
+      "confirm": "Confirmar",
+      "refresh": "Recarregar",
+      "view_more": "Ver mais",
+      "view_less": "Ver menos"
+    },
+    "table": {
+      "status_active": "Ativo",
+      "status_inactive": "Inativo",
+      "no_results": "Nenhum resultado encontrado.",
+      "actions_column": "Ações",
+      "search_placeholder": "Pesquisar...",
+      "columns_button": "Colunas",
+      "next_button": "Próximo",
+      "previous_button": "Anterior",
+      "rows_per_page": "Linhas por página",
+      "selected_rows": "{count} de {total} linha(s) selecionada(s)."
+    },
+    "dialogs": {
+      "delete_confirm": {
+        "title": "Você tem certeza absoluta?",
+        "description": "Esta ação não pode ser desfeita. Isso excluirá permanentemente o registro.",
+        "confirm": "Excluir",
+        "cancel": "Cancelar"
+      },
+      "edit_dialog": {
+        "title": "Editar {item}",
+        "description": "Faça as alterações necessárias aqui. Clique em salvar quando terminar.",
+        "cancel": "Cancelar",
+        "save": "Salvar alterações"
+      }
+    },
+    "notifications": {
+      "success": "Ação concluída com sucesso.",
+      "error": "Ocorreu um erro ao processar sua solicitação.",
+      "info": "Solicitação processada.",
+      "warning": "Aguarde antes de tentar novamente.",
+      "deleted": "Item excluído com sucesso.",
+      "saved": "Alterações salvas com sucesso.",
+      "http_status": {
+        "400": "Revise os dados informados e tente novamente.",
+        "401": "Acesso não autorizado. Faça login novamente.",
+        "403": "Acesso negado.",
+        "404": "Serviço ou recurso não encontrado.",
+        "409": "Conflito na solicitação. Tente novamente.",
+        "429": "Muitas tentativas. Tente novamente em alguns minutos.",
+        "500": "Erro interno no servidor. Nossa equipe foi notificada."
+      }
+    }
+  },
   "validation": {
     "required_email": "Informe o e-mail.",
     "required_password": "Informe a senha.",
@@ -22,104 +80,35 @@
   },
   "notifications": {
     "sign_in": {
-      "defaults": {
-        "success": "Login realizado com sucesso.",
-        "info": "Solicitação processada.",
-        "warning": "Aguarde antes de tentar novamente.",
-        "error": "Não foi possível concluir o login agora."
-      },
+      "success": "Login realizado com sucesso.",
+      "error": "Não foi possível concluir o login agora.",
       "http_status": {
-        "200": "Login realizado com sucesso.",
-        "400": "Revise os dados informados e tente novamente.",
-        "401": "E-mail ou senha incorretos.",
-        "403": "Acesso negado.",
-        "404": "Rota do serviço de autenticação não encontrada.",
-        "409": "Conflito na solicitação de login. Tente novamente.",
-        "429": "Muitas tentativas. Tente novamente em alguns minutos.",
-        "500": "Serviço de autenticação temporariamente indisponível."
+        "401": "E-mail ou senha incorretos."
       }
     },
     "sign_out": {
-      "defaults": {
-        "success": "Sessão encerrada com sucesso.",
-        "info": "Sessão encerrada.",
-        "warning": "Aguarde antes de tentar novamente.",
-        "error": "Não foi possível encerrar a sessão agora."
-      },
-      "http_status": {
-        "200": "Sessão encerrada com sucesso."
-      }
+      "success": "Sessão encerrada com sucesso.",
+      "error": "Não foi possível encerrar a sessão agora."
     },
     "forgot_password": {
-      "defaults": {
-        "success": "Instruções de recuperação enviadas se a conta existir.",
-        "info": "Solicitação processada.",
-        "warning": "Aguarde antes de tentar novamente.",
-        "error": "Não foi possível processar a recuperação agora."
-      },
-      "http_status": {
-        "200": "Instruções de recuperação enviadas se a conta existir.",
-        "400": "Revise os dados informados e tente novamente.",
-        "401": "Não foi possível concluir a recuperação.",
-        "403": "Acesso negado.",
-        "404": "Rota do serviço de recuperação não encontrada.",
-        "409": "Conflito na solicitação de recuperação. Tente novamente.",
-        "429": "Muitas tentativas. Tente novamente em alguns minutos.",
-        "500": "Serviço de recuperação temporariamente indisponível."
-      }
+      "success": "Instruções de recuperação enviadas se a conta existir.",
+      "error": "Não foi possível processar a recuperação agora."
     },
     "verify_otp": {
-      "defaults": {
-        "success": "Código validado com sucesso.",
-        "info": "Solicitação processada.",
-        "warning": "Aguarde antes de tentar novamente.",
-        "error": "Não foi possível validar o código agora."
-      },
-      "http_status": {
-        "200": "Código validado com sucesso.",
-        "400": "Informe um código válido e tente novamente.",
-        "401": "Falha na validação do código.",
-        "403": "Acesso negado.",
-        "404": "Rota do serviço de validação não encontrada.",
-        "409": "Conflito na solicitação de validação. Tente novamente.",
-        "429": "Muitas tentativas. Tente novamente em alguns minutos.",
-        "500": "Serviço de validação temporariamente indisponível."
-      }
+      "success": "Código validado com sucesso.",
+      "error": "Não foi possível validar o código agora."
     },
     "reset_password": {
-      "defaults": {
-        "success": "Senha atualizada com sucesso.",
-        "info": "Solicitação processada.",
-        "warning": "Aguarde antes de tentar novamente.",
-        "error": "Não foi possível redefinir a senha agora."
-      },
-      "http_status": {
-        "200": "Senha atualizada com sucesso.",
-        "400": "Revise os dados informados e tente novamente.",
-        "401": "Não foi possível concluir a redefinição da senha.",
-        "403": "Acesso negado.",
-        "404": "Rota do serviço de redefinição não encontrada.",
-        "409": "Conflito na solicitação de redefinição. Tente novamente.",
-        "429": "Muitas tentativas. Tente novamente em alguns minutos.",
-        "500": "Serviço de redefinição temporariamente indisponível."
-      }
+      "success": "Senha atualizada com sucesso.",
+      "error": "Não foi possível redefinir a senha agora."
     },
     "client_update": {
-      "defaults": {
-        "success": "Configurações atualizadas com sucesso.",
-        "info": "Solicitação processada.",
-        "warning": "Aguarde antes de tentar novamente.",
-        "error": "Não foi possível atualizar as configurações agora."
-      },
-      "http_status": {
-        "200": "Configurações atualizadas com sucesso.",
-        "400": "Revise os dados informados e tente novamente.",
-        "401": "Sessão expirada. Faça login novamente.",
-        "403": "Acesso negado.",
-        "404": "Serviço não encontrado.",
-        "429": "Muitas tentativas. Tente novamente em alguns minutos.",
-        "500": "Erro interno no servidor."
-      }
+      "success": "Configurações atualizadas com sucesso.",
+      "error": "Não foi possível atualizar as configurações agora."
+    },
+    "screens": {
+      "success": "Parâmetros salvos com sucesso.",
+      "error": "Erro ao salvar os parâmetros."
     }
   },
   "theme_toggle": {
@@ -140,7 +129,8 @@
   "locale_switcher": {
     "label": "Mudar idioma",
     "en": "Inglês",
-    "pt": "Português"
+    "pt": "Português",
+    "es": "Espanhol"
   },
   "footer": {
     "rights": "© {year} {name}. Todos os direitos reservados.",
@@ -208,10 +198,7 @@
     "description_description": "Uma breve descrição do que sua empresa faz.",
     "domain_label": "Domínio",
     "domain_placeholder": "ex: minhaempresa.com",
-    "domain_description": "O endereço personalizado para acessar seu portal.",
-    "discard": "Descartar",
-    "save": "Salvar alterações",
-    "saving": "Salvando..."
+    "domain_description": "O endereço personalizado para acessar seu portal."
   },
   "auth": {
     "typewriter_phrases": [
@@ -229,7 +216,10 @@
       "dashboard": "Visão Geral",
       "settings": "Configurações",
       "general": "Geral",
-      "team": "Equipe"
+      "team": "Equipe",
+      "parameters": "Parâmetros",
+      "screens": "Telas",
+      "fields": "Campos"
     }
   },
   "screens_page": {
@@ -239,23 +229,16 @@
       "column_description": "Descrição",
       "column_status": "Status",
       "column_updated": "Última Atualização",
-      "status_active": "Ativo",
-      "status_inactive": "Inativo",
-      "actions": "Ações",
-      "action_edit": "Editar Tela",
-      "action_copy_key": "Copiar Chave"
+      "form": {
+        "title_label": "Título",
+        "title_placeholder": "Título da tela",
+        "title_description": "O nome de exibição da tela.",
+        "description_label": "Descrição",
+        "description_placeholder": "Breve descrição",
+        "description_description": "Um pequeno resumo do que esta tela faz.",
+        "status_label": "Status Ativo",
+        "status_description": "Ativar ou desativar esta tela no sistema."
+      }
     }
-  },
-  "data_table": {
-    "search_placeholder": "Pesquisar...",
-    "columns_button": "Colunas",
-    "next_button": "Próximo",
-    "previous_button": "Anterior",
-    "rows_per_page": "Linhas por página",
-    "selected_rows": "{count} de {total} linha(s) selecionada(s).",
-    "no_results": "Nenhum resultado encontrado.",
-    "actions": "Ações",
-    "action_edit": "Editar",
-    "action_delete": "Excluir"
   }
 }

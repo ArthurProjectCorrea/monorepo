@@ -20,6 +20,7 @@ export default async function ForgotPasswordPage({
       <ForgotPasswordForm
         dict={dict.forgot_password}
         notificationsDict={dict.notifications.forgot_password}
+        commonNotificationsDict={dict.common.notifications}
       />
     </div>
   )

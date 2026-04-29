@@ -33,7 +33,7 @@ public class AppDbContext : IdentityDbContext<User>
 
         builder.Entity<Screen>(entity =>
         {
-            entity.HasIndex(s => s.ScreenKey).IsUnique();
+            entity.HasIndex(s => new { s.ScreenKey, s.ClientId }).IsUnique();
         });
     }
 }

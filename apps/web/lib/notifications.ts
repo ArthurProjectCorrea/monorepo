@@ -1,11 +1,16 @@
 'use client'
 
 import { toast } from 'sonner'
-import type { NotificationDictionary, NotificationVariant } from '@/types/api'
+import type {
+  NotificationDictionary,
+  CommonNotificationDictionary,
+  NotificationVariant,
+} from '@/types/api'
 
 interface NotifyFromApiParams {
   httpStatus: number
   dictionary: NotificationDictionary
+  commonDictionary: CommonNotificationDictionary
   lang?: string
 }
 
@@ -48,31 +53,45 @@ function getVariantFromHttpStatus(httpStatus: number): NotificationVariant {
   return 'info'
 }
 
-function resolveMessage(httpStatus: number, dictionary: NotificationDictionary) {
+function resolveMessage(
+  httpStatus: number,
+  dictionary: NotificationDictionary,
+  commonDictionary: CommonNotificationDictionary,
+) {
   const key = String(httpStatus)
-  if (dictionary.http_status[key]) {
+
+  // 1. Try page-specific http_status
+  if (dictionary.http_status?.[key]) {
     return dictionary.http_status[key]
   }
 
+  // 2. Try common http_status
+  if (commonDictionary.http_status[key]) {
+    return commonDictionary.http_status[key]
+  }
+
   const variant = getVariantFromHttpStatus(httpStatus)
-  if (variant === 'success') {
-    return dictionary.defaults.success
-  }
 
-  if (variant === 'warning') {
-    return dictionary.defaults.warning
-  }
+  // 3. Try page-specific defaults
+  if (variant === 'success' && dictionary.success) return dictionary.success
+  if (variant === 'error' && dictionary.error) return dictionary.error
 
-  if (variant === 'error') {
-    return dictionary.defaults.error
-  }
+  // 4. Fallback to common defaults
+  if (variant === 'success') return commonDictionary.success
+  if (variant === 'warning') return commonDictionary.warning
+  if (variant === 'error') return commonDictionary.error
 
-  return dictionary.defaults.info
+  return commonDictionary.info
 }
 
-export function notifyFromApi({ httpStatus, dictionary, lang }: NotifyFromApiParams) {
+export function notifyFromApi({
+  httpStatus,
+  dictionary,
+  commonDictionary,
+  lang,
+}: NotifyFromApiParams) {
   const activeLang = getActiveLanguage(lang)
-  const message = resolveMessage(httpStatus, dictionary)
+  const message = resolveMessage(httpStatus, dictionary, commonDictionary)
   const variant = getVariantFromHttpStatus(httpStatus)
 
   if (variant === 'success') {
