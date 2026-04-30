@@ -1,0 +1,31 @@
+[
+  {
+    "id": "1",
+    "name": "Administrador",
+    "description": "Acesso total ao sistema",
+    "isActive": true,
+    "updatedAt": "2024-04-30T10:00:00Z",
+    "permissions": [
+      { "profileId": "1", "screenId": "teams", "actionId": "view" },
+      { "profileId": "1", "screenId": "teams", "actionId": "create" },
+      { "profileId": "1", "screenId": "teams", "actionId": "update" },
+      { "profileId": "1", "screenId": "teams", "actionId": "delete" },
+      { "profileId": "1", "screenId": "screens", "actionId": "view" },
+      { "profileId": "1", "screenId": "screens", "actionId": "create" },
+      { "profileId": "1", "screenId": "screens", "actionId": "update" },
+      { "profileId": "1", "screenId": "screens", "actionId": "delete" }
+    ]
+  },
+  {
+    "id": "2",
+    "name": "Operador",
+    "description": "Acesso restrito para operação diária",
+    "isActive": true,
+    "updatedAt": "2024-04-29T15:30:00Z",
+    "permissions": [
+      { "profileId": "2", "screenId": "teams", "actionId": "view" },
+      { "profileId": "2", "screenId": "teams", "actionId": "update" },
+      { "profileId": "2", "screenId": "screens", "actionId": "view" }
+    ]
+  }
+]

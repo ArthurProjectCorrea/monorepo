@@ -192,6 +192,7 @@ export interface ScreenFormDict {
       cancel: string
       edit: string
       delete: string
+      back: string
     }
     dialogs: {
       delete_confirm: {
@@ -214,6 +215,7 @@ export interface ScreenFormDict {
       column_status: string
       column_updated_at: string
       column_created_at: string
+      no_results: string
     }
   }
   table: {
@@ -267,6 +269,7 @@ export interface TeamFormDict {
       cancel: string
       edit: string
       delete: string
+      back: string
     }
     dialogs: {
       delete_confirm: {
@@ -289,6 +292,7 @@ export interface TeamFormDict {
       column_status: string
       column_updated_at: string
       column_created_at: string
+      no_results: string
     }
   }
   table: {
@@ -319,5 +323,98 @@ export interface TeamActionState {
   fieldErrors?: {
     name?: string
     description?: string
+  }
+}
+
+export interface PermissionAction {
+  id: string // e.g., 'view', 'create', 'update', 'delete'
+  name: string
+}
+
+export interface AccessProfilePermission {
+  profileId: string
+  screenId: string
+  actionId: string
+}
+
+export interface AccessProfile {
+  id: string
+  name: string
+  description: string
+  isActive: boolean
+  updatedAt: string
+  permissions: AccessProfilePermission[]
+}
+
+export interface AccessProfileFormDict {
+  common: {
+    actions: {
+      discard: string
+      save: string
+      saving: string
+      create: string
+      cancel: string
+      edit: string
+      delete: string
+      back: string
+    }
+    dialogs: {
+      delete_confirm: {
+        title: string
+        description: string
+        cancel: string
+        confirm: string
+      }
+    }
+    notifications: CommonNotificationDictionary
+    table: {
+      status_active: string
+      status_inactive: string
+      column_status: string
+      column_updated_at: string
+      column_created_at: string
+      no_results: string
+    }
+  }
+  table: {
+    column_name: string
+    column_description: string
+    form: {
+      title_label: string
+      title_placeholder: string
+      title_description: string
+      description_label: string
+      description_placeholder: string
+      description_description: string
+      status_label: string
+      status_description: string
+      permissions_section_title: string
+      permissions_section_description: string
+      permission_view: string
+      permission_create: string
+      permission_update: string
+      permission_delete: string
+    }
+  }
+  notifications: {
+    success: string
+    error: string
+  }
+  screens_page: {
+    table: {
+      column_title: string
+      form: {
+        description_description: string
+      }
+    }
+  }
+  sidebar: {
+    nav_main: {
+      dashboard: string
+      teams: string
+      screens: string
+      access_profiles: string
+      parameters: string
+    }
   }
 }

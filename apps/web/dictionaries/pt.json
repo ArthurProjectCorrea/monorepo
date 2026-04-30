@@ -12,7 +12,8 @@
       "refresh": "Recarregar",
       "view_more": "Ver mais",
       "view_less": "Ver menos",
-      "create": "Novo registro"
+      "create": "Novo registro",
+      "back": "Voltar"
     },
     "table": {
       "status_active": "Ativo",
@@ -117,6 +118,10 @@
     "teams": {
       "success": "Equipe salva com sucesso.",
       "error": "Erro ao salvar a equipe."
+    },
+    "access_profiles": {
+      "success": "Perfil de acesso salvo com sucesso.",
+      "error": "Erro ao salvar perfil de acesso."
     }
   },
   "theme_toggle": {
@@ -224,10 +229,12 @@
       "dashboard": "Visão Geral",
       "settings": "Configurações",
       "general": "Geral",
-      "team": "Equipe",
+      "teams": "Equipe",
       "parameters": "Parâmetros",
       "screens": "Telas",
-      "fields": "Campos"
+      "screen_parameters": "Parâmetros de Telas",
+      "fields": "Campos",
+      "access_profiles": "Perfil de Acesso"
     }
   },
   "screens_page": {
@@ -264,6 +271,30 @@
         "icon_description": "O nome do ícone da biblioteca Lucide"
       },
       "column_icon": "Ícone"
+    }
+  },
+  "access_profiles_page": {
+    "title": "Perfil de Acesso",
+    "description": "Gerencie as permissões e perfis de acesso do sistema.",
+    "table": {
+      "column_name": "Nome",
+      "column_description": "Descrição",
+      "form": {
+        "title_label": "Nome do Perfil",
+        "title_placeholder": "ex: Administrador",
+        "title_description": "O nome que identifica este perfil de acesso.",
+        "description_label": "Descrição",
+        "description_placeholder": "Descreva as responsabilidades deste perfil...",
+        "description_description": "Um breve resumo das permissões deste perfil.",
+        "status_label": "Status Ativo",
+        "status_description": "Habilitar ou desabilitar este perfil no sistema.",
+        "permissions_section_title": "Permissões por Tela",
+        "permissions_section_description": "Defina o que este perfil pode fazer em cada tela do sistema.",
+        "permission_view": "Visualizar",
+        "permission_create": "Criar",
+        "permission_update": "Editar",
+        "permission_delete": "Excluir"
+      }
     }
   }
 }

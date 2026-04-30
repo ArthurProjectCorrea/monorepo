@@ -9,9 +9,11 @@ export interface SidebarDict {
     settings?: string
     general?: string
     team?: string
+    teams?: string
     parameters?: string
     screens?: string
     fields?: string
     more?: string
+    access_profiles?: string
   }
 }

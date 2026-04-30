@@ -73,6 +73,63 @@ public static class DbInitializer
             await context.SaveChangesAsync();
         }
 
+        var accessProfilesScreen = context.Screens.FirstOrDefault(s => s.ScreenKey == "access_profiles" && s.ClientId == defaultClient.Id);
+        if (accessProfilesScreen == null)
+        {
+            accessProfilesScreen = new Screen
+            {
+                Title = "Perfil de Acesso",
+                Description = "Gerencie as permissões e perfis de acesso do sistema.",
+                ScreenKey = "access_profiles",
+                ClientId = defaultClient.Id,
+                IsActive = true
+            };
+            context.Screens.Add(accessProfilesScreen);
+            await context.SaveChangesAsync();
+        }
+
+        // Seed Default Access Profile (Admin)
+        var adminProfile = context.AccessProfiles.FirstOrDefault(ap => ap.Name == "Administrador" && ap.ClientId == defaultClient.Id);
+        if (adminProfile == null)
+        {
+            adminProfile = new AccessProfile
+            {
+                Name = "Administrador",
+                Description = "Perfil com acesso total ao sistema.",
+                IsActive = true,
+                ClientId = defaultClient.Id
+            };
+            context.AccessProfiles.Add(adminProfile);
+            await context.SaveChangesAsync();
+
+            // Seed Permissions for Admin
+            var allScreens = context.Screens.Where(s => s.ClientId == defaultClient.Id).ToList();
+            var screenPermissions = new Dictionary<string, string[]>
+            {
+                { "general", new[] { "view", "update" } },
+                { "screen_parameters", new[] { "view", "update" } },
+                { "teams", new[] { "view", "create", "update", "delete" } },
+                { "access_profiles", new[] { "view", "create", "update", "delete" } }
+            };
+
+            foreach (var screen in allScreens)
+            {
+                if (screenPermissions.TryGetValue(screen.ScreenKey, out var allowedActions))
+                {
+                    foreach (var action in allowedActions)
+                    {
+                        context.AccessProfilePermissions.Add(new AccessProfilePermission
+                        {
+                            AccessProfileId = adminProfile.Id,
+                            ScreenId = screen.Id,
+                            ActionId = action
+                        });
+                    }
+                }
+            }
+            await context.SaveChangesAsync();
+        }
+
         // Seed Default Team
         if (!context.Teams.Any(t => t.ClientId == defaultClient.Id))
         {

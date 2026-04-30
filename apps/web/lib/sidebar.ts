@@ -8,6 +8,7 @@ import {
   Cast,
   Layers,
   Users,
+  ShieldCheck,
 } from 'lucide-react'
 import { createElement } from 'react'
 import type { SidebarDict } from '@/types/sidebar'
@@ -48,7 +49,6 @@ export const getSidebarData = (domain: string, dict: { sidebar?: SidebarDict }) 
       {
         title: navMainDict.settings || 'Settings',
         icon: createElement(SettingsIcon),
-        type: 'dropdown',
         items: [
           {
             title: navMainDict.general || 'General',
@@ -56,16 +56,20 @@ export const getSidebarData = (domain: string, dict: { sidebar?: SidebarDict }) 
             url: `/${domain}/settings/general`,
           },
           {
-            title: navMainDict.team || 'Team',
+            title: navMainDict.teams || 'Team',
             icon: createElement(Users),
             url: `/${domain}/settings/teams`,
+          },
+          {
+            title: navMainDict.access_profiles || 'Access Profiles',
+            icon: createElement(ShieldCheck),
+            url: `/${domain}/settings/access-profiles`,
           },
         ],
       },
       {
         title: navMainDict.parameters || 'Parameters',
         icon: createElement(MonitorCog),
-        type: 'dropdown',
         items: [
           {
             title: navMainDict.screens || 'Screens',

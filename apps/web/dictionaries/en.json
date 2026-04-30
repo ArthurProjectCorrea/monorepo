@@ -12,7 +12,8 @@
       "refresh": "Refresh",
       "view_more": "View more",
       "view_less": "View less",
-      "create": "New record"
+      "create": "New record",
+      "back": "Back"
     },
     "table": {
       "status_active": "Active",
@@ -117,6 +118,10 @@
     "teams": {
       "success": "Team saved successfully.",
       "error": "Error saving team."
+    },
+    "access_profiles": {
+      "success": "Access profile saved successfully.",
+      "error": "Error saving access profile."
     }
   },
   "theme_toggle": {
@@ -224,10 +229,12 @@
       "dashboard": "Dashboard",
       "settings": "Settings",
       "general": "General",
-      "team": "Team",
+      "teams": "Team",
       "parameters": "Parameters",
       "screens": "Screens",
-      "fields": "Fields"
+      "screen_parameters": "Screen Parameters",
+      "fields": "Fields",
+      "access_profiles": "Access Profile"
     }
   },
   "screens_page": {
@@ -264,6 +271,30 @@
         "icon_description": "The name of the icon from the Lucide library"
       },
       "column_icon": "Icon"
+    }
+  },
+  "access_profiles_page": {
+    "title": "Access Profile",
+    "description": "Manage system permissions and access profiles.",
+    "table": {
+      "column_name": "Name",
+      "column_description": "Description",
+      "form": {
+        "title_label": "Profile Name",
+        "title_placeholder": "e.g., Administrator",
+        "title_description": "The name that identifies this access profile.",
+        "description_label": "Description",
+        "description_placeholder": "Describe the responsibilities of this profile...",
+        "description_description": "A brief summary of this profile's permissions.",
+        "status_label": "Active Status",
+        "status_description": "Enable or disable this profile in the system.",
+        "permissions_section_title": "Permissions per Screen",
+        "permissions_section_description": "Define what this profile can do on each system screen.",
+        "permission_view": "View",
+        "permission_create": "Create",
+        "permission_update": "Update",
+        "permission_delete": "Delete"
+      }
     }
   }
 }

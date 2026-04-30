@@ -24,13 +24,15 @@ export interface PageHeaderProps {
   title: string
   /** Optional subtitle below the heading */
   description?: string
+  /** Optional action buttons or elements to display on the right side of the header */
+  actions?: React.ReactNode
 }
 
 /**
  * Shared header for every private page.
  * Renders the sidebar trigger, breadcrumb trail, and the page title/description.
  */
-export function PageHeader({ breadcrumbs, title, description }: PageHeaderProps) {
+export function PageHeader({ breadcrumbs, title, description, actions }: PageHeaderProps) {
   const parents = breadcrumbs.slice(0, -1)
   const current = breadcrumbs[breadcrumbs.length - 1]
 
@@ -67,9 +69,12 @@ export function PageHeader({ breadcrumbs, title, description }: PageHeaderProps)
       </div>
 
       {/* ── Page title + description ───────────────────────────────── */}
-      <div className="px-4 py-4 md:px-6">
-        <h1 className="text-lg font-semibold tracking-tight md:text-xl">{title}</h1>
-        {description && <p className="text-sm text-muted-foreground">{description}</p>}
+      <div className="flex items-center justify-between px-4 py-4 md:px-6">
+        <div>
+          <h1 className="text-lg font-semibold tracking-tight md:text-xl">{title}</h1>
+          {description && <p className="text-sm text-muted-foreground">{description}</p>}
+        </div>
+        {actions && <div className="flex items-center gap-2">{actions}</div>}
       </div>
     </header>
   )

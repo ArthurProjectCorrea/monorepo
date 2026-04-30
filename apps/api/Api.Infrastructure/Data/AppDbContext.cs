@@ -14,6 +14,8 @@ public class AppDbContext : IdentityDbContext<User>
     public DbSet<Client> Clients { get; set; }
     public DbSet<Screen> Screens { get; set; }
     public DbSet<Team> Teams { get; set; }
+    public DbSet<AccessProfile> AccessProfiles { get; set; }
+    public DbSet<AccessProfilePermission> AccessProfilePermissions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -43,7 +45,31 @@ public class AppDbContext : IdentityDbContext<User>
                   .WithMany()
                   .HasForeignKey(t => t.ClientId)
                   .OnDelete(DeleteBehavior.Restrict);
+        });
 
+        builder.Entity<AccessProfile>(entity =>
+        {
+            entity.HasOne(ap => ap.Client)
+                  .WithMany()
+                  .HasForeignKey(ap => ap.ClientId)
+                  .OnDelete(DeleteBehavior.Restrict);
+            
+            entity.HasIndex(ap => new { ap.Name, ap.ClientId }).IsUnique();
+        });
+
+        builder.Entity<AccessProfilePermission>(entity =>
+        {
+            entity.HasOne(app => app.AccessProfile)
+                  .WithMany(ap => ap.Permissions)
+                  .HasForeignKey(app => app.AccessProfileId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(app => app.Screen)
+                  .WithMany()
+                  .HasForeignKey(app => app.ScreenId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(app => new { app.AccessProfileId, app.ScreenId, app.ActionId }).IsUnique();
         });
     }
 }

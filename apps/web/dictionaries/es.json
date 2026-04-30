@@ -12,7 +12,8 @@
       "refresh": "Recargar",
       "view_more": "Ver más",
       "view_less": "Ver menos",
-      "create": "Nuevo registro"
+      "create": "Nuevo registro",
+      "back": "Volver"
     },
     "table": {
       "status_active": "Activo",
@@ -117,6 +118,10 @@
     "teams": {
       "success": "Equipo guardado con éxito.",
       "error": "Error al guardar el equipo."
+    },
+    "access_profiles": {
+      "success": "Perfil de acceso guardado con éxito.",
+      "error": "Error al guardar el perfil de acceso."
     }
   },
   "theme_toggle": {
@@ -159,7 +164,7 @@
   },
   "reset_password": {
     "title": "Restablecer contraseña",
-    "description": "Crie uma nova senha segura para sua conta",
+    "description": "Cree una nueva contraseña segura para su cuenta",
     "email_label": "Correo electrónico",
     "password_label": "Nueva contraseña",
     "confirm_password_label": "Confirmar contraseña",
@@ -224,10 +229,12 @@
       "dashboard": "Tablero",
       "settings": "Configuración",
       "general": "General",
-      "team": "Equipo",
-      "parameters": "Parâmetros",
+      "teams": "Equipo",
+      "parameters": "Parámetros",
       "screens": "Pantallas",
-      "fields": "Campos"
+      "screen_parameters": "Parámetros de Pantalla",
+      "fields": "Campos",
+      "access_profiles": "Perfil de Acceso"
     }
   },
   "screens_page": {
@@ -264,6 +271,30 @@
         "icon_description": "El nombre del icono de la biblioteca Lucide"
       },
       "column_icon": "Icono"
+    }
+  },
+  "access_profiles_page": {
+    "title": "Perfil de Acceso",
+    "description": "Gestione los permisos y perfiles de acceso del sistema.",
+    "table": {
+      "column_name": "Nombre",
+      "column_description": "Descripción",
+      "form": {
+        "title_label": "Nombre del Perfil",
+        "title_placeholder": "ej: Administrador",
+        "title_description": "El nombre que identifica este perfil de acceso.",
+        "description_label": "Descripción",
+        "description_placeholder": "Describa las responsabilidades de este perfil...",
+        "description_description": "Un breve resumen de los permisos de este perfil.",
+        "status_label": "Estado Activo",
+        "status_description": "Habilitar o deshabilitar este perfil en el sistema.",
+        "permissions_section_title": "Permisos por Pantalla",
+        "permissions_section_description": "Defina lo que este perfil puede hacer en cada pantalla del sistema.",
+        "permission_view": "Visualizar",
+        "permission_create": "Crear",
+        "permission_update": "Editar",
+        "permission_delete": "Eliminar"
+      }
     }
   }
 }

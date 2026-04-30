@@ -1,5 +1,7 @@
 'use client'
 
+import * as React from 'react'
+
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import {
   SidebarGroup,
@@ -19,7 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { ChevronRightIcon, MoreHorizontalIcon } from 'lucide-react'
+import { ChevronRightIcon, MoreHorizontalIcon, EllipsisVertical } from 'lucide-react'
 import type { SidebarDict } from '@/types/sidebar'
 import Link from 'next/link'
 
@@ -56,7 +58,9 @@ export function NavMain({
         {items.map(item => {
           const hasSubItems = item.items && item.items.length > 0
 
-          // Type: SIMPLE (no sub-items)
+          {
+            /* Simple items (no sub-items) - already responsive */
+          }
           if (!hasSubItems) {
             return (
               <SidebarMenuItem key={item.title}>
@@ -77,25 +81,54 @@ export function NavMain({
             )
           }
 
-          // Type: DROPDOWN
-          if (item.type === 'dropdown') {
-            return (
-              <SidebarMenuItem key={item.title}>
+          return (
+            <React.Fragment key={item.title}>
+              {/* MOBILE View: Collapsible (Hidden on Desktop) */}
+              <Collapsible
+                asChild
+                defaultOpen={item.isActive}
+                className="group/collapsible md:hidden"
+              >
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton tooltip={item.title}>
+                      {item.icon}
+                      <span>{item.title}</span>
+                      <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {item.items?.map(subItem => (
+                        <SidebarMenuSubItem key={subItem.title}>
+                          <SidebarMenuSubButton asChild>
+                            <Link href={subItem.url} onClick={handleLinkClick}>
+                              {/* Mobile: No sub-icons */}
+                              <span>{subItem.title}</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+
+              {/* DESKTOP View: Dropdown (Hidden on Mobile) */}
+              <SidebarMenuItem className="hidden md:block">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <SidebarMenuButton tooltip={item.title}>
                       {item.icon}
                       <span>{item.title}</span>
+                      <EllipsisVertical className="ml-auto size-4 text-muted-foreground/50" />
                     </SidebarMenuButton>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    className="w-48 rounded-lg"
-                    side={isMobile ? 'bottom' : 'right'}
-                    align={isMobile ? 'end' : 'start'}
-                  >
+                  <DropdownMenuContent className="w-48 rounded-lg" side="right" align="start">
                     {item.items?.map(subItem => (
                       <DropdownMenuItem key={subItem.title} asChild>
                         <Link href={subItem.url} onClick={handleLinkClick}>
+                          {/* Desktop: Show sub-icons */}
                           {subItem.icon}
                           <span>{subItem.title}</span>
                         </Link>
@@ -104,47 +137,7 @@ export function NavMain({
                   </DropdownMenuContent>
                 </DropdownMenu>
               </SidebarMenuItem>
-            )
-          }
-
-          // Type: COLAPSABLE (Default for items with children)
-          return (
-            <Collapsible
-              key={item.title}
-              asChild
-              defaultOpen={item.isActive}
-              className="group/collapsible"
-            >
-              <SidebarMenuItem>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuButton
-                    tooltip={item.title}
-                    onClick={() => {
-                      if (state === 'collapsed') {
-                        setOpen(true)
-                      }
-                    }}
-                  >
-                    {item.icon}
-                    <span>{item.title}</span>
-                    <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                  </SidebarMenuButton>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <SidebarMenuSub>
-                    {item.items?.map(subItem => (
-                      <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton asChild>
-                          <Link href={subItem.url} onClick={handleLinkClick}>
-                            <span>{subItem.title}</span>
-                          </Link>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                </CollapsibleContent>
-              </SidebarMenuItem>
-            </Collapsible>
+            </React.Fragment>
           )
         })}
       </SidebarMenu>

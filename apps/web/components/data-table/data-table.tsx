@@ -183,7 +183,7 @@ export function DataTable<TData, TValue>({
               </Tooltip>
             )}
             <DataTableViewOptions table={table} dict={dict} />
-            {CreateForm && (
+            {(CreateForm || onAddClick) && (
               <Button onClick={onAddClick}>
                 <Plus className="mr-2 h-4 w-4" />
                 {dict.common.actions.create}

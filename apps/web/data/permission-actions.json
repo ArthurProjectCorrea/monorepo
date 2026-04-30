@@ -1,0 +1,6 @@
+[
+  { "id": "view", "name": "Visualizar" },
+  { "id": "create", "name": "Criar" },
+  { "id": "update", "name": "Editar" },
+  { "id": "delete", "name": "Excluir" }
+]
