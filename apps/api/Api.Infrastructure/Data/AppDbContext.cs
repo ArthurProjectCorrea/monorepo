@@ -13,6 +13,7 @@ public class AppDbContext : IdentityDbContext<User>
     public DbSet<PasswordRecoveryRequest> PasswordRecoveryRequests { get; set; }
     public DbSet<Client> Clients { get; set; }
     public DbSet<Screen> Screens { get; set; }
+    public DbSet<Team> Teams { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -34,6 +35,15 @@ public class AppDbContext : IdentityDbContext<User>
         builder.Entity<Screen>(entity =>
         {
             entity.HasIndex(s => new { s.ScreenKey, s.ClientId }).IsUnique();
+        });
+
+        builder.Entity<Team>(entity =>
+        {
+            entity.HasOne(t => t.Client)
+                  .WithMany()
+                  .HasForeignKey(t => t.ClientId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
         });
     }
 }

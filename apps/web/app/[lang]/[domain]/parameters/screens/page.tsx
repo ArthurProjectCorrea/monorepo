@@ -51,7 +51,7 @@ export default async function ScreensPage({ params }: { params: Promise<{ lang: 
             },
             notifications: dict.notifications.screens,
             common: {
-              actions: dict.common.actions,
+              ...dict.common,
               notifications: dict.common.notifications,
               table: dict.common.table,
             },

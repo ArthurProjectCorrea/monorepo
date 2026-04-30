@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { toast } from 'sonner'
 import type { Team, TeamFormDict } from '@/types/api'
-import { updateTeamAction } from '@/lib/action/teams'
+import { updateTeamAction, createTeamAction } from '@/lib/action/teams'
 
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import * as LucideIcons from 'lucide-react'
@@ -22,6 +22,8 @@ interface TeamFormProps {
 export function TeamForm({ row, onSuccess, dict }: TeamFormProps) {
   const [isPending, setIsPending] = React.useState(false)
   const [iconName, setIconName] = React.useState('')
+  const [name, setName] = React.useState('')
+  const [status, setStatus] = React.useState(true)
 
   const formatIconName = React.useCallback((name: string) => {
     if (!name) return ''
@@ -35,7 +37,9 @@ export function TeamForm({ row, onSuccess, dict }: TeamFormProps) {
   // Sync state with row changes (important for mock data switching)
   React.useEffect(() => {
     setIconName(row.icon || '')
-  }, [row.icon])
+    setName(row.name || '')
+    setStatus(row.status ?? true)
+  }, [row])
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const PreviewIcon = (LucideIcons as any)[formatIconName(iconName)] || LucideIcons.HelpCircle
@@ -44,26 +48,32 @@ export function TeamForm({ row, onSuccess, dict }: TeamFormProps) {
     event.preventDefault()
     setIsPending(true)
 
-    const formData = new FormData(event.currentTarget)
+    const form = event.currentTarget
+    const formData = new FormData(form)
     formData.append('id', row.id)
 
-    // Ensure icon name is formatted correctly before sending
+    // Send icon name exactly as entered to preserve original casing/format
     const rawIcon = formData.get('icon') as string
-    formData.set('icon', formatIconName(rawIcon))
+    formData.set('icon', rawIcon)
 
     // Convert switch "on" to explicit "true"/"false" string for the server action
-    const statusValue = formData.get('status')
-    const status = statusValue === 'on' || statusValue === 'true'
     formData.set('status', status ? 'true' : 'false')
 
-    const result = await updateTeamAction({ status: 'idle' }, formData)
+    try {
+      const result = row.id
+        ? await updateTeamAction({ status: 'idle' }, formData)
+        : await createTeamAction({ status: 'idle' }, formData)
 
-    setIsPending(false)
-    if (result.status === 'success') {
-      toast.success(dict.notifications.success)
-      onSuccess?.()
-    } else {
+      if (result.status === 'success') {
+        toast.success(dict.notifications.success)
+        onSuccess?.()
+      } else {
+        toast.error(dict.notifications.error)
+      }
+    } catch (error) {
       toast.error(dict.notifications.error)
+    } finally {
+      setIsPending(false)
     }
   }
 
@@ -76,7 +86,8 @@ export function TeamForm({ row, onSuccess, dict }: TeamFormProps) {
             id="team-name"
             name="name"
             placeholder={dict.table.form.title_placeholder}
-            defaultValue={row.name}
+            value={name}
+            onChange={e => setName(e.target.value)}
             required
           />
           <FieldDescription>{dict.table.form.title_description}</FieldDescription>
@@ -108,7 +119,7 @@ export function TeamForm({ row, onSuccess, dict }: TeamFormProps) {
             </FieldLabel>
             <FieldDescription>{dict.table.form.status_description}</FieldDescription>
           </div>
-          <Switch id="team-status" name="status" defaultChecked={row.status} />
+          <Switch id="team-status" name="status" checked={status} onCheckedChange={setStatus} />
         </Field>
       </FieldGroup>
 
@@ -122,8 +133,10 @@ export function TeamForm({ row, onSuccess, dict }: TeamFormProps) {
               <Spinner className="mr-2" />
               {dict.common.actions.saving}
             </>
-          ) : (
+          ) : row.id ? (
             dict.common.actions.save
+          ) : (
+            dict.common.actions.create
           )}
         </Button>
       </div>

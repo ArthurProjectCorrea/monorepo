@@ -58,6 +58,34 @@ public static class DbInitializer
             await context.SaveChangesAsync();
         }
 
+        var teamsScreen = context.Screens.FirstOrDefault(s => s.ScreenKey == "teams" && s.ClientId == defaultClient.Id);
+        if (teamsScreen == null)
+        {
+            teamsScreen = new Screen
+            {
+                Title = "Cadastro de Equipes",
+                Description = "Gerencie os times, usuários e permissões do sistema.",
+                ScreenKey = "teams",
+                ClientId = defaultClient.Id,
+                IsActive = true
+            };
+            context.Screens.Add(teamsScreen);
+            await context.SaveChangesAsync();
+        }
+
+        // Seed Default Team
+        if (!context.Teams.Any(t => t.ClientId == defaultClient.Id))
+        {
+            context.Teams.Add(new Team
+            {
+                Name = "Administração",
+                Icon = "shield-cog",
+                IsActive = true,
+                ClientId = defaultClient.Id
+            });
+            await context.SaveChangesAsync();
+        }
+
         var defaultUser = await userManager.FindByEmailAsync("admin@project.com");
         if (defaultUser == null)
         {

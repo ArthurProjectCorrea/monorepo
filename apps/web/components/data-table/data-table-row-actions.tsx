@@ -23,24 +23,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from '@/components/ui/drawer'
 import { useMediaQuery } from '@/hooks/use-media-query'
 import type { DataTableDict } from '@/types/data-table'
+import { DataTableDialog } from './data-table-dialog'
 
 interface DataTableRowActionsProps<TData> {
   row: TData
@@ -76,10 +61,12 @@ export function DataTableRowActions<TData>({
   const editDialogTitle = dict.common.dialogs.edit_dialog.title.replace('{item}', itemTitle)
 
   const activeActionsCount = [onEdit, onDelete, ...customActions].filter(Boolean).length
-  const useMenu = !isDesktop || activeActionsCount > 1
 
   const renderActions = () => {
-    if (useMenu) {
+    // Mobile always groups everything into a single menu
+    if (!isDesktop) {
+      if (activeActionsCount === 0) return null
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -92,7 +79,9 @@ export function DataTableRowActions<TData>({
             <DropdownMenuLabel>{dict.common.table.actions_column}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {onEdit && (
-              <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
+              <DropdownMenuItem
+                onClick={() => (EditForm ? setIsEditDialogOpen(true) : onEdit(row))}
+              >
                 <Edit className="mr-2 h-4 w-4" />
                 {dict.common.actions.edit}
               </DropdownMenuItem>
@@ -120,6 +109,7 @@ export function DataTableRowActions<TData>({
       )
     }
 
+    // Desktop: Edit and Delete are always visible. Custom actions are grouped if > 1.
     return (
       <div className="flex items-center gap-1">
         {onEdit && (
@@ -129,7 +119,7 @@ export function DataTableRowActions<TData>({
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8"
-                onClick={() => setIsEditDialogOpen(true)}
+                onClick={() => (EditForm ? setIsEditDialogOpen(true) : onEdit(row))}
               >
                 <Edit className="h-4 w-4" />
                 <span className="sr-only">{dict.common.actions.edit}</span>
@@ -138,22 +128,42 @@ export function DataTableRowActions<TData>({
             <TooltipContent>{dict.common.actions.edit}</TooltipContent>
           </Tooltip>
         )}
-        {customActions.map((action, i) => (
-          <Tooltip key={i}>
+
+        {/* Custom Actions Grouping Logic */}
+        {customActions.length === 1 ? (
+          <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8"
-                onClick={() => action.onClick(row)}
+                onClick={() => customActions[0].onClick(row)}
               >
-                {action.icon}
-                <span className="sr-only">{action.label}</span>
+                {customActions[0].icon}
+                <span className="sr-only">{customActions[0].label}</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>{action.label}</TooltipContent>
+            <TooltipContent>{customActions[0].label}</TooltipContent>
           </Tooltip>
-        ))}
+        ) : customActions.length > 1 ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <MoreHorizontal className="h-4 w-4" />
+                <span className="sr-only">More actions</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {customActions.map((action, i) => (
+                <DropdownMenuItem key={i} onClick={() => action.onClick(row)}>
+                  <span className="mr-2">{action.icon}</span>
+                  {action.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : null}
+
         {onDelete && (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -180,48 +190,15 @@ export function DataTableRowActions<TData>({
 
       {/* EDIT MODAL/DRAWER */}
       {onEdit && EditForm && (
-        <>
-          {isDesktop ? (
-            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>{editDialogTitle}</DialogTitle>
-                  <DialogDescription>
-                    {dict.common.dialogs.edit_dialog.description}
-                  </DialogDescription>
-                </DialogHeader>
-                <EditForm
-                  row={row}
-                  onSuccess={() => setIsEditDialogOpen(false)}
-                  {...editFormProps}
-                />
-              </DialogContent>
-            </Dialog>
-          ) : (
-            <Drawer open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-              <DrawerContent>
-                <DrawerHeader className="text-left">
-                  <DrawerTitle>{editDialogTitle}</DrawerTitle>
-                  <DrawerDescription>
-                    {dict.common.dialogs.edit_dialog.description}
-                  </DrawerDescription>
-                </DrawerHeader>
-                <div className="px-4 py-4">
-                  <EditForm
-                    row={row}
-                    onSuccess={() => setIsEditDialogOpen(false)}
-                    {...editFormProps}
-                  />
-                </div>
-                <DrawerFooter className="pt-2">
-                  <DrawerClose asChild>
-                    <Button variant="outline">{dict.common.dialogs.edit_dialog.cancel}</Button>
-                  </DrawerClose>
-                </DrawerFooter>
-              </DrawerContent>
-            </Drawer>
-          )}
-        </>
+        <DataTableDialog
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          title={editDialogTitle}
+          description={dict.common.dialogs.edit_dialog.description}
+          dict={dict}
+        >
+          <EditForm row={row} onSuccess={() => setIsEditDialogOpen(false)} {...editFormProps} />
+        </DataTableDialog>
       )}
 
       {/* DELETE MODAL */}

@@ -19,28 +19,27 @@ interface ScreenFormProps {
 import { updateScreenAction } from '@/lib/action/screens'
 
 export function ScreenForm({ row, onSuccess, dict }: ScreenFormProps) {
-  const [isPending, setIsPending] = React.useState(false)
-
+  const [isPending, startTransition] = React.useTransition()
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    setIsPending(true)
-
-    const formData = new FormData(event.currentTarget)
+    const form = event.currentTarget
+    const formData = new FormData(form)
     formData.append('id', row.id)
 
     // Convert switch "on" to explicit "true"/"false" string for the server action
     const isActive = formData.get('isActive') === 'on'
     formData.set('isActive', isActive ? 'true' : 'false')
 
-    const result = await updateScreenAction({ status: 'idle' }, formData)
+    startTransition(async () => {
+      const result = await updateScreenAction({ status: 'idle' }, formData)
 
-    setIsPending(false)
-    if (result.status === 'success') {
-      toast.success(dict.notifications.success)
-      onSuccess?.()
-    } else {
-      toast.error(dict.notifications.error)
-    }
+      if (result.status === 'success') {
+        toast.success(dict.notifications.success)
+        onSuccess?.()
+      } else {
+        toast.error(dict.notifications.error)
+      }
+    })
   }
 
   return (

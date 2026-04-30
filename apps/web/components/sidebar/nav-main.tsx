@@ -32,7 +32,7 @@ export function NavMain({
     url?: string
     icon?: React.ReactNode
     isActive?: boolean
-    type?: 'colapsable' | 'dropdown' | string
+    type?: 'colapsable' | 'dropdown' | 'drawer' | string
     items?: {
       title: string
       url: string
@@ -41,7 +41,7 @@ export function NavMain({
   }[]
   dict: { sidebar?: SidebarDict }
 }) {
-  const { isMobile, setOpenMobile } = useSidebar()
+  const { isMobile, setOpenMobile, state, setOpen } = useSidebar()
 
   const handleLinkClick = () => {
     if (isMobile) {
@@ -81,25 +81,12 @@ export function NavMain({
           if (item.type === 'dropdown') {
             return (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild tooltip={item.title}>
-                  {item.url ? (
-                    <Link href={item.url} onClick={handleLinkClick}>
-                      {item.icon}
-                      <span>{item.title}</span>
-                    </Link>
-                  ) : (
-                    <div>
-                      {item.icon}
-                      <span>{item.title}</span>
-                    </div>
-                  )}
-                </SidebarMenuButton>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <SidebarMenuAction showOnHover>
-                      <MoreHorizontalIcon />
-                      <span className="sr-only">More</span>
-                    </SidebarMenuAction>
+                    <SidebarMenuButton tooltip={item.title}>
+                      {item.icon}
+                      <span>{item.title}</span>
+                    </SidebarMenuButton>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     className="w-48 rounded-lg"
@@ -130,7 +117,14 @@ export function NavMain({
             >
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
-                  <SidebarMenuButton tooltip={item.title}>
+                  <SidebarMenuButton
+                    tooltip={item.title}
+                    onClick={() => {
+                      if (state === 'collapsed') {
+                        setOpen(true)
+                      }
+                    }}
+                  >
                     {item.icon}
                     <span>{item.title}</span>
                     <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />

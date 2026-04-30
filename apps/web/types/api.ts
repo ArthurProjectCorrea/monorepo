@@ -188,6 +188,24 @@ export interface ScreenFormDict {
       discard: string
       save: string
       saving: string
+      create: string
+      cancel: string
+      edit: string
+      delete: string
+    }
+    dialogs: {
+      delete_confirm: {
+        title: string
+        description: string
+        cancel: string
+        confirm: string
+      }
+      edit_dialog: {
+        title: string
+        description: string
+        cancel: string
+        save: string
+      }
     }
     notifications: CommonNotificationDictionary
     table: {
@@ -245,6 +263,24 @@ export interface TeamFormDict {
       discard: string
       save: string
       saving: string
+      create: string
+      cancel: string
+      edit: string
+      delete: string
+    }
+    dialogs: {
+      delete_confirm: {
+        title: string
+        description: string
+        cancel: string
+        confirm: string
+      }
+      edit_dialog: {
+        title: string
+        description: string
+        cancel: string
+        save: string
+      }
     }
     notifications: CommonNotificationDictionary
     table: {

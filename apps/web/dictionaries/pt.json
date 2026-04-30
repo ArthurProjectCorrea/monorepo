@@ -11,7 +11,8 @@
       "confirm": "Confirmar",
       "refresh": "Recarregar",
       "view_more": "Ver mais",
-      "view_less": "Ver menos"
+      "view_less": "Ver menos",
+      "create": "Novo registro"
     },
     "table": {
       "status_active": "Ativo",

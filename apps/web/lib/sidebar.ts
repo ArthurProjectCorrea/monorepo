@@ -6,6 +6,8 @@ import {
   SettingsIcon,
   MonitorCog,
   Cast,
+  Layers,
+  Users,
 } from 'lucide-react'
 import { createElement } from 'react'
 import type { SidebarDict } from '@/types/sidebar'
@@ -45,12 +47,19 @@ export const getSidebarData = (domain: string, dict: { sidebar?: SidebarDict }) 
       },
       {
         title: navMainDict.settings || 'Settings',
-        url: '#',
         icon: createElement(SettingsIcon),
-        type: 'colapsable',
+        type: 'dropdown',
         items: [
-          { title: navMainDict.general || 'General', url: `/${domain}/settings/general` },
-          { title: navMainDict.team || 'Team', url: `/${domain}/settings/teams` },
+          {
+            title: navMainDict.general || 'General',
+            icon: createElement(Layers),
+            url: `/${domain}/settings/general`,
+          },
+          {
+            title: navMainDict.team || 'Team',
+            icon: createElement(Users),
+            url: `/${domain}/settings/teams`,
+          },
         ],
       },
       {

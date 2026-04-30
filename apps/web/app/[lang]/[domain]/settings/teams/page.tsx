@@ -35,6 +35,7 @@ export default async function TeamsPage({ params }: { params: Promise<{ lang: st
 
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0 md:gap-6 md:p-6 md:pt-0">
         <TeamTableClient
+          key="team-management-module"
           teams={pageData.data}
           dictDataTable={{
             common: {

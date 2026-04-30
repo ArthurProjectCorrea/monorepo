@@ -39,8 +39,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { MoreHorizontal, RotateCw } from 'lucide-react'
+import { MoreHorizontal, RotateCw, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { DataTableDialog } from './data-table-dialog'
 
 export interface DataTableRowAction<TData> {
   label: string
@@ -61,11 +62,16 @@ interface DataTableProps<TData, TValue> {
   editForm?: React.ComponentType<any>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editFormProps?: Record<string, any>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  createForm?: React.ComponentType<any>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  createFormProps?: Record<string, any>
   itemTitleColumn?: string // Column ID to use as title in Edit dialog
   mobileTitleColumn?: string // Column ID for card header title on mobile
   mobileStatusColumn?: string // Column ID for card header status on mobile
   isLoading?: boolean
   onRefresh?: () => void
+  onAddClick?: () => void
 }
 
 export function DataTable<TData, TValue>({
@@ -79,11 +85,14 @@ export function DataTable<TData, TValue>({
   customActions,
   editForm,
   editFormProps,
+  createForm: CreateForm,
+  createFormProps,
   itemTitleColumn,
   mobileTitleColumn,
   mobileStatusColumn,
   isLoading,
   onRefresh,
+  onAddClick,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -109,59 +118,16 @@ export function DataTable<TData, TValue>({
 
           return (
             <div className="flex items-center justify-center gap-1 px-2 whitespace-nowrap">
-              <TooltipProvider>
-                {/* Standard Edit/Delete with Dialog/Drawer/Alert confirmation */}
-                <DataTableRowActions
-                  row={item}
-                  dict={dict}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                  editForm={editForm}
-                  editFormProps={editFormProps}
-                  itemTitle={itemTitle}
-                />
-
-                {/* Custom individual actions (if only one) */}
-                {!hasManyCustom &&
-                  extraActions.map((action, i) => (
-                    <Tooltip key={i}>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => action.onClick(item)}
-                        >
-                          {action.icon}
-                          <span className="sr-only">{action.label}</span>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>{action.label}</TooltipContent>
-                    </Tooltip>
-                  ))}
-
-                {/* Custom actions menu (if more than one) */}
-                {hasManyCustom && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Open menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>{dict.common.table.actions_column}</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {extraActions.map((action, i) => (
-                        <DropdownMenuItem key={i} onClick={() => action.onClick(item)}>
-                          <span className="mr-2">{action.icon}</span>
-                          {action.label}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-              </TooltipProvider>
+              <DataTableRowActions
+                row={item}
+                dict={dict}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                editForm={editForm}
+                editFormProps={editFormProps}
+                itemTitle={itemTitle}
+                customActions={extraActions}
+              />
             </div>
           )
         },
@@ -193,19 +159,19 @@ export function DataTable<TData, TValue>({
   })
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between gap-2 px-2">
-        {filterColumn && (
-          <Input
-            placeholder={searchPlaceholder || dict.common.table.search_placeholder}
-            value={(table.getColumn(filterColumn)?.getFilterValue() as string) ?? ''}
-            onChange={event => table.getColumn(filterColumn)?.setFilterValue(event.target.value)}
-            className="max-w-sm"
-          />
-        )}
-        <div className="flex items-center gap-2">
-          {onRefresh && (
-            <TooltipProvider>
+    <TooltipProvider>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between gap-2 px-2">
+          {filterColumn && (
+            <Input
+              placeholder={searchPlaceholder || dict.common.table.search_placeholder}
+              value={(table.getColumn(filterColumn)?.getFilterValue() as string) ?? ''}
+              onChange={event => table.getColumn(filterColumn)?.setFilterValue(event.target.value)}
+              className="max-w-sm"
+            />
+          )}
+          <div className="flex items-center gap-2">
+            {onRefresh && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="outline" size="icon" onClick={onRefresh} disabled={isLoading}>
@@ -215,86 +181,92 @@ export function DataTable<TData, TValue>({
                 </TooltipTrigger>
                 <TooltipContent>{dict.common.actions.refresh}</TooltipContent>
               </Tooltip>
-            </TooltipProvider>
-          )}
-          <DataTableViewOptions table={table} dict={dict} />
-        </div>
-      </div>
-      {/* Desktop Table View */}
-      <div className="hidden md:block rounded-md border bg-card overflow-hidden">
-        <div className="min-h-[530px]">
-          {' '}
-          {/* Height for approx 10 rows + header */}
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map(headerGroup => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map(header => {
-                    return (
-                      <TableHead
-                        key={header.id}
-                        className={`px-4 ${header.id === 'actions' ? 'w-0' : ''}`}
-                      >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(header.column.columnDef.header, header.getContext())}
-                      </TableHead>
-                    )
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <DataTableRowSkeleton columnCount={columns.length} rowCount={10} />
-              ) : table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map(row => (
-                  <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                    {row.getVisibleCells().map(cell => (
-                      <TableCell
-                        key={cell.id}
-                        className={cell.column.id === 'actions' ? 'w-0' : ''}
-                      >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                    {dict.common.table.no_results}
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
-
-      {/* Mobile Card View */}
-      <div className="block md:hidden space-y-4">
-        {isLoading ? (
-          <DataTableRowMobileCardSkeleton rowCount={table.getState().pagination.pageSize || 10} />
-        ) : table.getRowModel().rows?.length ? (
-          table
-            .getRowModel()
-            .rows.map(row => (
-              <DataTableRowMobileCard
-                key={row.id}
-                row={row}
-                mobileTitleColumn={mobileTitleColumn}
-                mobileStatusColumn={mobileStatusColumn}
-                dict={dict}
-              />
-            ))
-        ) : (
-          <div className="p-8 text-center text-sm text-muted-foreground border rounded-md bg-card">
-            {dict.common.table.no_results}
+            )}
+            <DataTableViewOptions table={table} dict={dict} />
+            {CreateForm && (
+              <Button onClick={onAddClick}>
+                <Plus className="mr-2 h-4 w-4" />
+                {dict.common.actions.create}
+              </Button>
+            )}
           </div>
-        )}
+        </div>
+        {/* Desktop Table View */}
+        <div className="hidden md:block rounded-md border bg-card overflow-hidden">
+          <div className="min-h-[530px]">
+            {' '}
+            {/* Height for approx 10 rows + header */}
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map(headerGroup => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map(header => {
+                      return (
+                        <TableHead
+                          key={header.id}
+                          className={`px-4 ${header.id === 'actions' ? 'w-0' : ''}`}
+                        >
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(header.column.columnDef.header, header.getContext())}
+                        </TableHead>
+                      )
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <DataTableRowSkeleton columnCount={columns.length} rowCount={10} />
+                ) : table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map(row => (
+                    <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                      {row.getVisibleCells().map(cell => (
+                        <TableCell
+                          key={cell.id}
+                          className={cell.column.id === 'actions' ? 'w-0' : ''}
+                        >
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                      {dict.common.table.no_results}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="block md:hidden space-y-4">
+          {isLoading ? (
+            <DataTableRowMobileCardSkeleton rowCount={table.getState().pagination.pageSize || 10} />
+          ) : table.getRowModel().rows?.length ? (
+            table
+              .getRowModel()
+              .rows.map(row => (
+                <DataTableRowMobileCard
+                  key={row.id}
+                  row={row}
+                  mobileTitleColumn={mobileTitleColumn}
+                  mobileStatusColumn={mobileStatusColumn}
+                  dict={dict}
+                />
+              ))
+          ) : (
+            <div className="p-8 text-center text-sm text-muted-foreground border rounded-md bg-card">
+              {dict.common.table.no_results}
+            </div>
+          )}
+        </div>
+        <DataTablePagination table={table} dict={dict} />
       </div>
-      <DataTablePagination table={table} dict={dict} />
-    </div>
+    </TooltipProvider>
   )
 }
