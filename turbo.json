@@ -1,5 +1,16 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalPassThroughEnv": [
+    "LOCALAPPDATA",
+    "APPDATA",
+    "USERPROFILE",
+    "HOME",
+    "PATH",
+    "DOTNET_ROOT",
+    "DOTNET_CLI_HOME",
+    "TEMP",
+    "TMP"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

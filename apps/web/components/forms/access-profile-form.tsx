@@ -19,17 +19,15 @@ import { Switch } from '@/components/ui/switch'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { toast } from 'sonner'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from '@/components/ui/drawer'
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuCheckboxItem,
+} from '@/components/ui/dropdown-menu'
+
 import { Checkbox } from '@/components/ui/checkbox'
 import { Item, ItemActions, ItemContent, ItemGroup, ItemTitle } from '@/components/ui/item'
 import { Settings2, ShieldCheck, Lock } from 'lucide-react'
@@ -37,7 +35,7 @@ import { SCREEN_PERMISSIONS } from '@/lib/permission'
 import { saveAccessProfileAction } from '@/lib/action/access-profiles'
 import { useRouter, useParams } from 'next/navigation'
 import { FormActions } from '@/components/layout/form-actions'
-import { useSidebar } from '@/components/ui/sidebar'
+
 import type {
   AccessProfile,
   AccessProfileFormDict,
@@ -62,7 +60,6 @@ export function AccessProfileForm({
 }: AccessProfileFormProps) {
   const router = useRouter()
   const params = useParams()
-  const { isMobile } = useSidebar()
   const [state, formAction, isPending] = React.useActionState(saveAccessProfileAction, {
     status: 'idle',
   })
@@ -202,51 +199,6 @@ export function AccessProfileForm({
                   </Button>
                 )
 
-                const Content = (
-                  <div className="grid gap-4">
-                    <FieldGroup className={cn(isMobile ? 'gap-3' : 'gap-3')}>
-                      {availableActions.map(action => (
-                        <Field
-                          orientation="horizontal"
-                          key={action.id}
-                          className={cn(
-                            isMobile && 'rounded-xl border bg-muted/20 p-4 transition-colors',
-                            isMobile &&
-                              isPermissionSelected(screen.id, action.id) &&
-                              'border-primary/30 bg-primary/5',
-                          )}
-                        >
-                          <Checkbox
-                            id={`p-${screen.id}-${action.id}`}
-                            checked={isPermissionSelected(screen.id, action.id)}
-                            onCheckedChange={() => togglePermission(screen.id, action.id)}
-                          />
-                          <FieldContent>
-                            <FieldTitle className="text-base font-semibold">
-                              <label
-                                htmlFor={`p-${screen.id}-${action.id}`}
-                                className="cursor-pointer"
-                              >
-                                {action.name}
-                              </label>
-                            </FieldTitle>
-                            {isMobile && (
-                              <FieldDescription className="text-xs">
-                                {dict.screens_page.table.form.description_description} {screenTitle}
-                              </FieldDescription>
-                            )}
-                          </FieldContent>
-                        </Field>
-                      ))}
-                      {availableActions.length === 0 && (
-                        <p className="py-2 text-xs italic text-muted-foreground">
-                          {dict.common.table.no_results}
-                        </p>
-                      )}
-                    </FieldGroup>
-                  </div>
-                )
-
                 return (
                   <Item key={screen.id} variant="outline" className="bg-muted/30">
                     <ItemContent>
@@ -256,42 +208,30 @@ export function AccessProfileForm({
                       </ItemTitle>
                     </ItemContent>
                     <ItemActions>
-                      {isMobile ? (
-                        <Drawer>
-                          <DrawerTrigger asChild>{Trigger}</DrawerTrigger>
-                          <DrawerContent>
-                            <div className="mx-auto w-full max-w-sm">
-                              <DrawerHeader>
-                                <DrawerTitle>{screenTitle}</DrawerTitle>
-                                <DrawerDescription>
-                                  {dict.screens_page.table.form.description}
-                                </DrawerDescription>
-                              </DrawerHeader>
-                              <div className="p-4 pb-8">{Content}</div>
-                              <DrawerFooter>
-                                <DrawerClose asChild>
-                                  <Button variant="outline">{dict.common.actions.discard}</Button>
-                                </DrawerClose>
-                              </DrawerFooter>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>{Trigger}</DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-56" align="end" sideOffset={8}>
+                          <DropdownMenuLabel className="font-medium text-base">
+                            {screenTitle}
+                          </DropdownMenuLabel>
+                          {availableActions.length > 0 && <DropdownMenuSeparator />}
+                          {availableActions.map(action => (
+                            <DropdownMenuCheckboxItem
+                              key={action.id}
+                              checked={isPermissionSelected(screen.id, action.id)}
+                              onCheckedChange={() => togglePermission(screen.id, action.id)}
+                              onSelect={e => e.preventDefault()}
+                            >
+                              {action.name}
+                            </DropdownMenuCheckboxItem>
+                          ))}
+                          {availableActions.length === 0 && (
+                            <div className="p-2 text-xs italic text-muted-foreground">
+                              {dict.common.table.no_results}
                             </div>
-                          </DrawerContent>
-                        </Drawer>
-                      ) : (
-                        <Popover>
-                          <PopoverTrigger asChild>{Trigger}</PopoverTrigger>
-                          <PopoverContent className="w-80" align="end" side="right" sideOffset={10}>
-                            <div className="grid gap-4 p-1">
-                              <div className="space-y-1">
-                                <h4 className="font-medium leading-none">{screenTitle}</h4>
-                                <p className="text-sm text-muted-foreground">
-                                  {dict.screens_page.table.form.description}
-                                </p>
-                              </div>
-                              {Content}
-                            </div>
-                          </PopoverContent>
-                        </Popover>
-                      )}
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </ItemActions>
                   </Item>
                 )
