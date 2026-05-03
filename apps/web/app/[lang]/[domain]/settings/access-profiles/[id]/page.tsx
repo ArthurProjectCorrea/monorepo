@@ -3,9 +3,6 @@ import { notFound } from 'next/navigation'
 import { PageHeader } from '@/components/layout/page-header'
 import { AccessProfileForm } from '@/components/forms/access-profile-form'
 import { getAccessProfileDetail } from '@/lib/action/access-profiles'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Undo2 } from 'lucide-react'
 
 export default async function EditAccessProfilePage({
   params,

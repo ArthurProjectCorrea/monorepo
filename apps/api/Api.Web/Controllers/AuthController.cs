@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using Api.Infrastructure.Data;
 using Api.Core.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api.Web.Controllers;
 
@@ -50,13 +51,42 @@ public partial class AuthController : ControllerBase
             var sessionId = Guid.NewGuid().ToString();
             var expiresInSeconds = 3600; // 1 hour
 
+            // Fetch complete access tree for session
+            var teamAccesses = await _context.UserTeamAccesses
+                .Where(uta => uta.UserId == user.Id)
+                .Include(uta => uta.Team)
+                .Include(uta => uta.AccessProfile)
+                    .ThenInclude(ap => ap.Permissions)
+                        .ThenInclude(p => p.Screen)
+                .ToListAsync();
+
             var sessionData = new
             {
                 user_id = user.Id,
                 email = user.Email,
                 display_name = user.DisplayName,
                 roles = roles,
-                client_id = user.ClientId
+                client_id = user.ClientId,
+                teams = teamAccesses.Select(uta => new
+                {
+                    id = uta.TeamId,
+                    name = uta.Team?.Name,
+                    access_profile = new
+                    {
+                        id = uta.AccessProfileId,
+                        name = uta.AccessProfile?.Name,
+                        permissions = uta.AccessProfile?.Permissions?
+                            .Where(p => p.Screen != null)
+                            .GroupBy(p => p.Screen!.ScreenKey)
+                            .Select(g => new
+                            {
+                                screen_key = g.Key,
+                                actions = g.Select(p => p.ActionId).ToList()
+                            })
+                            .ToList()
+
+                    }
+                }).ToList()
             };
 
             var sessionJson = JsonSerializer.Serialize(sessionData);

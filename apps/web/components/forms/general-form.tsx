@@ -18,8 +18,7 @@ import { notifyFromApi } from '@/lib/notifications'
 import type { NotificationDictionary, CommonNotificationDictionary } from '@/types/api'
 import * as React from 'react'
 import { useActionState, useEffect, useState } from 'react'
-import { updateClientAction, updateLogoAction } from '@/lib/action/client'
-import { initialClientState } from '@/lib/action/client-state'
+import { saveClientAction, uploadLogoAction } from '@/lib/action/settings'
 import { toast } from 'sonner'
 
 // ─── Dict shape ───────────────────────────────────────────────────────────────
@@ -69,7 +68,7 @@ export function GeneralForm({
   lang,
   initialData,
 }: GeneralFormProps) {
-  const [state, action, isPending] = useActionState(updateClientAction, initialClientState)
+  const [state, action, isPending] = useActionState(saveClientAction, { status: 'idle' })
 
   // Track logo URL — updated when server returns a new one after save
   const [currentLogoUrl, setCurrentLogoUrl] = useState<string | undefined>(initialData.logo_url)
@@ -101,9 +100,9 @@ export function GeneralForm({
 
       setIsUploadingLogo(true)
       try {
-        const newUrl = await updateLogoAction(formData)
-        if (newUrl) {
-          setCurrentLogoUrl(newUrl)
+        const newLogoUrl = await uploadLogoAction(formData)
+        if (newLogoUrl) {
+          setCurrentLogoUrl(newLogoUrl)
           toast.success(dict.common.notifications.saved)
         } else {
           toast.error(dict.common.notifications.error)

@@ -40,9 +40,11 @@ var redisConfig = builder.Configuration["Redis:Configuration"]
 var redisOptions = ConfigurationOptions.Parse(redisConfig);
 redisOptions.AbortOnConnectFail = false;
 
-var multiplexer = ConnectionMultiplexer.Connect(redisOptions);
-builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+    ConnectionMultiplexer.Connect(redisOptions));
+
 builder.Services.AddStackExchangeRedisCache(options =>
+
 {
     options.Configuration = redisConfig;
     options.ConfigurationOptions = redisOptions;
@@ -68,27 +70,32 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // 6. Migrations & Seeding
-using (var scope = app.Services.CreateScope())
+if (app.Configuration["SkipSeeding"] != "true")
 {
-    var services = scope.ServiceProvider;
-    try
-    {
-        var context = services.GetRequiredService<AppDbContext>();
-        if (context.Database.GetPendingMigrations().Any())
-        {
-            context.Database.Migrate();
-        }
 
-        var userManager = services.GetRequiredService<UserManager<User>>();
-        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-        await DbInitializer.SeedAsync(userManager, roleManager, context);
-    }
-    catch (Exception ex)
+    using (var scope = app.Services.CreateScope())
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred during database initialization.");
+        var services = scope.ServiceProvider;
+        try
+        {
+            var context = services.GetRequiredService<AppDbContext>();
+            if (context.Database.IsRelational() && context.Database.GetPendingMigrations().Any())
+            {
+                context.Database.Migrate();
+            }
+
+            var userManager = services.GetRequiredService<UserManager<User>>();
+            var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+            await DbInitializer.SeedAsync(userManager, roleManager, context);
+        }
+        catch (Exception ex)
+        {
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "An error occurred during database initialization.");
+        }
     }
 }
+
 
 if (app.Environment.IsDevelopment())
 {
@@ -110,3 +117,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }
+

@@ -22,6 +22,7 @@ export default async function VerifyOTPPage({ params }: { params: Promise<{ lang
   return (
     <div className="w-full">
       <VerifyOTPForm
+        identifier={recoveryIdentifier}
         dict={dict.verify_otp}
         notificationsDict={dict.notifications.verify_otp}
         commonNotificationsDict={dict.common.notifications}

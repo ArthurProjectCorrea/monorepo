@@ -13,7 +13,8 @@
       "view_more": "Ver mais",
       "view_less": "Ver menos",
       "create": "Novo registro",
-      "back": "Voltar"
+      "back": "Voltar",
+      "resend_reset": "Reenviar link de acesso"
     },
     "table": {
       "status_active": "Ativo",
@@ -122,6 +123,10 @@
     "access_profiles": {
       "success": "Perfil de acesso salvo com sucesso.",
       "error": "Erro ao salvar perfil de acesso."
+    },
+    "users": {
+      "success": "Usuário salvo com sucesso.",
+      "error": "Erro ao salvar usuário."
     }
   },
   "theme_toggle": {
@@ -234,7 +239,8 @@
       "screens": "Telas",
       "screen_parameters": "Parâmetros de Telas",
       "fields": "Campos",
-      "access_profiles": "Perfil de Acesso"
+      "access_profiles": "Perfil de Acesso",
+      "users": "Usuários"
     }
   },
   "screens_page": {
@@ -294,6 +300,35 @@
         "permission_create": "Criar",
         "permission_update": "Editar",
         "permission_delete": "Excluir"
+      }
+    }
+  },
+  "users_page": {
+    "title": "Usuários",
+    "description": "Gerencie os usuários e suas permissões no sistema.",
+    "table": {
+      "column_name": "Nome",
+      "column_email": "E-mail",
+      "column_status": "Status",
+      "form": {
+        "title_label": "Informações do Usuário",
+        "title_description": "Dados básicos para identificação e acesso.",
+        "name_label": "Nome Completo",
+        "name_placeholder": "Digite o nome completo",
+        "name_description": "O nome que será exibido no perfil do usuário.",
+        "email_label": "E-mail",
+        "email_placeholder": "ex: usuario@empresa.com",
+        "email_description": "Endereço de e-mail para acesso e notificações.",
+        "status_label": "Status Ativo",
+        "status_description": "Habilitar ou desabilitar o acesso do usuário.",
+        "teams_section_title": "Equipes e Perfis",
+        "teams_section_description": "Associe o usuário a uma ou mais equipes e defina seu perfil de acesso em cada uma.",
+        "add_team_button": "Adicionar Equipe",
+        "select_team_placeholder": "Selecione a equipe",
+        "select_profile_placeholder": "Selecione o perfil",
+        "column_team": "Equipe",
+        "column_profile": "Perfil de Acesso",
+        "empty_teams": "Nenhuma equipe associada."
       }
     }
   }

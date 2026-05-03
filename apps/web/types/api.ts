@@ -42,6 +42,20 @@ export interface AuthSession {
   session_id: string
 }
 
+export interface UserTeamAccess {
+  teamId: string
+  profileId: string
+}
+
+export interface User {
+  id: string
+  name: string
+  email: string
+  isActive: boolean
+  teams: UserTeamAccess[]
+  updatedAt: string
+}
+
 export interface AuthUser {
   id: string
   email: string
@@ -88,63 +102,51 @@ export interface ApiErrorPayload {
   }
 }
 
-export interface SignInActionState {
+export interface ActionState<T = unknown> {
   status: 'idle' | 'success' | 'error'
-  fieldErrors?: {
-    identifier?: string
-    password?: string
-  }
+  httpStatus?: number
+  notificationToken?: string
+  data?: T
+  fieldErrors?: Record<string, string | undefined>
+}
+
+export interface SignInActionState extends ActionState {
   fields?: {
     identifier?: string
     password?: string
   }
   nextStep?: 'authenticated'
   domain?: string
-  httpStatus?: number
-  notificationToken?: string
 }
 
-export interface ForgotPasswordActionState {
-  status: 'idle' | 'success' | 'error'
-  fieldErrors?: {
-    identifier?: string
-  }
+export interface ForgotPasswordActionState extends ActionState {
   nextStep?: 'otp_verification'
   identifier?: string
-  httpStatus?: number
-  notificationToken?: string
 }
 
-export interface VerifyOtpActionState {
-  status: 'idle' | 'success' | 'error'
-  fieldErrors?: {
-    identifier?: string
-    otp_code?: string
-  }
+export interface VerifyOtpActionState extends ActionState {
   nextStep?: 'password_reset'
   identifier?: string
   resetToken?: string
-  httpStatus?: number
-  notificationToken?: string
 }
 
-export interface ResetPasswordActionState {
-  status: 'idle' | 'success' | 'error'
-  fieldErrors?: {
-    identifier?: string
-    reset_token?: string
-    new_password?: string
-    confirm_password?: string
-  }
+export interface ResetPasswordActionState extends ActionState {
   nextStep?: 'signed_in'
-  httpStatus?: number
-  notificationToken?: string
 }
 
-export interface NotificationDictionary {
-  success?: string
-  error?: string
-  http_status?: Record<string, string>
+export type ClientActionState = ActionState<{ logo_url?: string }>
+
+export type ScreenActionState = ActionState
+export type TeamActionState = ActionState
+export type UserActionState = ActionState
+
+export interface Screen {
+  id: string
+  screenKey: string
+  title: string
+  description: string
+  isActive: boolean
+  updatedAt: string
 }
 
 export interface CommonNotificationDictionary {
@@ -159,27 +161,10 @@ export interface CommonNotificationDictionary {
 
 export type NotificationVariant = 'success' | 'info' | 'warning' | 'error'
 
-export interface ClientActionState {
-  status: 'idle' | 'success' | 'error'
-  fieldErrors?: {
-    name?: string
-    domain?: string
-    description?: string
-  }
-  httpStatus?: number
-  notificationToken?: string
-  data?: {
-    logo_url?: string
-  }
-}
-
-export interface Screen {
-  id: string
-  screenKey: string
-  title: string
-  description: string
-  isActive: boolean
-  updatedAt: string
+export interface NotificationDictionary {
+  success?: string
+  error?: string
+  http_status?: Record<string, string>
 }
 
 export interface ScreenFormDict {
@@ -238,16 +223,6 @@ export interface ScreenFormDict {
   notifications: {
     success: string
     error: string
-  }
-}
-
-export interface ScreenActionState {
-  status: 'idle' | 'success' | 'error'
-  httpStatus?: number
-  notificationToken?: string
-  fieldErrors?: {
-    title?: string
-    description?: string
   }
 }
 
@@ -316,18 +291,8 @@ export interface TeamFormDict {
   }
 }
 
-export interface TeamActionState {
-  status: 'idle' | 'success' | 'error'
-  httpStatus?: number
-  notificationToken?: string
-  fieldErrors?: {
-    name?: string
-    description?: string
-  }
-}
-
 export interface PermissionAction {
-  id: string // e.g., 'view', 'create', 'update', 'delete'
+  id: string
   name: string
 }
 
@@ -415,6 +380,81 @@ export interface AccessProfileFormDict {
       screens: string
       access_profiles: string
       parameters: string
+    }
+  }
+}
+
+export interface UserFormDict {
+  common: {
+    actions: {
+      discard: string
+      save: string
+      saving: string
+      create: string
+      cancel: string
+      edit: string
+      delete: string
+      back: string
+      resend_reset: string
+    }
+    dialogs: {
+      delete_confirm: {
+        title: string
+        description: string
+        cancel: string
+        confirm: string
+      }
+    }
+    notifications: CommonNotificationDictionary
+    table: {
+      status_active: string
+      status_inactive: string
+      column_status: string
+      column_updated_at: string
+      column_created_at: string
+      no_results: string
+    }
+  }
+  table: {
+    column_name: string
+    column_email: string
+    column_status: string
+    column_updated_at: string
+    column_created_at: string
+    no_results: string
+    form: {
+      title_label: string
+      title_description: string
+      name_label: string
+      name_placeholder: string
+      name_description: string
+      email_label: string
+      email_placeholder: string
+      email_description: string
+      status_label: string
+      status_description: string
+      teams_section_title: string
+      teams_section_description: string
+      add_team_button: string
+      select_team_placeholder: string
+      select_profile_placeholder: string
+      column_team: string
+      column_profile: string
+      empty_teams: string
+    }
+  }
+  notifications: {
+    success: string
+    error: string
+  }
+  sidebar: {
+    nav_main: {
+      dashboard: string
+      teams: string
+      screens: string
+      access_profiles: string
+      parameters: string
+      users: string
     }
   }
 }

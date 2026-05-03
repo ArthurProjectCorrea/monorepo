@@ -1,7 +1,7 @@
 # Especificacao da API de Sign-In
 
 ## Objetivo
-Definir os contratos e requisitos tecnicos do login usando ASP.NET Core, ASP.NET Core Identity, PostgreSQL e Redis, com sessao baseada em cookie seguro.
+Definir os contratos e requisitos tecnicos do login usando ASP.NET Core, ASP.NET Core Identity, PostgreSQL e Redis, com sessao baseada em Opaque Token (Session ID) armazenado no Redis.
 
 ## Escopo atual
 Coberto neste momento:
@@ -99,8 +99,18 @@ Response de sucesso:
   - id: string
   - email: string
   - display_name: string
+  - client_id: string
   - roles: string[]
-  - permissions: string[] (opcional)
+  - teams: array de objetos
+    - id: string
+    - name: string
+    - access_profile:
+      - id: string
+      - name: string
+      - permissions: array de objetos
+        - screen_key: string
+        - actions: string[]
+
 
 Response de erro (padrao):
 - error.code: string
@@ -127,7 +137,7 @@ Objetivo:
 
 Response de sucesso:
 - status: "active"
-- user: objeto resumido
+- user: objeto com id, email, display_name e client_id
 - session: metadados nao sensiveis
 
 ### 3) Renovar sessao

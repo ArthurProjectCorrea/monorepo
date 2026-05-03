@@ -16,6 +16,7 @@ public class AppDbContext : IdentityDbContext<User>
     public DbSet<Team> Teams { get; set; }
     public DbSet<AccessProfile> AccessProfiles { get; set; }
     public DbSet<AccessProfilePermission> AccessProfilePermissions { get; set; }
+    public DbSet<UserTeamAccess> UserTeamAccesses { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -29,7 +30,28 @@ public class AppDbContext : IdentityDbContext<User>
                   .OnDelete(DeleteBehavior.Restrict);
         });
 
+        builder.Entity<UserTeamAccess>(entity =>
+        {
+            entity.HasOne(uta => uta.User)
+                  .WithMany(u => u.TeamAccesses)
+                  .HasForeignKey(uta => uta.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(uta => uta.Team)
+                  .WithMany()
+                  .HasForeignKey(uta => uta.TeamId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(uta => uta.AccessProfile)
+                  .WithMany()
+                  .HasForeignKey(uta => uta.AccessProfileId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(uta => new { uta.UserId, uta.TeamId }).IsUnique();
+        });
+
         builder.Entity<Client>(entity =>
+
         {
             entity.HasIndex(c => c.Domain).IsUnique();
         });

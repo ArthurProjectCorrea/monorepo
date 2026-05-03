@@ -18,7 +18,6 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer'
 import { Button } from '@/components/ui/button'
-import { useMediaQuery } from '@/hooks/use-media-query'
 import type { DataTableDict } from '@/types/data-table'
 
 interface DataTableDialogProps {

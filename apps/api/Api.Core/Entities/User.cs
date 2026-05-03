@@ -13,4 +13,7 @@ public class User : IdentityUser
     public bool IsActive { get; set; } = true;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public virtual ICollection<UserTeamAccess> TeamAccesses { get; set; } = new List<UserTeamAccess>();
 }
+

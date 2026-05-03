@@ -30,18 +30,9 @@ import { DataTableRowActions } from './data-table-row-actions'
 import { DataTableRowSkeleton, DataTableRowMobileCardSkeleton } from '../loading/data-table-loading'
 import { DataTableRowMobileCard } from './data-table-mobile-card'
 import type { DataTableDict } from '@/types/data-table'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { MoreHorizontal, RotateCw, Plus } from 'lucide-react'
+import { RotateCw, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { DataTableDialog } from './data-table-dialog'
 
 export interface DataTableRowAction<TData> {
   label: string
@@ -64,8 +55,6 @@ interface DataTableProps<TData, TValue> {
   editFormProps?: Record<string, any>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createForm?: React.ComponentType<any>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createFormProps?: Record<string, any>
   itemTitleColumn?: string // Column ID to use as title in Edit dialog
   mobileTitleColumn?: string // Column ID for card header title on mobile
   mobileStatusColumn?: string // Column ID for card header status on mobile
@@ -86,7 +75,6 @@ export function DataTable<TData, TValue>({
   editForm,
   editFormProps,
   createForm: CreateForm,
-  createFormProps,
   itemTitleColumn,
   mobileTitleColumn,
   mobileStatusColumn,
@@ -110,7 +98,6 @@ export function DataTable<TData, TValue>({
         cell: ({ row }) => {
           const item = row.original
           const extraActions = customActions ? customActions(item) : []
-          const hasManyCustom = extraActions.length > 1
 
           // Get title for the dialog
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -161,16 +148,16 @@ export function DataTable<TData, TValue>({
   return (
     <TooltipProvider>
       <div className="space-y-4">
-        <div className="flex items-center justify-between gap-2 px-2">
+        <div className="flex flex-col gap-4 px-2 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
           {filterColumn && (
             <Input
               placeholder={searchPlaceholder || dict.common.table.search_placeholder}
               value={(table.getColumn(filterColumn)?.getFilterValue() as string) ?? ''}
               onChange={event => table.getColumn(filterColumn)?.setFilterValue(event.target.value)}
-              className="max-w-sm"
+              className="w-full sm:max-w-sm"
             />
           )}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-end gap-2">
             {onRefresh && (
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -184,16 +171,17 @@ export function DataTable<TData, TValue>({
             )}
             <DataTableViewOptions table={table} dict={dict} />
             {(CreateForm || onAddClick) && (
-              <Button onClick={onAddClick}>
+              <Button onClick={onAddClick} className="flex-1 sm:flex-initial">
                 <Plus className="mr-2 h-4 w-4" />
                 {dict.common.actions.create}
               </Button>
             )}
           </div>
         </div>
+
         {/* Desktop Table View */}
         <div className="hidden md:block rounded-md border bg-card overflow-hidden">
-          <div className="min-h-[530px]">
+          <div className="min-h-[280px] lg:min-h-[530px]">
             {' '}
             {/* Height for approx 10 rows + header */}
             <Table>

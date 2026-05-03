@@ -1,0 +1,18 @@
+[
+  {
+    "id": "u1",
+    "name": "Arthur Corrêa",
+    "email": "arthur@exemplo.com",
+    "isActive": true,
+    "updatedAt": "2024-05-01T10:00:00Z",
+    "teams": [{ "teamId": "admin-team", "profileId": "1" }]
+  },
+  {
+    "id": "u2",
+    "name": "João Silva",
+    "email": "joao@exemplo.com",
+    "isActive": true,
+    "updatedAt": "2024-04-30T15:30:00Z",
+    "teams": [{ "teamId": "sales-team", "profileId": "2" }]
+  }
+]

@@ -1,7 +1,6 @@
 'use client'
 
 import * as React from 'react'
-import { cn } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import {
   Field,
@@ -10,14 +9,11 @@ import {
   FieldGroup,
   FieldLabel,
   FieldSet,
-  FieldContent,
-  FieldTitle,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Button } from '@/components/ui/button'
-import { Spinner } from '@/components/ui/spinner'
 import { toast } from 'sonner'
 import {
   DropdownMenu,
@@ -28,9 +24,8 @@ import {
   DropdownMenuCheckboxItem,
 } from '@/components/ui/dropdown-menu'
 
-import { Checkbox } from '@/components/ui/checkbox'
 import { Item, ItemActions, ItemContent, ItemGroup, ItemTitle } from '@/components/ui/item'
-import { Settings2, ShieldCheck, Lock } from 'lucide-react'
+import { Settings2, Lock } from 'lucide-react'
 import { SCREEN_PERMISSIONS } from '@/lib/permission'
 import { saveAccessProfileAction } from '@/lib/action/access-profiles'
 import { useRouter, useParams } from 'next/navigation'

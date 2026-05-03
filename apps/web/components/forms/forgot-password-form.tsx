@@ -8,8 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Field, FieldContent, FieldLabel, FieldTitle } from '@/components/ui/field'
 import { Spinner } from '@/components/ui/spinner'
-import { forgotPasswordAction } from '@/lib/action/forgot-password'
-import { initialForgotPasswordState } from '@/lib/action/forgot-password-state'
+import { forgotPasswordAction } from '@/lib/action/auth'
 import { notifyFromApi } from '@/lib/notifications'
 import type { NotificationDictionary, CommonNotificationDictionary } from '@/types/api'
 
@@ -32,10 +31,9 @@ export function ForgotPasswordForm({
   notificationsDict,
   commonNotificationsDict,
 }: ForgotPasswordFormProps) {
-  const [state, formAction, isPending] = React.useActionState(
-    forgotPasswordAction,
-    initialForgotPasswordState,
-  )
+  const [state, formAction, isPending] = React.useActionState(forgotPasswordAction, {
+    status: 'idle',
+  })
   const [isRedirecting, setIsRedirecting] = React.useState(false)
   const router = useRouter()
   const params = useParams()

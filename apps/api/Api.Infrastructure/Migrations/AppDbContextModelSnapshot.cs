@@ -331,6 +331,37 @@ namespace Api.Infrastructure.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Api.Core.Entities.UserTeamAccess", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AccessProfileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("TeamId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccessProfileId");
+
+                    b.HasIndex("TeamId");
+
+                    b.HasIndex("UserId", "TeamId")
+                        .IsUnique();
+
+                    b.ToTable("UserTeamAccesses");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -525,6 +556,33 @@ namespace Api.Infrastructure.Migrations
                     b.Navigation("Client");
                 });
 
+            modelBuilder.Entity("Api.Core.Entities.UserTeamAccess", b =>
+                {
+                    b.HasOne("Api.Core.Entities.AccessProfile", "AccessProfile")
+                        .WithMany()
+                        .HasForeignKey("AccessProfileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Api.Core.Entities.Team", "Team")
+                        .WithMany()
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Api.Core.Entities.User", "User")
+                        .WithMany("TeamAccesses")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AccessProfile");
+
+                    b.Navigation("Team");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -584,6 +642,11 @@ namespace Api.Infrastructure.Migrations
             modelBuilder.Entity("Api.Core.Entities.Client", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Api.Core.Entities.User", b =>
+                {
+                    b.Navigation("TeamAccesses");
                 });
 #pragma warning restore 612, 618
         }

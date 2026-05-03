@@ -13,7 +13,8 @@
       "view_more": "View more",
       "view_less": "View less",
       "create": "New record",
-      "back": "Back"
+      "back": "Back",
+      "resend_reset": "Resend access link"
     },
     "table": {
       "status_active": "Active",
@@ -122,6 +123,10 @@
     "access_profiles": {
       "success": "Access profile saved successfully.",
       "error": "Error saving access profile."
+    },
+    "users": {
+      "success": "User saved successfully.",
+      "error": "Error saving user."
     }
   },
   "theme_toggle": {
@@ -234,7 +239,8 @@
       "screens": "Screens",
       "screen_parameters": "Screen Parameters",
       "fields": "Fields",
-      "access_profiles": "Access Profile"
+      "access_profiles": "Access Profile",
+      "users": "Users"
     }
   },
   "screens_page": {
@@ -294,6 +300,35 @@
         "permission_create": "Create",
         "permission_update": "Update",
         "permission_delete": "Delete"
+      }
+    }
+  },
+  "users_page": {
+    "title": "Users",
+    "description": "Manage users and their permissions in the system.",
+    "table": {
+      "column_name": "Name",
+      "column_email": "Email",
+      "column_status": "Status",
+      "form": {
+        "title_label": "User Information",
+        "title_description": "Basic data for identification and access.",
+        "name_label": "Full Name",
+        "name_placeholder": "Enter full name",
+        "name_description": "The name that will be displayed on the user profile.",
+        "email_label": "Email",
+        "email_placeholder": "ex: user@company.com",
+        "email_description": "Email address for access and notifications.",
+        "status_label": "Active Status",
+        "status_description": "Enable or disable user access.",
+        "teams_section_title": "Teams and Profiles",
+        "teams_section_description": "Associate the user with one or more teams and define their access profile in each one.",
+        "add_team_button": "Add Team",
+        "select_team_placeholder": "Select team",
+        "select_profile_placeholder": "Select profile",
+        "column_team": "Team",
+        "column_profile": "Access Profile",
+        "empty_teams": "No teams associated."
       }
     }
   }

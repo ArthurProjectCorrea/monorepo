@@ -88,6 +88,21 @@ public static class DbInitializer
             await context.SaveChangesAsync();
         }
 
+        var usersScreen = context.Screens.FirstOrDefault(s => s.ScreenKey == "users" && s.ClientId == defaultClient.Id);
+        if (usersScreen == null)
+        {
+            usersScreen = new Screen
+            {
+                Title = "Gerenciamento de Usuários",
+                Description = "Cadastre e gerencie os usuários e seus vínculos com equipes.",
+                ScreenKey = "users",
+                ClientId = defaultClient.Id,
+                IsActive = true
+            };
+            context.Screens.Add(usersScreen);
+            await context.SaveChangesAsync();
+        }
+
         // Seed Default Access Profile (Admin)
         var adminProfile = context.AccessProfiles.FirstOrDefault(ap => ap.Name == "Administrador" && ap.ClientId == defaultClient.Id);
         if (adminProfile == null)
@@ -109,7 +124,8 @@ public static class DbInitializer
                 { "general", new[] { "view", "update" } },
                 { "screen_parameters", new[] { "view", "update" } },
                 { "teams", new[] { "view", "create", "update", "delete" } },
-                { "access_profiles", new[] { "view", "create", "update", "delete" } }
+                { "access_profiles", new[] { "view", "create", "update", "delete" } },
+                { "users", new[] { "view", "create", "update", "delete" } }
             };
 
             foreach (var screen in allScreens)
@@ -160,9 +176,28 @@ public static class DbInitializer
             await userManager.AddToRoleAsync(defaultUser, "Admin");
         }
         else if (defaultUser.ClientId == null)
+
         {
             defaultUser.ClientId = defaultClient.Id;
             await userManager.UpdateAsync(defaultUser);
         }
+
+
+        // Seed default link for admin user
+        if (defaultUser != null && adminProfile != null)
+        {
+            var defaultTeam = context.Teams.FirstOrDefault(t => t.ClientId == defaultClient.Id);
+            if (defaultTeam != null && !context.UserTeamAccesses.Any(uta => uta.UserId == defaultUser.Id))
+            {
+                context.UserTeamAccesses.Add(new UserTeamAccess
+                {
+                    UserId = defaultUser.Id,
+                    TeamId = defaultTeam.Id,
+                    AccessProfileId = adminProfile.Id
+                });
+                await context.SaveChangesAsync();
+            }
+        }
     }
 }
+

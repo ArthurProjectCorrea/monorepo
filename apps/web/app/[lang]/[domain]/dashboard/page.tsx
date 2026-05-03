@@ -1,4 +1,4 @@
-import { signOutAction } from '@/lib/action/sign-out'
+import { signOutAction } from '@/lib/action/auth'
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/layout/page-header'
 

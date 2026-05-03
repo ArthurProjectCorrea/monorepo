@@ -15,5 +15,6 @@ export interface SidebarDict {
     fields?: string
     more?: string
     access_profiles?: string
+    users?: string
   }
 }

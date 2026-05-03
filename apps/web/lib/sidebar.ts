@@ -9,6 +9,7 @@ import {
   Layers,
   Users,
   ShieldCheck,
+  User,
 } from 'lucide-react'
 import { createElement } from 'react'
 import type { SidebarDict } from '@/types/sidebar'
@@ -56,14 +57,19 @@ export const getSidebarData = (domain: string, dict: { sidebar?: SidebarDict }) 
             url: `/${domain}/settings/general`,
           },
           {
-            title: navMainDict.teams || 'Team',
-            icon: createElement(Users),
-            url: `/${domain}/settings/teams`,
+            title: navMainDict.users || 'Users',
+            icon: createElement(User),
+            url: `/${domain}/settings/users`,
           },
           {
             title: navMainDict.access_profiles || 'Access Profiles',
             icon: createElement(ShieldCheck),
             url: `/${domain}/settings/access-profiles`,
+          },
+          {
+            title: navMainDict.teams || 'Team',
+            icon: createElement(Users),
+            url: `/${domain}/settings/teams`,
           },
         ],
       },

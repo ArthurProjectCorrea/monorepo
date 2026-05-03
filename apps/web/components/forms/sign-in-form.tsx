@@ -9,8 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Field, FieldContent, FieldLabel, FieldTitle } from '@/components/ui/field'
 import { InputPassword } from '@/components/input-password'
 import { Spinner } from '@/components/ui/spinner'
-import { signInAction } from '@/lib/action/sign-in'
-import { initialSignInState } from '@/lib/action/sign-in-state'
+import { signInAction } from '@/lib/action/auth'
 import { notifyFromApi } from '@/lib/notifications'
 import type { NotificationDictionary, CommonNotificationDictionary } from '@/types/api'
 
@@ -39,7 +38,7 @@ export function SignInForm({
   signOutNotificationsDict,
   commonNotificationsDict,
 }: SignInFormProps) {
-  const [state, formAction, isPending] = React.useActionState(signInAction, initialSignInState)
+  const [state, formAction, isPending] = React.useActionState(signInAction, { status: 'idle' })
   const [isRedirecting, setIsRedirecting] = React.useState(false)
   const router = useRouter()
   const params = useParams()

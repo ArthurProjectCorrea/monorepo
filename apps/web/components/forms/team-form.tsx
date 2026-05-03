@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { toast } from 'sonner'
 import type { Team, TeamFormDict } from '@/types/api'
-import { updateTeamAction, createTeamAction } from '@/lib/action/teams'
+import { saveTeamAction } from '@/lib/action/teams'
 
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import * as LucideIcons from 'lucide-react'
@@ -60,9 +60,7 @@ export function TeamForm({ row, onSuccess, dict }: TeamFormProps) {
     formData.set('status', status ? 'true' : 'false')
 
     try {
-      const result = row.id
-        ? await updateTeamAction({ status: 'idle' }, formData)
-        : await createTeamAction({ status: 'idle' }, formData)
+      const result = await saveTeamAction({ status: 'idle' }, formData)
 
       if (result.status === 'success') {
         toast.success(dict.notifications.success)
@@ -70,7 +68,7 @@ export function TeamForm({ row, onSuccess, dict }: TeamFormProps) {
       } else {
         toast.error(dict.notifications.error)
       }
-    } catch (error) {
+    } catch {
       toast.error(dict.notifications.error)
     } finally {
       setIsPending(false)

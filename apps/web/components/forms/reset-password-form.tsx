@@ -11,8 +11,7 @@ import { InputPassword } from '@/components/input-password'
 import { Spinner } from '@/components/ui/spinner'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 import { cn } from '@/lib/utils'
-import { resetPasswordAction } from '@/lib/action/reset-password'
-import { initialResetPasswordState } from '@/lib/action/reset-password-state'
+import { resetPasswordAction } from '@/lib/action/auth'
 import { notifyFromApi } from '@/lib/notifications'
 import type { NotificationDictionary, CommonNotificationDictionary } from '@/types/api'
 
@@ -48,10 +47,9 @@ export function ResetPasswordForm({
   verifyOtpNotificationsDict,
   commonNotificationsDict,
 }: ResetPasswordFormProps) {
-  const [state, formAction, isPending] = React.useActionState(
-    resetPasswordAction,
-    initialResetPasswordState,
-  )
+  const [state, formAction, isPending] = React.useActionState(resetPasswordAction, {
+    status: 'idle',
+  })
   const [password, setPassword] = React.useState('')
   const [confirmPassword, setConfirmPassword] = React.useState('')
   const params = useParams()

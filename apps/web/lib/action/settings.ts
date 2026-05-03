@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { api, ApiRequestError } from '@/lib/api'
 import { AUTH_SESSION_COOKIE } from '@/lib/auth-session'
 import { getDictionary, type Locale } from '@/app/[lang]/dictionaries'
-import type { ClientActionState } from '@/types/api'
+import type { ClientActionState, Screen, ScreenActionState } from '@/types/api'
 
 function getApiBaseUrl() {
   return (process.env.EXTERNAL_API_BASE_URL || 'http://localhost:5000').replace(/\/$/, '')
@@ -17,7 +17,11 @@ function resolveLogoUrl(logoUrl?: string | null): string | undefined {
   return `${getApiBaseUrl()}${logoUrl}`
 }
 
-export async function getClientData(): Promise<{
+/**
+ * CLIENT SETTINGS
+ */
+
+export async function fetchClientData(): Promise<{
   client: { name: string; domain: string; description?: string; logo_url?: string }
   screen?: { title: string; description: string }
 } | null> {
@@ -44,7 +48,7 @@ export async function getClientData(): Promise<{
   }
 }
 
-export async function updateClientAction(
+export async function saveClientAction(
   _previousState: ClientActionState,
   formData: FormData,
 ): Promise<ClientActionState> {
@@ -56,62 +60,37 @@ export async function updateClientAction(
   const description = formData.get('description') as string
 
   const fieldErrors: ClientActionState['fieldErrors'] = {}
-
   if (!name) fieldErrors.name = dict.validation.required_name || 'Required'
   if (!domain) fieldErrors.domain = dict.validation.required_domain || 'Required'
 
   if (Object.keys(fieldErrors).length > 0) {
-    return {
-      status: 'error',
-      fieldErrors,
-      httpStatus: 400,
-      notificationToken: crypto.randomUUID(),
-    }
+    return { status: 'error', fieldErrors, httpStatus: 400, notificationToken: crypto.randomUUID() }
   }
 
   try {
     const cookieStore = await cookies()
     const sessionId = cookieStore.get(AUTH_SESSION_COOKIE)?.value
 
-    // Send only JSON data to the updated API endpoint
     await api.put(
       '/v1/clients/me',
-      {
-        name,
-        domain,
-        description,
-      },
+      { name, domain, description },
       {
         headers: { Authorization: `Bearer ${sessionId}` },
       },
     )
 
-    // Invalidate the cache for the entire domain to ensure UI reflects database changes
     revalidatePath('/', 'layout')
 
-    return {
-      status: 'success',
-      httpStatus: 200,
-      notificationToken: crypto.randomUUID(),
-    }
+    return { status: 'success', httpStatus: 200, notificationToken: crypto.randomUUID() }
   } catch (error) {
     if (error instanceof ApiRequestError) {
-      return {
-        status: 'error',
-        httpStatus: error.status,
-        notificationToken: crypto.randomUUID(),
-      }
+      return { status: 'error', httpStatus: error.status, notificationToken: crypto.randomUUID() }
     }
-
-    return {
-      status: 'error',
-      httpStatus: 500,
-      notificationToken: crypto.randomUUID(),
-    }
+    return { status: 'error', httpStatus: 500, notificationToken: crypto.randomUUID() }
   }
 }
 
-export async function updateLogoAction(fileData: FormData): Promise<string | null> {
+export async function uploadLogoAction(fileData: FormData): Promise<string | null> {
   try {
     const cookieStore = await cookies()
     const sessionId = cookieStore.get(AUTH_SESSION_COOKIE)?.value
@@ -120,12 +99,73 @@ export async function updateLogoAction(fileData: FormData): Promise<string | nul
       headers: { Authorization: `Bearer ${sessionId}` },
     })
 
-    // Invalidate the cache for the entire domain
     revalidatePath('/', 'layout')
-
     return resolveLogoUrl(response.logo_url) || null
   } catch (error) {
     console.error('Logo upload failed:', error)
     return null
+  }
+}
+
+/**
+ * SCREEN SETTINGS
+ */
+
+export async function fetchScreensData(): Promise<{
+  data: Screen[]
+  screen?: { title: string; description: string }
+} | null> {
+  try {
+    const cookieStore = await cookies()
+    const sessionId = cookieStore.get(AUTH_SESSION_COOKIE)?.value
+
+    return await api.get<{
+      data: Screen[]
+      screen?: { title: string; description: string }
+    }>('/v1/parameters/screens', {
+      headers: { Authorization: `Bearer ${sessionId}` },
+    })
+  } catch {
+    return null
+  }
+}
+
+export async function saveScreenAction(
+  _previousState: ScreenActionState,
+  formData: FormData,
+): Promise<ScreenActionState> {
+  const id = formData.get('id') as string
+  const title = formData.get('title') as string
+  const description = formData.get('description') as string
+  const isActive = formData.get('isActive') === 'true' || formData.get('isActive') === 'on'
+
+  if (!id || !title) {
+    return {
+      status: 'error',
+      httpStatus: 400,
+      notificationToken: crypto.randomUUID(),
+      fieldErrors: { title: !title ? 'Required' : undefined },
+    }
+  }
+
+  try {
+    const cookieStore = await cookies()
+    const sessionId = cookieStore.get(AUTH_SESSION_COOKIE)?.value
+
+    await api.put(
+      `/v1/parameters/screens/${id}`,
+      { title, description, isActive },
+      {
+        headers: { Authorization: `Bearer ${sessionId}` },
+      },
+    )
+
+    revalidatePath('/[lang]/[domain]/parameters/screens', 'page')
+    return { status: 'success', httpStatus: 200, notificationToken: crypto.randomUUID() }
+  } catch (error) {
+    if (error instanceof ApiRequestError) {
+      return { status: 'error', httpStatus: error.status, notificationToken: crypto.randomUUID() }
+    }
+    return { status: 'error', httpStatus: 500, notificationToken: crypto.randomUUID() }
   }
 }

@@ -7,7 +7,6 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
@@ -21,7 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { ChevronRightIcon, MoreHorizontalIcon, EllipsisVertical } from 'lucide-react'
+import { ChevronRightIcon, EllipsisVertical } from 'lucide-react'
 import type { SidebarDict } from '@/types/sidebar'
 import Link from 'next/link'
 
@@ -43,7 +42,7 @@ export function NavMain({
   }[]
   dict: { sidebar?: SidebarDict }
 }) {
-  const { isMobile, setOpenMobile, state, setOpen } = useSidebar()
+  const { isMobile, setOpenMobile } = useSidebar()
 
   const handleLinkClick = () => {
     if (isMobile) {

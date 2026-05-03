@@ -21,7 +21,7 @@ export function DataTableRowSkeleton({ columnCount = 5, rowCount = 10 }: DataTab
   return (
     <>
       {Array.from({ length: rowCount }).map((_, i) => (
-        <TableRow key={i}>
+        <TableRow key={i} className={i >= 5 ? 'hidden lg:table-row' : ''}>
           {Array.from({ length: columnCount }).map((_, j) => (
             <TableCell key={j} className="p-4">
               <Skeleton className="h-4 w-full" />
@@ -81,7 +81,7 @@ export function DataTableLoading({ columnCount = 5, rowCount = 10 }: DataTableLo
 
       {/* Desktop Table Skeleton */}
       <div className="hidden md:block rounded-md border bg-card overflow-hidden">
-        <div className="min-h-[530px]">
+        <div className="min-h-[280px] lg:min-h-[530px]">
           <Table>
             <TableHeader>
               <TableRow>

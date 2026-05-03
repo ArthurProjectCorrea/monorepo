@@ -48,7 +48,7 @@ export function AccessProfileTableClient({
         } else {
           toast.error(dictProfilesPage.notifications.error)
         }
-      } catch (error) {
+      } catch {
         toast.error(dictProfilesPage.notifications.error)
       }
     })

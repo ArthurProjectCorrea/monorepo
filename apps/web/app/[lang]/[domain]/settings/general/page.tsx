@@ -2,7 +2,7 @@ import { GeneralForm } from '@/components/forms/general-form'
 import { PageHeader } from '@/components/layout/page-header'
 import { getDictionary, hasLocale, type Locale } from '@/app/[lang]/dictionaries'
 import { notFound } from 'next/navigation'
-import { getClientData } from '@/lib/action/client'
+import { fetchClientData } from '@/lib/action/settings'
 
 export default async function GeneralSettingsPage({
   params,
@@ -15,7 +15,7 @@ export default async function GeneralSettingsPage({
     notFound()
   }
 
-  const [dict, clientData] = await Promise.all([getDictionary(lang as Locale), getClientData()])
+  const [dict, clientData] = await Promise.all([getDictionary(lang as Locale), fetchClientData()])
 
   if (!clientData) {
     notFound()

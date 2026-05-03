@@ -2,9 +2,6 @@ import { getDictionary, hasLocale, type Locale } from '@/app/[lang]/dictionaries
 import { notFound } from 'next/navigation'
 import { PageHeader } from '@/components/layout/page-header'
 import { AccessProfileForm } from '@/components/forms/access-profile-form'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Undo2 } from 'lucide-react'
 
 export default async function NewAccessProfilePage({
   params,

@@ -78,9 +78,18 @@ async function request<T>(path: string, options: ApiRequestOptions = {}): Promis
     cache: 'no-store',
   })
 
+  // Global Terminal Logging
+  console.log(`[API] ${options.method || 'GET'} ${path} -> ${response.status}`)
+
   const payload = await parseJsonSafe<ApiErrorPayload & T>(response)
 
   if (!response.ok) {
+    if (payload?.error) {
+      console.error(
+        `[API ERROR] ${options.method || 'GET'} ${path}:`,
+        JSON.stringify(payload.error, null, 2),
+      )
+    }
     throw new ApiRequestError(payload?.error?.message ?? 'API request failed.', {
       status: response.status,
       code: payload?.error?.code,

@@ -3,10 +3,10 @@ import { notFound } from 'next/navigation'
 import { PageHeader } from '@/components/layout/page-header'
 import { ScreensTableClient } from '../../../../../components/table/screen-table-client'
 
-import { getScreensData } from '@/lib/action/screens'
+import { fetchScreensData } from '@/lib/action/settings'
 
 async function getScreensPageData() {
-  const screensData = await getScreensData()
+  const screensData = await fetchScreensData()
   return screensData
 }
 

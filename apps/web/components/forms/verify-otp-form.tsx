@@ -9,12 +9,12 @@ import { Button } from '@/components/ui/button'
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@/components/ui/input-otp'
 import { Field, FieldContent } from '@/components/ui/field'
 import { Spinner } from '@/components/ui/spinner'
-import { initialVerifyOtpState } from '@/lib/action/verify-otp-state'
-import { resendRecoveryOtpAction, verifyRecoveryOtpAction } from '@/lib/action/verify-otp'
+import { resendRecoveryOtpAction, verifyOtpAction } from '@/lib/action/auth'
 import { notifyFromApi } from '@/lib/notifications'
 import type { NotificationDictionary, CommonNotificationDictionary } from '@/types/api'
 
 interface VerifyOTPFormProps {
+  identifier: string
   dict: {
     title: string
     description: string
@@ -29,14 +29,12 @@ interface VerifyOTPFormProps {
 }
 
 export function VerifyOTPForm({
+  identifier,
   dict,
   notificationsDict,
   commonNotificationsDict,
 }: VerifyOTPFormProps) {
-  const [state, formAction, isPending] = React.useActionState(
-    verifyRecoveryOtpAction,
-    initialVerifyOtpState,
-  )
+  const [state, formAction, isPending] = React.useActionState(verifyOtpAction, { status: 'idle' })
   const [value, setValue] = React.useState('')
   const [countdown, setCountdown] = React.useState<number>(20)
   const [isResending, startResendTransition] = React.useTransition()
@@ -86,8 +84,10 @@ export function VerifyOTPForm({
     if (countdown > 0 || isPending || isResending) return
 
     startResendTransition(async () => {
-      const result = await resendRecoveryOtpAction()
-      setResendStatus(result.httpStatus)
+      const formData = new FormData()
+      formData.append('identifier', identifier)
+      const result = await resendRecoveryOtpAction({ status: 'idle' }, formData)
+      setResendStatus(result.httpStatus || 500)
       if (result.httpStatus === 200) {
         setCountdown(20)
       }
@@ -102,6 +102,7 @@ export function VerifyOTPForm({
       </div>
 
       <form action={formAction} className="flex flex-col gap-4">
+        <input type="hidden" name="identifier" value={identifier} />
         <input type="hidden" name="otp_code" value={value} />
         <input type="hidden" name="lang" value={lang} />
         <Field className="items-center p-2">

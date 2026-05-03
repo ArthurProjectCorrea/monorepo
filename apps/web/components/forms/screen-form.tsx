@@ -16,7 +16,7 @@ interface ScreenFormProps {
   dict: ScreenFormDict
 }
 
-import { updateScreenAction } from '@/lib/action/screens'
+import { saveScreenAction } from '@/lib/action/settings'
 
 export function ScreenForm({ row, onSuccess, dict }: ScreenFormProps) {
   const [isPending, startTransition] = React.useTransition()
@@ -31,7 +31,7 @@ export function ScreenForm({ row, onSuccess, dict }: ScreenFormProps) {
     formData.set('isActive', isActive ? 'true' : 'false')
 
     startTransition(async () => {
-      const result = await updateScreenAction({ status: 'idle' }, formData)
+      const result = await saveScreenAction({ status: 'idle' }, formData)
 
       if (result.status === 'success') {
         toast.success(dict.notifications.success)

@@ -1,6 +1,7 @@
 'use client'
 
 import { toast } from 'sonner'
+import { logToTerminal } from '@/lib/action/logger'
 import type {
   NotificationDictionary,
   CommonNotificationDictionary,
@@ -93,6 +94,12 @@ export function notifyFromApi({
   const activeLang = getActiveLanguage(lang)
   const message = resolveMessage(httpStatus, dictionary, commonDictionary)
   const variant = getVariantFromHttpStatus(httpStatus)
+
+  // Log to Terminal (Server Side) via Server Action
+  const logType = variant === 'success' ? 'info' : variant === 'warning' ? 'warn' : 'error'
+  logToTerminal(`HTTP ${httpStatus}: ${message}`, logType).catch(err =>
+    console.error('Failed to log to terminal:', err),
+  )
 
   if (variant === 'success') {
     toast.success(message, {
