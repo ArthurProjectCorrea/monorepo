@@ -1,4 +1,5 @@
 using Api.Core.Entities;
+using Api.Core.Interfaces;
 using Api.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,23 +14,31 @@ public class AccessProfilesController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly IDatabase _redis;
+    private readonly IPermissionService _permissionService;
 
     public AccessProfilesController(
         AppDbContext context,
-        IConnectionMultiplexer redis)
+        IConnectionMultiplexer redis,
+        IPermissionService permissionService)
     {
         _context = context;
         _redis = redis.GetDatabase();
+        _permissionService = permissionService;
+    }
+
+    private string GetSessionId()
+    {
+        var authHeader = Request.Headers["Authorization"].ToString();
+        if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer ")) return string.Empty;
+        return authHeader.Substring("Bearer ".Length).Trim();
     }
 
     private async Task<Guid?> GetClientIdFromSession()
     {
-        var authHeader = Request.Headers["Authorization"].ToString();
-        if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer ")) return null;
+        var sessionId = GetSessionId();
+        if (string.IsNullOrEmpty(sessionId)) return null;
 
-        var sessionId = authHeader.Substring("Bearer ".Length).Trim();
         var sessionJson = await _redis.StringGetAsync($"session:{sessionId}");
-
         if (!sessionJson.HasValue) return null;
 
         var sessionData = JsonSerializer.Deserialize<Dictionary<string, object>>((string)sessionJson!);
@@ -41,21 +50,34 @@ public class AccessProfilesController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAccessProfiles()
     {
+        var sessionId = GetSessionId();
+        if (!await _permissionService.HasPermissionAsync(sessionId, "access_profiles", "view"))
+        {
+            return Forbid();
+        }
+
         var clientId = await GetClientIdFromSession();
         if (clientId == null) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
 
         var profiles = await _context.AccessProfiles
+            .Include(ap => ap.Permissions)
             .Where(ap => ap.ClientId == clientId && ap.DeletedAt == null)
             .OrderByDescending(ap => ap.CreatedAt)
-            .Select(ap => new
-            {
-                id = ap.Id,
-                name = ap.Name,
-                description = ap.Description,
-                isActive = ap.IsActive,
-                updatedAt = ap.UpdatedAt
-            })
             .ToListAsync();
+
+        var screens = await _context.Screens
+            .Where(s => s.ClientId == clientId) // Include screens for the current client
+            .Select(s => new { id = s.Id, name = s.Title, key = s.ScreenKey })
+            .ToListAsync();
+
+        // Hardcoded actions as they are strings in DB
+        var actions = new[]
+        {
+            new { id = "view", name = "View", key = "view" },
+            new { id = "create", name = "Create", key = "create" },
+            new { id = "update", name = "Update", key = "update" },
+            new { id = "delete", name = "Delete", key = "delete" }
+        };
 
         var screenMetadata = await _context.Screens
             .FirstOrDefaultAsync(s => s.ScreenKey == "access_profiles" && s.ClientId == clientId);
@@ -63,19 +85,44 @@ public class AccessProfilesController : ControllerBase
         return Ok(new
         {
             status = "success",
-            data = profiles,
-            screen = screenMetadata != null ? new
+            data = profiles.Select(ap => new
             {
-                title = screenMetadata.Title,
+                id = ap.Id,
+                name = ap.Name,
+                description = ap.Description,
+                is_active = ap.IsActive,
+                created_at = ap.CreatedAt,
+                updated_at = ap.UpdatedAt,
+                accesses = ap.Permissions.Select(p => new
+                {
+                    screen_id = p.ScreenId,
+                    action_id = p.ActionId
+                })
+            }),
+            screen_access_profiles = screenMetadata != null ? new
+            {
+                id = screenMetadata.Id,
                 description = screenMetadata.Description,
-                screenKey = screenMetadata.ScreenKey
-            } : null
+                key = screenMetadata.ScreenKey,
+                title = screenMetadata.Title
+            } : null,
+            other = new
+            {
+                actions = actions,
+                screens = screens
+            }
         });
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetAccessProfile(Guid id)
     {
+        var sessionId = GetSessionId();
+        if (!await _permissionService.HasPermissionAsync(sessionId, "access_profiles", "view"))
+        {
+            return Forbid();
+        }
+
         var clientId = await GetClientIdFromSession();
         if (clientId == null) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
 
@@ -93,11 +140,13 @@ public class AccessProfilesController : ControllerBase
                 id = profile.Id,
                 name = profile.Name,
                 description = profile.Description,
-                isActive = profile.IsActive,
+                is_active = profile.IsActive,
+                created_at = profile.CreatedAt,
+                updated_at = profile.UpdatedAt,
                 permissions = profile.Permissions.Select(p => new
                 {
-                    screenId = _context.Screens.FirstOrDefault(s => s.Id == p.ScreenId)?.ScreenKey ?? p.ScreenId.ToString(),
-                    actionId = p.ActionId
+                    screen_id = _context.Screens.FirstOrDefault(s => s.Id == p.ScreenId)?.ScreenKey ?? p.ScreenId.ToString(),
+                    action_id = p.ActionId
                 })
             }
         });
@@ -106,6 +155,12 @@ public class AccessProfilesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateAccessProfile([FromBody] CreateAccessProfileRequest request)
     {
+        var sessionId = GetSessionId();
+        if (!await _permissionService.HasPermissionAsync(sessionId, "access_profiles", "create"))
+        {
+            return Forbid();
+        }
+
         var clientId = await GetClientIdFromSession();
         if (clientId == null) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
 
@@ -143,6 +198,12 @@ public class AccessProfilesController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateAccessProfile(Guid id, [FromBody] UpdateAccessProfileRequest request)
     {
+        var sessionId = GetSessionId();
+        if (!await _permissionService.HasPermissionAsync(sessionId, "access_profiles", "update"))
+        {
+            return Forbid();
+        }
+
         var clientId = await GetClientIdFromSession();
         if (clientId == null) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
 
@@ -197,6 +258,12 @@ public class AccessProfilesController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAccessProfile(Guid id)
     {
+        var sessionId = GetSessionId();
+        if (!await _permissionService.HasPermissionAsync(sessionId, "access_profiles", "delete"))
+        {
+            return Forbid();
+        }
+
         var clientId = await GetClientIdFromSession();
         if (clientId == null) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
 

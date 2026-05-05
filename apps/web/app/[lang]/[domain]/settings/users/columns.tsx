@@ -1,10 +1,12 @@
-'use client'
-
 import type { ColumnDef } from '@tanstack/react-table'
+import type { User } from '@/types/api'
+import type { Dictionary } from '@/types/i18n'
 import { Badge } from '@/components/ui/badge'
-import type { User, UserFormDict } from '@/types/api'
 
-export const getColumns = (dict: UserFormDict): ColumnDef<User>[] => [
+export const getColumns = (
+  dict: Dictionary['users'],
+  common: Dictionary['common'],
+): ColumnDef<User>[] => [
   {
     accessorKey: 'name',
     header: dict.table.column_name,
@@ -18,24 +20,31 @@ export const getColumns = (dict: UserFormDict): ColumnDef<User>[] => [
     cell: ({ row }) => <div className="text-muted-foreground">{row.getValue('email')}</div>,
   },
   {
-    accessorKey: 'isActive',
-    header: dict.table.column_status,
-    meta: { title: dict.table.column_status },
+    accessorKey: 'is_active',
+    header: common.table.column_status,
+    meta: { title: common.table.column_status },
     cell: ({ row }) => {
-      const isActive = row.getValue('isActive') as boolean
+      const isActive = row.getValue('is_active') as boolean
       return (
         <Badge variant={isActive ? 'default' : 'secondary'}>
-          {isActive ? dict.common.table.status_active : dict.common.table.status_inactive}
+          {isActive ? common.table.status_active : common.table.status_inactive}
         </Badge>
       )
     },
   },
   {
-    accessorKey: 'updatedAt',
-    header: dict.table.column_updated_at,
-    meta: { title: dict.table.column_updated_at },
+    accessorKey: 'updated_at',
+    header: common.table.column_updated_at,
+    meta: { title: common.table.column_updated_at },
     cell: ({ row }) => {
-      const date = new Date(row.getValue('updatedAt'))
+      const value = row.getValue('updated_at') as string
+      if (!value) return <div className="text-muted-foreground">-</div>
+
+      const date = new Date(value)
+      if (isNaN(date.getTime())) {
+        return <div className="text-muted-foreground">-</div>
+      }
+
       return (
         <div className="text-muted-foreground">
           {new Intl.DateTimeFormat('pt-BR', {

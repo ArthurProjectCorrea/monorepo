@@ -18,28 +18,36 @@ public class UsersController : ControllerBase
     private readonly AppDbContext _context;
     private readonly IDatabase _redis;
     private readonly IEmailService _emailService;
+    private readonly IPermissionService _permissionService;
 
     public UsersController(
         UserManager<User> userManager,
         AppDbContext context,
         IConnectionMultiplexer redis,
-        IEmailService emailService)
+        IEmailService emailService,
+        IPermissionService permissionService)
     {
         _userManager = userManager;
         _context = context;
         _redis = redis.GetDatabase();
         _emailService = emailService;
+        _permissionService = permissionService;
     }
 
 
-    private async Task<Guid?> GetClientIdFromSession()
+    private string GetSessionId()
     {
         var authHeader = Request.Headers["Authorization"].ToString();
-        if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer ")) return null;
+        if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer ")) return string.Empty;
+        return authHeader.Substring("Bearer ".Length).Trim();
+    }
 
-        var sessionId = authHeader.Substring("Bearer ".Length).Trim();
+    private async Task<Guid?> GetClientIdFromSession()
+    {
+        var sessionId = GetSessionId();
+        if (string.IsNullOrEmpty(sessionId)) return null;
+
         var sessionJson = await _redis.StringGetAsync($"session:{sessionId}");
-
         if (!sessionJson.HasValue) return null;
 
         var sessionData = JsonSerializer.Deserialize<Dictionary<string, object>>((string)sessionJson!);
@@ -51,20 +59,31 @@ public class UsersController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetUsers()
     {
+        var sessionId = GetSessionId();
+        if (string.IsNullOrEmpty(sessionId)) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
+
+        if (!await _permissionService.HasPermissionAsync(sessionId, "users", "view"))
+        {
+            return Forbid();
+        }
+
         var clientId = await GetClientIdFromSession();
         if (clientId == null) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
 
         var users = await _userManager.Users
-            .Where(u => u.ClientId == clientId)
+            .Where(u => u.ClientId == clientId && u.DeletedAt == null)
+            .Include(u => u.TeamAccesses)
             .OrderByDescending(u => u.CreatedAt)
-            .Select(u => new
-            {
-                id = u.Id,
-                name = u.DisplayName,
-                email = u.Email,
-                isActive = u.IsActive,
-                updatedAt = u.CreatedAt
-            })
+            .ToListAsync();
+
+        var teams = await _context.Teams
+            .Where(t => t.ClientId == clientId && t.DeletedAt == null)
+            .Select(t => new { id = t.Id, name = t.Name })
+            .ToListAsync();
+
+        var profiles = await _context.AccessProfiles
+            .Where(ap => ap.ClientId == clientId)
+            .Select(ap => new { id = ap.Id, name = ap.Name })
             .ToListAsync();
 
         var screenMetadata = await _context.Screens
@@ -73,25 +92,52 @@ public class UsersController : ControllerBase
         return Ok(new
         {
             status = "success",
-            data = users,
-            screen = screenMetadata != null ? new
+            data = users.Select(u => new
             {
-                title = screenMetadata.Title,
+                id = u.Id,
+                name = u.DisplayName,
+                email = u.Email,
+                is_active = u.IsActive,
+                created_at = u.CreatedAt,
+                updated_at = u.UpdatedAt ?? u.CreatedAt,
+                accesses = u.TeamAccesses.Select(ta => new
+                {
+                    team_id = ta.TeamId,
+                    access_profile_id = ta.AccessProfileId
+                }).ToList()
+            }),
+            screen_users = screenMetadata != null ? new
+            {
+                id = screenMetadata.Id,
                 description = screenMetadata.Description,
-                screenKey = screenMetadata.ScreenKey
-            } : null
+                key = screenMetadata.ScreenKey,
+                title = screenMetadata.Title
+            } : null,
+            other = new
+            {
+                teams = teams,
+                access_profiles = profiles
+            }
         });
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUser(string id)
     {
+        var sessionId = GetSessionId();
+        if (string.IsNullOrEmpty(sessionId)) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
+
+        if (!await _permissionService.HasPermissionAsync(sessionId, "users", "view"))
+        {
+            return Forbid();
+        }
+
         var clientId = await GetClientIdFromSession();
         if (clientId == null) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
 
         var user = await _context.Users
             .Include(u => u.TeamAccesses)
-            .FirstOrDefaultAsync(u => u.Id == id && u.ClientId == clientId);
+            .FirstOrDefaultAsync(u => u.Id == id && u.ClientId == clientId && u.DeletedAt == null);
 
         if (user == null) return NotFound(new { error = new { code = "USER_NOT_FOUND", message = "User not found." } });
 
@@ -103,11 +149,13 @@ public class UsersController : ControllerBase
                 id = user.Id,
                 name = user.DisplayName,
                 email = user.Email,
-                isActive = user.IsActive,
-                teams = user.TeamAccesses.Select(ta => new
+                is_active = user.IsActive,
+                created_at = user.CreatedAt,
+                updated_at = user.UpdatedAt ?? user.CreatedAt,
+                accesses = user.TeamAccesses.Select(ta => new
                 {
-                    teamId = ta.TeamId,
-                    profileId = ta.AccessProfileId
+                    team_id = ta.TeamId,
+                    access_profile_id = ta.AccessProfileId
                 }).ToList()
             }
         });
@@ -116,6 +164,14 @@ public class UsersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateUser([FromBody] SaveUserRequest request)
     {
+        var sessionId = GetSessionId();
+        if (string.IsNullOrEmpty(sessionId)) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
+
+        if (!await _permissionService.HasPermissionAsync(sessionId, "users", "create"))
+        {
+            return Forbid();
+        }
+
         var clientId = await GetClientIdFromSession();
         if (clientId == null) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
 
@@ -146,12 +202,18 @@ public class UsersController : ControllerBase
 
         foreach (var ta in request.Teams)
         {
-            _context.UserTeamAccesses.Add(new UserTeamAccess
+            var team = await _context.Teams.FirstOrDefaultAsync(t => t.Id == ta.TeamId && t.ClientId == clientId);
+            var profile = await _context.AccessProfiles.FirstOrDefaultAsync(ap => ap.Id == ta.ProfileId && ap.ClientId == clientId);
+
+            if (team != null && profile != null)
             {
-                UserId = user.Id,
-                TeamId = ta.TeamId,
-                AccessProfileId = ta.ProfileId
-            });
+                _context.UserTeamAccesses.Add(new UserTeamAccess
+                {
+                    UserId = user.Id,
+                    TeamId = team.Id,
+                    AccessProfileId = profile.Id
+                });
+            }
         }
 
         await _context.SaveChangesAsync();
@@ -169,6 +231,14 @@ public class UsersController : ControllerBase
     [HttpPost("{id}/resend-reset")]
     public async Task<IActionResult> ResendResetLink(string id)
     {
+        var sessionId = GetSessionId();
+        if (string.IsNullOrEmpty(sessionId)) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
+
+        if (!await _permissionService.HasPermissionAsync(sessionId, "users", "update"))
+        {
+            return Forbid();
+        }
+
         var clientId = await GetClientIdFromSession();
         if (clientId == null) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
 
@@ -222,6 +292,14 @@ public class UsersController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateUser(string id, [FromBody] SaveUserRequest request)
     {
+        var sessionId = GetSessionId();
+        if (string.IsNullOrEmpty(sessionId)) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
+
+        if (!await _permissionService.HasPermissionAsync(sessionId, "users", "update"))
+        {
+            return Forbid();
+        }
+
         var clientId = await GetClientIdFromSession();
         if (clientId == null) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
 
@@ -241,17 +319,24 @@ public class UsersController : ControllerBase
         user.Email = request.Email;
         user.UserName = request.Email;
         user.IsActive = request.IsActive;
+        user.UpdatedAt = DateTime.UtcNow;
 
         // Sync team accesses
         _context.UserTeamAccesses.RemoveRange(user.TeamAccesses);
         foreach (var ta in request.Teams)
         {
-            _context.UserTeamAccesses.Add(new UserTeamAccess
+            var team = await _context.Teams.FirstOrDefaultAsync(t => t.Id == ta.TeamId && t.ClientId == clientId);
+            var profile = await _context.AccessProfiles.FirstOrDefaultAsync(ap => ap.Id == ta.ProfileId && ap.ClientId == clientId);
+
+            if (team != null && profile != null)
             {
-                UserId = user.Id,
-                TeamId = ta.TeamId,
-                AccessProfileId = ta.ProfileId
-            });
+                _context.UserTeamAccesses.Add(new UserTeamAccess
+                {
+                    UserId = user.Id,
+                    TeamId = team.Id,
+                    AccessProfileId = profile.Id
+                });
+            }
         }
 
         await _context.SaveChangesAsync();
@@ -267,12 +352,21 @@ public class UsersController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(string id)
     {
+        var sessionId = GetSessionId();
+        if (string.IsNullOrEmpty(sessionId)) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
+
+        if (!await _permissionService.HasPermissionAsync(sessionId, "users", "delete"))
+        {
+            return Forbid();
+        }
+
         var clientId = await GetClientIdFromSession();
         if (clientId == null) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
 
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id && u.ClientId == clientId);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id && u.ClientId == clientId && u.DeletedAt == null);
         if (user == null) return NotFound(new { error = new { code = "USER_NOT_FOUND", message = "User not found." } });
 
+        user.DeletedAt = DateTime.UtcNow;
         user.IsActive = false;
         await _context.SaveChangesAsync();
 

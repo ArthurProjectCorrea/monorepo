@@ -29,6 +29,10 @@ public class TeamsControllerTests : BaseIntegrationTest
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
+        Assert.True(result.TryGetProperty("screen_teams", out _));
+        Assert.True(result.TryGetProperty("data", out var data));
+        Assert.True(data.EnumerateArray().Any());
     }
 
     [Fact]

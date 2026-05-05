@@ -1,39 +1,51 @@
-import type { CommonNotificationDictionary } from './api'
+import type { CommonNotificationDictionary } from '@/types/api'
 
 export interface DataTableDict {
   common: {
-    actions: {
-      save: string
-      saving: string
-      discard: string
-      cancel: string
-      edit: string
-      delete: string
-      copy: string
-      confirm: string
-      refresh: string
+    table: {
+      status_active: string
+      status_inactive: string
       view_more: string
       view_less: string
-      create: string
-    }
-    table: {
+      no_results: string
       search_placeholder: string
-      columns_button: string
       next_button: string
       previous_button: string
       rows_per_page: string
       selected_rows: string
-      no_results: string
-      actions_column: string
+      column_actions: string
+      column_status: string
+      column_updated_at: string
+      actions: {
+        column: string
+        update: string
+        delete: string
+        refresh: string
+        create: string
+      }
+    }
+    form: {
+      actions: {
+        save: string
+        saving: string
+        discard: string
+        back: string
+      }
     }
     dialogs: {
       delete_confirm: {
         title: string
         description: string
-        cancel: string
         confirm: string
+        cancel: string
       }
-      edit_dialog: {
+      update_dialog: {
+        title: string
+        description: string
+        discard: string
+        save: string
+      }
+      create_dialog: {
         title: string
         description: string
         cancel: string

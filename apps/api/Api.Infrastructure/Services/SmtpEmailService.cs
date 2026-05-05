@@ -21,9 +21,9 @@ public class SmtpEmailService : IEmailService
         var host = _configuration["SMTP_HOST"] ?? "localhost";
         var portStr = _configuration["SMTP_PORT"] ?? "1025";
         int.TryParse(portStr, out int port);
-        
+
         _logger.LogInformation("Sending email to {To} via {Host}:{Port}", to, host, port);
-        
+
         try
         {
             using var client = new SmtpClient(host, port > 0 ? port : 1025);

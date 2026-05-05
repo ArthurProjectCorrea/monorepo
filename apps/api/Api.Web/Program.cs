@@ -14,6 +14,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 builder.Services.AddScoped<IStorageService, LocalStorageService>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
 
 // 1. Database
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")

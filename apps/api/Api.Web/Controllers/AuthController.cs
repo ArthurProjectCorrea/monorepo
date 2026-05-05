@@ -55,38 +55,57 @@ public partial class AuthController : ControllerBase
             var teamAccesses = await _context.UserTeamAccesses
                 .Where(uta => uta.UserId == user.Id)
                 .Include(uta => uta.Team)
-                .Include(uta => uta.AccessProfile)
-                    .ThenInclude(ap => ap.Permissions)
-                        .ThenInclude(p => p.Screen)
+                .Include(uta => uta.AccessProfile!)
+                    .ThenInclude(ap => ap.Permissions!)
+                        .ThenInclude(p => p.Screen!)
                 .ToListAsync();
+
+            var me = new
+            {
+                id = user.Id,
+                name = user.DisplayName,
+                email = user.Email,
+                client = user.ClientId,
+                is_active = user.IsActive,
+                created_at = user.CreatedAt,
+                updated_at = user.CreatedAt, // Assuming no separate updated_at for user in current entity
+                accesses = teamAccesses.Select(uta => new
+                {
+                    team_id = uta.TeamId,
+                    team_name = uta.Team?.Name,
+                    access_profiles = new[]
+                    {
+                        new
+                        {
+                            id = uta.AccessProfileId,
+                            name = uta.AccessProfile?.Name,
+                            permissions = uta.AccessProfile?.Permissions?
+                                .Where(p => p.Screen != null)
+                                .GroupBy(p => p.Screen!.Id)
+                                .Select(g => new
+                                {
+                                    screen_id = g.Key,
+                                    screen_key = g.First().Screen!.ScreenKey,
+                                    actions = g.Select(p => new
+                                    {
+                                        id = p.ActionId, // Using the string as ID as per DB
+                                        name = p.ActionId.ToUpper(),
+                                        key = p.ActionId
+                                    }).ToList()
+                                })
+                                .ToList()
+                        }
+                    }
+                }).ToList()
+            };
 
             var sessionData = new
             {
                 user_id = user.Id,
                 email = user.Email,
                 display_name = user.DisplayName,
-                roles = roles,
                 client_id = user.ClientId,
-                teams = teamAccesses.Select(uta => new
-                {
-                    id = uta.TeamId,
-                    name = uta.Team?.Name,
-                    access_profile = new
-                    {
-                        id = uta.AccessProfileId,
-                        name = uta.AccessProfile?.Name,
-                        permissions = uta.AccessProfile?.Permissions?
-                            .Where(p => p.Screen != null)
-                            .GroupBy(p => p.Screen!.ScreenKey)
-                            .Select(g => new
-                            {
-                                screen_key = g.Key,
-                                actions = g.Select(p => p.ActionId).ToList()
-                            })
-                            .ToList()
-
-                    }
-                }).ToList()
+                me = me
             };
 
             var sessionJson = JsonSerializer.Serialize(sessionData);
@@ -112,9 +131,7 @@ public partial class AuthController : ControllerBase
                 }
             }
 
-            // Store session mapping for global logout (set of session IDs for a user)
             await _redis.SetAddAsync($"user_sessions:{user.Id}", sessionId);
-            // Expire the set reasonably (e.g., 7 days)
             await _redis.KeyExpireAsync($"user_sessions:{user.Id}", TimeSpan.FromDays(7));
 
             return Ok(new
@@ -130,9 +147,8 @@ public partial class AuthController : ControllerBase
                     id = user.Id,
                     email = user.Email,
                     display_name = user.DisplayName,
-                    roles = roles,
-                    client_id = user.ClientId,
-                    domain = domain
+                    domain = domain,
+                    roles = roles
                 }
             });
         }
@@ -172,6 +188,7 @@ public partial class AuthController : ControllerBase
         var sessionData = JsonSerializer.Deserialize<Dictionary<string, object>>((string)sessionJson!);
         var userId = sessionData?["user_id"]?.ToString();
         var clientId = sessionData?.ContainsKey("client_id") == true ? sessionData["client_id"]?.ToString() : null;
+        var me = sessionData?.ContainsKey("me") == true ? sessionData["me"] : null;
 
         if (userId == null) return Unauthorized();
 
@@ -215,14 +232,7 @@ public partial class AuthController : ControllerBase
         return Ok(new
         {
             status = "active",
-            user = new
-            {
-                id = userId,
-                email = sessionData?["email"]?.ToString(),
-                display_name = sessionData?["display_name"]?.ToString(),
-                roles = sessionData?["roles"],
-                client_id = clientId
-            },
+            me = me,
             client = clientInfo
         });
     }

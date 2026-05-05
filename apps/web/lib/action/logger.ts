@@ -11,4 +11,5 @@ export async function logToTerminal(message: string, type: 'info' | 'warn' | 'er
   } else {
     console.log(`${timestamp} ${prefix} ${message}`)
   }
+  return { success: true }
 }

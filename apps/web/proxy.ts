@@ -2,8 +2,12 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { match } from '@formatjs/intl-localematcher'
 import Negotiator from 'negotiator'
-import { locales, defaultLocale, hasLocale } from './app/[lang]/dictionaries'
-import { AUTH_SESSION_COOKIE, hasAuthRoutePrefix, hasPrivateRoutePrefix } from './lib/auth-session'
+import { locales, defaultLocale, hasLocale } from '@/app/[lang]/dictionaries'
+import {
+  AUTH_SESSION_COOKIE,
+  hasAuthRoutePrefix,
+  hasPrivateRoutePrefix,
+} from '@/lib/session-constants'
 
 function getLocale(request: NextRequest) {
   // 1. Check for saved preference in cookies (Priority)
@@ -39,7 +43,8 @@ export async function proxy(request: NextRequest) {
       return NextResponse.next()
     }
 
-    const routePath = pathname.slice(locale.length + 1) || '/'
+    const rawRoutePath = pathname.slice(locale.length + 1) || '/'
+    const routePath = rawRoutePath.startsWith('/') ? rawRoutePath : `/${rawRoutePath}`
     const authSession = request.cookies.get(AUTH_SESSION_COOKIE)?.value
 
     if (hasPrivateRoutePrefix(routePath)) {

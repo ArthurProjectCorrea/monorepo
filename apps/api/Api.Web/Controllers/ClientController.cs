@@ -15,25 +15,33 @@ public class ClientController : ControllerBase
     private readonly AppDbContext _context;
     private readonly IStorageService _storageService;
     private readonly IDatabase _redis;
+    private readonly IPermissionService _permissionService;
 
     public ClientController(
         AppDbContext context,
         IStorageService storageService,
-        IConnectionMultiplexer redis)
+        IConnectionMultiplexer redis,
+        IPermissionService permissionService)
     {
         _context = context;
         _storageService = storageService;
         _redis = redis.GetDatabase();
+        _permissionService = permissionService;
+    }
+
+    private string GetSessionId()
+    {
+        var authHeader = Request.Headers["Authorization"].ToString();
+        if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer ")) return string.Empty;
+        return authHeader.Substring("Bearer ".Length).Trim();
     }
 
     private async Task<Guid?> GetClientIdFromSession()
     {
-        var authHeader = Request.Headers["Authorization"].ToString();
-        if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer ")) return null;
+        var sessionId = GetSessionId();
+        if (string.IsNullOrEmpty(sessionId)) return null;
 
-        var sessionId = authHeader.Substring("Bearer ".Length).Trim();
         var sessionJson = await _redis.StringGetAsync($"session:{sessionId}");
-
         if (!sessionJson.HasValue) return null;
 
         var sessionData = JsonSerializer.Deserialize<Dictionary<string, object>>((string)sessionJson!);
@@ -45,10 +53,16 @@ public class ClientController : ControllerBase
     [HttpGet("me")]
     public async Task<IActionResult> GetMyClient()
     {
+        var sessionId = GetSessionId();
+        if (!await _permissionService.HasPermissionAsync(sessionId, "general", "view"))
+        {
+            return Forbid();
+        }
+
         var clientId = await GetClientIdFromSession();
         if (clientId == null) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
 
-        var client = await _context.Clients.FindAsync(clientId);
+        var client = await _context.Clients.FirstOrDefaultAsync(c => c.Id == clientId && c.DeletedAt == null);
         if (client == null) return NotFound(new { error = new { code = "CLIENT_NOT_FOUND", message = "Client not found." } });
 
         var screen = await _context.Screens.FirstOrDefaultAsync(s => s.ScreenKey == "general" && s.IsActive);
@@ -56,18 +70,23 @@ public class ClientController : ControllerBase
         return Ok(new
         {
             status = "success",
-            client = new
+            data = new
             {
                 id = client.Id,
                 name = client.Name,
                 domain = client.Domain,
                 description = client.Description,
-                logo_url = client.LogoUrl
+                logo_url = client.LogoUrl,
+                is_active = client.IsActive,
+                created_at = client.CreatedAt,
+                updated_at = client.UpdatedAt
             },
-            screen = screen != null ? new
+            screen_general = screen != null ? new
             {
-                title = screen.Title,
-                description = screen.Description
+                id = screen.Id,
+                description = screen.Description,
+                key = screen.ScreenKey,
+                title = screen.Title
             } : null
         });
     }
@@ -75,10 +94,16 @@ public class ClientController : ControllerBase
     [HttpPut("me")]
     public async Task<IActionResult> UpdateMyClient([FromBody] UpdateClientRequest request)
     {
+        var sessionId = GetSessionId();
+        if (!await _permissionService.HasPermissionAsync(sessionId, "general", "update"))
+        {
+            return Forbid();
+        }
+
         var clientId = await GetClientIdFromSession();
         if (clientId == null) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
 
-        var client = await _context.Clients.FindAsync(clientId);
+        var client = await _context.Clients.FirstOrDefaultAsync(c => c.Id == clientId && c.DeletedAt == null);
         if (client == null) return NotFound(new { error = new { code = "CLIENT_NOT_FOUND", message = "Client not found." } });
 
         client.Name = request.Name;

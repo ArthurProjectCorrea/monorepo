@@ -53,6 +53,7 @@ export interface InputUploadProps {
   initialUrl?: string
   name?: string
   className?: string
+  disabled?: boolean
 }
 
 // ─── Built-in English fallback ────────────────────────────────────────────────
@@ -111,6 +112,7 @@ export function InputUpload({
   initialUrl,
   name,
   className,
+  disabled,
 }: InputUploadProps) {
   const t = useMemo(() => ({ ...defaultDict, ...dict }), [dict])
 
@@ -244,23 +246,31 @@ export function InputUpload({
           tabIndex={0}
           aria-label={t.aria_upload_area}
           className={cn(
-            'cursor-pointer border border-dashed transition-colors',
-            isDragging && 'border-primary bg-primary/5',
+            'group cursor-pointer border border-dashed transition-all duration-200 hover:border-primary/50 hover:bg-primary/[0.02]',
+            isDragging && !disabled && 'border-primary bg-primary/[0.05]',
+            disabled && 'cursor-not-allowed opacity-60 bg-muted/50',
           )}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onClick={() => inputRef.current?.click()}
-          onKeyDown={e => e.key === 'Enter' && inputRef.current?.click()}
+          onDrop={!disabled ? handleDrop : undefined}
+          onDragOver={!disabled ? handleDragOver : undefined}
+          onDragLeave={!disabled ? handleDragLeave : undefined}
+          onClick={() => !disabled && inputRef.current?.click()}
+          onKeyDown={e => !disabled && e.key === 'Enter' && inputRef.current?.click()}
         >
           <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <UploadCloudIcon />
+            <EmptyMedia
+              variant="icon"
+              className="transition-transform duration-200 group-hover:scale-110"
+            >
+              <UploadCloudIcon className="text-muted-foreground transition-colors group-hover:text-primary" />
             </EmptyMedia>
             <EmptyTitle>{isDragging ? t.title_dragging : t.title}</EmptyTitle>
             <EmptyDescription>
               {descriptionText}
-              {accept && ` · ${accept}`}
+              {accept && (
+                <span className="mt-1 block text-[10px] uppercase tracking-wider opacity-70">
+                  {accept.split(',').join(' • ')}
+                </span>
+              )}
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
@@ -268,10 +278,12 @@ export function InputUpload({
               variant="outline"
               size="sm"
               type="button"
+              className="shadow-sm"
               onClick={e => {
                 e.stopPropagation()
                 inputRef.current?.click()
               }}
+              disabled={disabled}
             >
               {t.browse}
             </Button>
@@ -281,14 +293,14 @@ export function InputUpload({
         /* ── Multi-file grid ───────────────────────────────────────────── */
         <div
           className={cn(
-            'rounded-xl border border-dashed p-3 transition-colors',
+            'rounded-xl border border-dashed p-4 transition-colors',
             isDragging && 'border-primary bg-primary/5',
           )}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
         >
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {files.map((f, i) => (
               <FilePreviewCard
                 key={i}
@@ -303,7 +315,7 @@ export function InputUpload({
               <button
                 type="button"
                 onClick={() => inputRef.current?.click()}
-                className="flex aspect-square items-center justify-center rounded-lg border border-dashed text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                className="flex aspect-square items-center justify-center rounded-xl border border-dashed text-muted-foreground transition-all hover:border-primary hover:bg-primary/[0.02] hover:text-primary"
               >
                 <UploadCloudIcon className="size-6" />
               </button>
@@ -313,20 +325,24 @@ export function InputUpload({
       ) : (
         /* ── Single file preview (full width) ─────────────────────────── */
         <SingleFilePreview
-          uploaded={files[0] || { file: new File([], ''), previewUrl: initialUrl }}
-          onRemove={() => remove(0)}
+          uploaded={files[0] || { file: new File([], 'Logo'), previewUrl: initialUrl || '' }}
+          onRemove={() => {
+            if (files.length > 0) remove(0)
+            else setShowInitial(false)
+          }}
           onReplace={() => {
             setReplaceIdx(0)
             inputRef.current?.click()
           }}
           labelReplace={t.replace}
           labelRemove={t.remove}
+          disabled={disabled}
         />
       )}
 
       {/* Error message */}
       {error && (
-        <p className="text-sm text-destructive" role="alert">
+        <p className="mt-1 text-xs font-medium text-destructive" role="alert">
           {error}
         </p>
       )}
@@ -346,28 +362,32 @@ function FilePreviewCard({
   ariaRemove: string
 }) {
   return (
-    <div className="group relative aspect-square overflow-hidden rounded-lg border bg-muted">
+    <div className="group relative aspect-square overflow-hidden rounded-xl border bg-muted shadow-sm ring-offset-background transition-all focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2">
       {uploaded.previewUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={uploaded.previewUrl}
           alt={uploaded.file.name}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
       ) : (
-        <div className="flex h-full w-full flex-col items-center justify-center gap-1 p-2 text-center text-muted-foreground">
-          <FileIcon className="size-7" />
-          <span className="line-clamp-2 text-xs">{uploaded.file.name}</span>
+        <div className="flex h-full w-full flex-col items-center justify-center gap-2 p-3 text-center text-muted-foreground">
+          <FileIcon className="size-8" />
+          <span className="line-clamp-2 text-[10px] font-medium leading-tight">
+            {uploaded.file.name}
+          </span>
         </div>
       )}
+
+      <div className="absolute inset-0 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100" />
 
       <button
         type="button"
         onClick={onRemove}
-        className="absolute right-1.5 top-1.5 flex size-6 items-center justify-center rounded-full bg-background/80 text-foreground opacity-0 ring-1 ring-foreground/10 backdrop-blur-sm transition-opacity group-hover:opacity-100"
+        className="absolute right-2 top-2 flex size-7 items-center justify-center rounded-full bg-destructive text-destructive-foreground opacity-0 shadow-lg ring-1 ring-white/20 transition-all hover:scale-110 active:scale-95 group-hover:opacity-100"
         aria-label={ariaRemove}
       >
-        <XIcon className="size-3.5" />
+        <XIcon className="size-4" />
       </button>
     </div>
   )
@@ -379,48 +399,59 @@ function SingleFilePreview({
   onReplace,
   labelReplace,
   labelRemove,
+  disabled,
 }: {
-  uploaded: UploadedFile
+  uploaded: { file: { name: string; size?: number }; previewUrl: string }
   onRemove: () => void
   onReplace: () => void
   labelReplace: string
   labelRemove: string
+  disabled?: boolean
 }) {
+  const [hasError, setHasError] = useState(false)
+
   return (
-    <div className="group relative overflow-hidden rounded-xl border bg-muted">
-      {uploaded.previewUrl ? (
+    <div className="group relative overflow-hidden rounded-2xl border bg-card shadow-sm ring-offset-background transition-all focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2">
+      {uploaded.previewUrl && !hasError ? (
         /* Image preview fills the container */
-        <div className="relative flex max-h-[240px] w-full items-center justify-center bg-black/5">
+        <div className="relative flex min-h-[140px] max-h-[320px] w-full items-center justify-center overflow-hidden bg-muted/30">
+          <div className="absolute inset-0 z-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={uploaded.previewUrl}
             alt={uploaded.file.name}
-            className="max-h-[240px] w-auto object-contain"
+            className="relative z-10 max-h-[320px] w-auto max-w-[90%] object-contain py-8 transition-transform duration-500 group-hover:scale-[1.02]"
+            onError={() => setHasError(true)}
           />
         </div>
       ) : (
-        /* Non-image fallback */
-        <div className="flex items-center gap-3 px-4 py-5">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-background ring-1 ring-foreground/10">
-            <FileIcon className="size-5 text-muted-foreground" />
+        /* Non-image or error fallback */
+        <div className="flex items-center gap-4 bg-muted/10 px-5 py-6">
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-background shadow-sm ring-1 ring-foreground/5">
+            <FileIcon className="size-6 text-muted-foreground" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">{uploaded.file.name}</p>
-            <p className="text-xs text-muted-foreground">{formatBytes(uploaded.file.size)}</p>
+            <p className="truncate text-sm font-semibold">{uploaded.file.name || 'File'}</p>
+            <p className="text-xs text-muted-foreground">
+              {uploaded.file.size ? formatBytes(uploaded.file.size) : 'Ready for upload'}
+            </p>
           </div>
         </div>
       )}
 
       {/* Action bar */}
-      <div className="flex items-center justify-between border-t px-3 py-2 text-xs text-muted-foreground">
-        <span className="truncate">{uploaded.file.name}</span>
-        <div className="flex shrink-0 items-center gap-1">
+      <div className="flex items-center justify-between border-t bg-muted/5 px-4 py-3 text-xs">
+        <span className="max-w-[200px] truncate font-medium text-muted-foreground">
+          {uploaded.file.name || 'Logo'}
+        </span>
+        <div className="flex shrink-0 items-center gap-2">
           <Button
-            variant="ghost"
+            variant="secondary"
             size="sm"
             type="button"
-            className="h-7 px-2 text-xs"
+            className="h-8 px-3 text-xs font-semibold shadow-none"
             onClick={onReplace}
+            disabled={disabled}
           >
             {labelReplace}
           </Button>
@@ -428,8 +459,9 @@ function SingleFilePreview({
             variant="ghost"
             size="sm"
             type="button"
-            className="h-7 px-2 text-xs text-destructive hover:text-destructive"
+            className="h-8 px-3 text-xs font-semibold text-destructive hover:bg-destructive/10 hover:text-destructive"
             onClick={onRemove}
+            disabled={disabled}
           >
             {labelRemove}
           </Button>

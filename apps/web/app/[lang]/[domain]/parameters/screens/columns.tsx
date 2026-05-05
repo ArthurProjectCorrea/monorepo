@@ -1,12 +1,13 @@
-'use client'
-
-import { ColumnDef, HeaderContext, CellContext } from '@tanstack/react-table'
+import type { ColumnDef, HeaderContext, CellContext } from '@tanstack/react-table'
 import { Badge } from '@/components/ui/badge'
-import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
+import { DataTableColumnHeader } from '@/components/custom/data-table/data-table-column-header'
+import type { Screen } from '@/types/api'
+import type { Dictionary } from '@/types/i18n'
 
-import type { Screen, ScreenFormDict } from '@/types/api'
-
-export const getColumns = (dict: ScreenFormDict): ColumnDef<Screen>[] => [
+export const getColumns = (
+  dict: Dictionary['screen_parameters'],
+  common: Dictionary['common'],
+): ColumnDef<Screen>[] => [
   {
     accessorKey: 'screenKey',
     header: ({ column }: HeaderContext<Screen, unknown>) => (
@@ -42,27 +43,27 @@ export const getColumns = (dict: ScreenFormDict): ColumnDef<Screen>[] => [
   {
     accessorKey: 'isActive',
     header: ({ column }: HeaderContext<Screen, unknown>) => (
-      <DataTableColumnHeader column={column} title={dict.common.table.column_status} />
+      <DataTableColumnHeader column={column} title={common.table.column_status} />
     ),
     cell: ({ row }: CellContext<Screen, unknown>) => {
       const isActive = row.getValue('isActive') as boolean
       return (
         <Badge variant={isActive ? 'default' : 'secondary'}>
-          {isActive ? dict.common.table.status_active : dict.common.table.status_inactive}
+          {isActive ? common.table.status_active : common.table.status_inactive}
         </Badge>
       )
     },
-    meta: { title: dict.common.table.column_status },
+    meta: { title: common.table.column_status },
   },
   {
     accessorKey: 'updatedAt',
     header: ({ column }: HeaderContext<Screen, unknown>) => (
-      <DataTableColumnHeader column={column} title={dict.common.table.column_updated_at} />
+      <DataTableColumnHeader column={column} title={common.table.column_updated_at} />
     ),
     cell: ({ row }: CellContext<Screen, unknown>) => {
       const date = new Date(row.getValue('updatedAt'))
       return <div className="text-muted-foreground">{date.toLocaleDateString()}</div>
     },
-    meta: { title: dict.common.table.column_updated_at },
+    meta: { title: common.table.column_updated_at },
   },
 ]

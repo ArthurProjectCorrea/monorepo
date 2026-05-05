@@ -16,7 +16,7 @@ public class AuthControllerTests : BaseIntegrationTest
         // Arrange
         var email = "test@example.com";
         var password = "Password123!";
-        
+
         using (var scope = Factory.Services.CreateScope())
         {
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
@@ -29,8 +29,10 @@ public class AuthControllerTests : BaseIntegrationTest
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var result = await response.Content.ReadFromJsonAsync<dynamic>();
-        Assert.NotNull(result);
+        var result = await response.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
+        Assert.True(result.TryGetProperty("auth_access_token", out _));
+        Assert.True(result.TryGetProperty("me", out var me));
+        Assert.Equal(email, me.GetProperty("email").GetString());
     }
 
     [Fact]

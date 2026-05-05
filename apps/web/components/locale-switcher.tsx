@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { locales } from '@/lib/config'
+import { locales } from '@/lib/utils'
 
 interface LocaleSwitcherProps {
   dict: {

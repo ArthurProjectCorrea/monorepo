@@ -5,6 +5,7 @@ import { locales } from '@/app/[lang]/dictionaries'
 import { ThemeProvider } from '@/components/provider/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import NextTopLoader from 'nextjs-toploader';
 
 const geistSans = Geist({
   variable: '--font-sans',
@@ -48,7 +49,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <TooltipProvider>{children}</TooltipProvider>
+          <TooltipProvider><NextTopLoader showSpinner={false} />{children}</TooltipProvider>
           <Toaster position="top-center" />
         </ThemeProvider>
       </body>

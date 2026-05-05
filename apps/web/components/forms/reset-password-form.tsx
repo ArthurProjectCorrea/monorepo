@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { ShieldCheck, Check, X } from 'lucide-react'
-import { useParams, useSearchParams } from 'next/navigation'
+import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import { useFormStatus } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,39 +13,20 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/h
 import { cn } from '@/lib/utils'
 import { resetPasswordAction } from '@/lib/action/auth'
 import { notifyFromApi } from '@/lib/notifications'
-import type { NotificationDictionary, CommonNotificationDictionary } from '@/types/api'
+import type { Dictionary } from '@/types/i18n'
 
 interface ResetPasswordFormProps {
   identifier: string
-  dict: {
-    title: string
-    description: string
-    email_label: string
-    password_label: string
-    confirm_password_label: string
-    password_placeholder: string
-    submit_button: string
-    loading_button: string
-    security_rules: {
-      title: string
-      min_chars: string
-      number: string
-      uppercase: string
-      lowercase: string
-      special: string
-    }
-  }
-  notificationsDict: NotificationDictionary
-  verifyOtpNotificationsDict: NotificationDictionary
-  commonNotificationsDict: CommonNotificationDictionary
+  resetToken: string
+  dict: Dictionary['reset_password']
+  common: Dictionary['common']
 }
 
 export function ResetPasswordForm({
   identifier,
+  resetToken,
   dict,
-  notificationsDict,
-  verifyOtpNotificationsDict,
-  commonNotificationsDict,
+  common,
 }: ResetPasswordFormProps) {
   const [state, formAction, isPending] = React.useActionState(resetPasswordAction, {
     status: 'idle',
@@ -54,7 +35,11 @@ export function ResetPasswordForm({
   const [confirmPassword, setConfirmPassword] = React.useState('')
   const params = useParams()
   const searchParams = useSearchParams()
+  const router = useRouter()
   const lang = params.lang as string
+
+  const formDict = dict.form
+  const infoDict = formDict.cards.information
 
   const rules = {
     min_chars: password.length >= 8,
@@ -73,38 +58,53 @@ export function ResetPasswordForm({
 
     notifyFromApi({
       httpStatus: state.httpStatus,
-      dictionary: notificationsDict,
-      commonDictionary: commonNotificationsDict,
+      dictionary: dict.notifications,
+      commonDictionary: common.notifications,
       lang,
     })
-  }, [lang, notificationsDict, commonNotificationsDict, state.httpStatus, state.notificationToken])
+
+    if (state.nextStep === 'signed_in') {
+      router.push(`/${lang}/sign-in?reset=true`)
+    }
+  }, [
+    lang,
+    dict.notifications,
+    common.notifications,
+    state.httpStatus,
+    state.notificationToken,
+    state.nextStep,
+    router,
+  ])
 
   React.useEffect(() => {
     if (searchParams.get('verified') === 'true') {
+      // Show success message for OTP verification
       notifyFromApi({
         httpStatus: 200,
-        dictionary: verifyOtpNotificationsDict,
-        commonDictionary: commonNotificationsDict,
+        dictionary: {
+          success_reset_password: 'OTP verified successfully. Now you can reset your password.',
+        }, // Fallback
+        commonDictionary: common.notifications,
         lang,
       })
-
-      // Clean up the URL to prevent showing the toast again on refresh
       window.history.replaceState({}, '', `/${lang}/reset-password`)
     }
-  }, [lang, verifyOtpNotificationsDict, commonNotificationsDict, searchParams])
+  }, [lang, common.notifications, searchParams])
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2 text-center">
-        <h1 className="text-2xl font-bold tracking-tight">{dict.title}</h1>
-        <p className="text-sm text-muted-foreground">{dict.description}</p>
+        <h1 className="text-2xl font-bold tracking-tight">{infoDict.title}</h1>
+        <p className="text-sm text-muted-foreground">{infoDict.description}</p>
       </div>
 
       <form action={formAction} className="grid gap-4">
         <input type="hidden" name="lang" value={lang} />
+        <input type="hidden" name="identifier" value={identifier} />
+        <input type="hidden" name="resetToken" value={resetToken} />
         <Field>
           <FieldLabel htmlFor="email">
-            <FieldTitle>{dict.email_label}</FieldTitle>
+            <FieldTitle>{formDict.email.label}</FieldTitle>
           </FieldLabel>
           <FieldContent>
             <Input id="email" value={identifier} disabled className="bg-muted/50" />
@@ -114,7 +114,7 @@ export function ResetPasswordForm({
         <Field data-invalid={!!state.fieldErrors?.new_password}>
           <div className="flex items-center justify-between">
             <FieldLabel htmlFor="password">
-              <FieldTitle>{dict.password_label}</FieldTitle>
+              <FieldTitle>{formDict.password.label}</FieldTitle>
             </FieldLabel>
 
             <HoverCard openDelay={200}>
@@ -139,28 +139,124 @@ export function ResetPasswordForm({
                     <ShieldCheck
                       className={cn('h-4 w-4', allRulesMet ? 'text-green-500' : 'text-primary')}
                     />
-                    {dict.security_rules.title}
+                    {formDict.security_rules.title}
                   </h4>
                   <ul className="space-y-2">
-                    {Object.entries(rules).map(([key, met]) => (
-                      <li key={key} className="flex items-center gap-2 text-xs">
-                        <div
-                          className={cn(
-                            'flex h-4 w-4 items-center justify-center rounded-full border transition-colors',
-                            met
-                              ? 'bg-green-500/10 border-green-500/50 text-green-500'
-                              : 'border-muted-foreground/30 text-muted-foreground/30',
-                          )}
-                        >
-                          {met ? <Check className="h-2.5 w-2.5" /> : <X className="h-2.5 w-2.5" />}
-                        </div>
-                        <span
-                          className={met ? 'text-foreground font-medium' : 'text-muted-foreground'}
-                        >
-                          {dict.security_rules[key as keyof typeof rules]}
-                        </span>
-                      </li>
-                    ))}
+                    <li className="flex items-center gap-2 text-xs">
+                      <div
+                        className={cn(
+                          'flex h-4 w-4 items-center justify-center rounded-full border',
+                          rules.min_chars
+                            ? 'bg-green-500/10 border-green-500/50 text-green-500'
+                            : 'border-muted-foreground/30 text-muted-foreground/30',
+                        )}
+                      >
+                        {rules.min_chars ? (
+                          <Check className="h-2.5 w-2.5" />
+                        ) : (
+                          <X className="h-2.5 w-2.5" />
+                        )}
+                      </div>
+                      <span
+                        className={
+                          rules.min_chars ? 'text-foreground font-medium' : 'text-muted-foreground'
+                        }
+                      >
+                        {formDict.security_rules.min_chars}
+                      </span>
+                    </li>
+                    <li className="flex items-center gap-2 text-xs">
+                      <div
+                        className={cn(
+                          'flex h-4 w-4 items-center justify-center rounded-full border',
+                          rules.number
+                            ? 'bg-green-500/10 border-green-500/50 text-green-500'
+                            : 'border-muted-foreground/30 text-muted-foreground/30',
+                        )}
+                      >
+                        {rules.number ? (
+                          <Check className="h-2.5 w-2.5" />
+                        ) : (
+                          <X className="h-2.5 w-2.5" />
+                        )}
+                      </div>
+                      <span
+                        className={
+                          rules.number ? 'text-foreground font-medium' : 'text-muted-foreground'
+                        }
+                      >
+                        {formDict.security_rules.number}
+                      </span>
+                    </li>
+                    <li className="flex items-center gap-2 text-xs">
+                      <div
+                        className={cn(
+                          'flex h-4 w-4 items-center justify-center rounded-full border',
+                          rules.uppercase
+                            ? 'bg-green-500/10 border-green-500/50 text-green-500'
+                            : 'border-muted-foreground/30 text-muted-foreground/30',
+                        )}
+                      >
+                        {rules.uppercase ? (
+                          <Check className="h-2.5 w-2.5" />
+                        ) : (
+                          <X className="h-2.5 w-2.5" />
+                        )}
+                      </div>
+                      <span
+                        className={
+                          rules.uppercase ? 'text-foreground font-medium' : 'text-muted-foreground'
+                        }
+                      >
+                        {formDict.security_rules.uppercase}
+                      </span>
+                    </li>
+                    <li className="flex items-center gap-2 text-xs">
+                      <div
+                        className={cn(
+                          'flex h-4 w-4 items-center justify-center rounded-full border',
+                          rules.lowercase
+                            ? 'bg-green-500/10 border-green-500/50 text-green-500'
+                            : 'border-muted-foreground/30 text-muted-foreground/30',
+                        )}
+                      >
+                        {rules.lowercase ? (
+                          <Check className="h-2.5 w-2.5" />
+                        ) : (
+                          <X className="h-2.5 w-2.5" />
+                        )}
+                      </div>
+                      <span
+                        className={
+                          rules.lowercase ? 'text-foreground font-medium' : 'text-muted-foreground'
+                        }
+                      >
+                        {formDict.security_rules.lowercase}
+                      </span>
+                    </li>
+                    <li className="flex items-center gap-2 text-xs">
+                      <div
+                        className={cn(
+                          'flex h-4 w-4 items-center justify-center rounded-full border',
+                          rules.special
+                            ? 'bg-green-500/10 border-green-500/50 text-green-500'
+                            : 'border-muted-foreground/30 text-muted-foreground/30',
+                        )}
+                      >
+                        {rules.special ? (
+                          <Check className="h-2.5 w-2.5" />
+                        ) : (
+                          <X className="h-2.5 w-2.5" />
+                        )}
+                      </div>
+                      <span
+                        className={
+                          rules.special ? 'text-foreground font-medium' : 'text-muted-foreground'
+                        }
+                      >
+                        {formDict.security_rules.special}
+                      </span>
+                    </li>
                   </ul>
                 </div>
               </HoverCardContent>
@@ -169,8 +265,8 @@ export function ResetPasswordForm({
           <FieldContent>
             <InputPassword
               id="password"
-              name="new_password"
-              placeholder={dict.password_placeholder}
+              name="password"
+              placeholder={formDict.password.placeholder}
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
@@ -178,21 +274,18 @@ export function ResetPasswordForm({
               aria-invalid={!!state.fieldErrors?.new_password}
               className="bg-background/50"
             />
-            {state.fieldErrors?.new_password ? (
-              <p className="mt-1 text-xs text-destructive">{state.fieldErrors.new_password}</p>
-            ) : null}
           </FieldContent>
         </Field>
 
         <Field data-invalid={!!state.fieldErrors?.confirm_password}>
           <FieldLabel htmlFor="confirm_password">
-            <FieldTitle>{dict.confirm_password_label}</FieldTitle>
+            <FieldTitle>{formDict.confirm_password.label}</FieldTitle>
           </FieldLabel>
           <FieldContent>
             <InputPassword
               id="confirm_password"
-              name="confirm_password"
-              placeholder={dict.password_placeholder}
+              name="confirmPassword"
+              placeholder={formDict.password.placeholder}
               value={confirmPassword}
               onChange={e => setConfirmPassword(e.target.value)}
               required
@@ -200,15 +293,12 @@ export function ResetPasswordForm({
               aria-invalid={!!state.fieldErrors?.confirm_password}
               className="bg-background/50"
             />
-            {state.fieldErrors?.confirm_password ? (
-              <p className="mt-1 text-xs text-destructive">{state.fieldErrors.confirm_password}</p>
-            ) : null}
           </FieldContent>
         </Field>
 
         <SubmitButton
-          submitLabel={dict.submit_button}
-          loadingLabel={dict.loading_button}
+          submitLabel={formDict.submit.label}
+          loadingLabel={formDict.submit.loading_text}
           canSubmit={allRulesMet && password === confirmPassword}
           isRedirecting={isPending}
         />

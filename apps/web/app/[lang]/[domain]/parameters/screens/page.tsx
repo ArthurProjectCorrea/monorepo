@@ -1,25 +1,33 @@
 import { getDictionary, hasLocale, type Locale } from '@/app/[lang]/dictionaries'
 import { notFound } from 'next/navigation'
 import { PageHeader } from '@/components/layout/page-header'
-import { ScreensTableClient } from '../../../../../components/table/screen-table-client'
+import { ScreensTableClient } from '@/components/tables/screen-table-client'
+import { getScreenParametersData } from '@/lib/action/parameters'
+import { cookies } from 'next/headers'
+import { AUTH_SESSION_COOKIE, getScreenPermissions } from '@/lib/session'
 
-import { fetchScreensData } from '@/lib/action/settings'
-
-async function getScreensPageData() {
-  const screensData = await fetchScreensData()
-  return screensData
-}
-
-export default async function ScreensPage({ params }: { params: Promise<{ lang: string }> }) {
-  const { lang } = await params
+export default async function ScreensPage({
+  params,
+}: {
+  params: Promise<{ lang: string; domain: string }>
+}) {
+  const { lang, domain } = await params
 
   if (!hasLocale(lang)) {
     notFound()
   }
 
-  const [dict, pageData] = await Promise.all([getDictionary(lang as Locale), getScreensPageData()])
+  const dict = await getDictionary(lang as Locale)
+  const cookieStore = await cookies()
+  const sessionId = cookieStore.get(AUTH_SESSION_COOKIE)?.value || ''
 
-  if (!pageData || !pageData.screen) {
+  const permissions = await getScreenPermissions(sessionId, 'screen_parameters')
+  if (!permissions.view) {
+    notFound()
+  }
+
+  const pageData = await getScreenParametersData()
+  if (!pageData) {
     notFound()
   }
 
@@ -27,35 +35,19 @@ export default async function ScreensPage({ params }: { params: Promise<{ lang: 
     <>
       <PageHeader
         breadcrumbs={[
-          { label: dict.general_form.breadcrumb_parameters },
-          { label: pageData.screen.title },
+          { label: dict.common.breadcrumb.parameters },
+          { label: pageData?.screen_screen_parameters?.title || '' },
         ]}
-        title={pageData.screen.title}
-        description={pageData.screen.description}
+        title={pageData?.screen_screen_parameters?.title || ''}
+        description={pageData?.screen_screen_parameters?.description || ''}
       />
 
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0 md:gap-6 md:p-6 md:pt-0">
         <ScreensTableClient
           screens={pageData.data}
-          dictDataTable={{
-            common: {
-              ...dict.common,
-              notifications: dict.common.notifications,
-            },
-          }}
-          dictScreensPage={{
-            table: {
-              ...dict.screens_page.table,
-              column_status: dict.common.table.column_status,
-              column_updated_at: dict.common.table.column_updated_at,
-            },
-            notifications: dict.notifications.screens,
-            common: {
-              ...dict.common,
-              notifications: dict.common.notifications,
-              table: dict.common.table,
-            },
-          }}
+          dict={dict.screen_parameters}
+          common={dict.common}
+          permissions={permissions}
         />
       </div>
     </>

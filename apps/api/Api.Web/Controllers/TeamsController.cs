@@ -1,4 +1,5 @@
 using Api.Core.Entities;
+using Api.Core.Interfaces;
 using Api.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,23 +14,31 @@ public class TeamsController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly IDatabase _redis;
+    private readonly IPermissionService _permissionService;
 
     public TeamsController(
         AppDbContext context,
-        IConnectionMultiplexer redis)
+        IConnectionMultiplexer redis,
+        IPermissionService permissionService)
     {
         _context = context;
         _redis = redis.GetDatabase();
+        _permissionService = permissionService;
+    }
+
+    private string GetSessionId()
+    {
+        var authHeader = Request.Headers["Authorization"].ToString();
+        if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer ")) return string.Empty;
+        return authHeader.Substring("Bearer ".Length).Trim();
     }
 
     private async Task<Guid?> GetClientIdFromSession()
     {
-        var authHeader = Request.Headers["Authorization"].ToString();
-        if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer ")) return null;
+        var sessionId = GetSessionId();
+        if (string.IsNullOrEmpty(sessionId)) return null;
 
-        var sessionId = authHeader.Substring("Bearer ".Length).Trim();
         var sessionJson = await _redis.StringGetAsync($"session:{sessionId}");
-
         if (!sessionJson.HasValue) return null;
 
         var sessionData = JsonSerializer.Deserialize<Dictionary<string, object>>((string)sessionJson!);
@@ -41,6 +50,14 @@ public class TeamsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetTeams()
     {
+        var sessionId = GetSessionId();
+        if (string.IsNullOrEmpty(sessionId)) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
+
+        if (!await _permissionService.HasPermissionAsync(sessionId, "teams", "view"))
+        {
+            return Forbid();
+        }
+
         var clientId = await GetClientIdFromSession();
         if (clientId == null) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
 
@@ -52,7 +69,7 @@ public class TeamsController : ControllerBase
                 id = t.Id,
                 name = t.Name,
                 icon = t.Icon,
-                status = t.IsActive,
+                is_active = t.IsActive,
                 updated_at = t.UpdatedAt ?? t.CreatedAt
             })
             .ToListAsync();
@@ -64,11 +81,12 @@ public class TeamsController : ControllerBase
         {
             status = "success",
             data = teams,
-            screen = screenMetadata != null ? new
+            screen_teams = screenMetadata != null ? new
             {
+                id = screenMetadata.Id,
                 title = screenMetadata.Title,
                 description = screenMetadata.Description,
-                screenKey = screenMetadata.ScreenKey
+                key = screenMetadata.ScreenKey
             } : null
         });
     }
@@ -76,6 +94,14 @@ public class TeamsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetTeam(Guid id)
     {
+        var sessionId = GetSessionId();
+        if (string.IsNullOrEmpty(sessionId)) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
+
+        if (!await _permissionService.HasPermissionAsync(sessionId, "teams", "view"))
+        {
+            return Forbid();
+        }
+
         var clientId = await GetClientIdFromSession();
         if (clientId == null) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
 
@@ -90,7 +116,8 @@ public class TeamsController : ControllerBase
                 id = team.Id,
                 name = team.Name,
                 icon = team.Icon,
-                status = team.IsActive,
+                is_active = team.IsActive,
+                created_at = team.CreatedAt,
                 updated_at = team.UpdatedAt ?? team.CreatedAt
             }
         });
@@ -99,6 +126,14 @@ public class TeamsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateTeam([FromBody] CreateTeamRequest request)
     {
+        var sessionId = GetSessionId();
+        if (string.IsNullOrEmpty(sessionId)) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
+
+        if (!await _permissionService.HasPermissionAsync(sessionId, "teams", "create"))
+        {
+            return Forbid();
+        }
+
         var clientId = await GetClientIdFromSession();
         if (clientId == null) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
 
@@ -121,7 +156,7 @@ public class TeamsController : ControllerBase
                 id = team.Id,
                 name = team.Name,
                 icon = team.Icon,
-                status = team.IsActive,
+                is_active = team.IsActive,
                 updated_at = team.CreatedAt
             }
         });
@@ -130,6 +165,14 @@ public class TeamsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateTeam(Guid id, [FromBody] UpdateTeamRequest request)
     {
+        var sessionId = GetSessionId();
+        if (string.IsNullOrEmpty(sessionId)) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
+
+        if (!await _permissionService.HasPermissionAsync(sessionId, "teams", "update"))
+        {
+            return Forbid();
+        }
+
         var clientId = await GetClientIdFromSession();
         if (clientId == null) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
 
@@ -152,7 +195,7 @@ public class TeamsController : ControllerBase
                 id = team.Id,
                 name = team.Name,
                 icon = team.Icon,
-                status = team.IsActive,
+                is_active = team.IsActive,
                 updated_at = team.UpdatedAt
             }
         });
@@ -161,6 +204,14 @@ public class TeamsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTeam(Guid id)
     {
+        var sessionId = GetSessionId();
+        if (string.IsNullOrEmpty(sessionId)) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
+
+        if (!await _permissionService.HasPermissionAsync(sessionId, "teams", "delete"))
+        {
+            return Forbid();
+        }
+
         var clientId = await GetClientIdFromSession();
         if (clientId == null) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
 

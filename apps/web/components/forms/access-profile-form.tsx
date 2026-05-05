@@ -26,22 +26,20 @@ import {
 
 import { Item, ItemActions, ItemContent, ItemGroup, ItemTitle } from '@/components/ui/item'
 import { Settings2, Lock } from 'lucide-react'
-import { SCREEN_PERMISSIONS } from '@/lib/permission'
-import { saveAccessProfileAction } from '@/lib/action/access-profiles'
+import { SCREEN_PERMISSIONS } from '@/lib/session-constants'
+import { saveAccessProfileAction } from '@/lib/action/settings'
 import { useRouter, useParams } from 'next/navigation'
 import { FormActions } from '@/components/layout/form-actions'
+import { notifyFromApi } from '@/lib/notifications'
 
-import type {
-  AccessProfile,
-  AccessProfileFormDict,
-  AccessProfilePermission,
-  PermissionAction,
-} from '@/types/api'
+import type { Dictionary } from '@/types/i18n'
+import type { AccessProfile, AccessProfilePermission, PermissionAction } from '@/types/api'
 
 interface AccessProfileFormProps {
   initialData?: AccessProfile
   onSuccess?: () => void
-  dict: AccessProfileFormDict
+  dict: Dictionary['access_profiles']
+  common: Dictionary['common']
   screens: { id: string; title: string }[]
   actions: PermissionAction[]
 }
@@ -50,6 +48,7 @@ export function AccessProfileForm({
   initialData,
   onSuccess,
   dict,
+  common,
   screens,
   actions,
 }: AccessProfileFormProps) {
@@ -63,6 +62,10 @@ export function AccessProfileForm({
   const [permissions, setPermissions] = React.useState<AccessProfilePermission[]>(
     initialData?.permissions || [],
   )
+
+  const formDict = dict.form
+  const infoCardDict = formDict.cards.information
+  const permissionsCardDict = formDict.cards.permissions
 
   const isPermissionSelected = (screenId: string, actionId: string) => {
     return permissions.some(p => p.screenId === screenId && p.actionId === actionId)
@@ -85,26 +88,33 @@ export function AccessProfileForm({
 
   // Handle Action State notifications
   React.useEffect(() => {
-    if (state.status === 'success') {
-      toast.success(initialData ? dict.notifications.success : dict.notifications.success)
-      if (onSuccess) {
-        onSuccess()
-      } else {
-        router.push(`/${params.lang}/${params.domain}/settings/access-profiles`)
+    if (state.status !== 'idle' && state.notificationToken) {
+      notifyFromApi({
+        httpStatus: state.httpStatus || (state.status === 'success' ? 200 : 500),
+        dictionary: dict.notifications,
+        commonDictionary: common.notifications,
+        lang: (params.lang as string) || 'en',
+        actionType: initialData ? 'update' : 'create',
+      })
+
+      if (state.status === 'success') {
+        if (onSuccess) {
+          onSuccess()
+        } else {
+          router.push(`/${params.lang}/${params.domain}/settings/access-profiles`)
+        }
       }
-    } else if (state.status === 'error') {
-      toast.error(dict.notifications.error)
     }
   }, [
+    state.status,
     state.notificationToken,
-    initialData,
-    dict.notifications.error,
-    dict.notifications.success,
+    state.httpStatus,
+    dict.notifications,
+    common.notifications,
     onSuccess,
     router,
     params.lang,
     params.domain,
-    state.status,
   ])
 
   return (
@@ -116,46 +126,46 @@ export function AccessProfileForm({
         {/* Basic Info Column */}
         <Card className="min-w-0">
           <CardHeader>
-            <CardTitle>{dict.table.form.title_label}</CardTitle>
-            <CardDescription>{dict.table.form.title_description}</CardDescription>
+            <CardTitle>{infoCardDict.title}</CardTitle>
+            <CardDescription>{infoCardDict.description}</CardDescription>
           </CardHeader>
           <CardContent>
             <FieldSet>
               <FieldGroup>
                 <Field>
-                  <FieldLabel htmlFor="profile-name">{dict.table.form.title_label}</FieldLabel>
+                  <FieldLabel htmlFor="profile-name">{formDict.name.label}</FieldLabel>
                   <Input
                     id="profile-name"
                     name="name"
                     defaultValue={initialData?.name}
-                    placeholder={dict.table.form.title_placeholder}
+                    placeholder={formDict.name.placeholder}
                     required
                   />
-                  <FieldDescription>{dict.table.form.title_description}</FieldDescription>
+                  <FieldDescription>{formDict.name.description}</FieldDescription>
                   <FieldError>{state.fieldErrors?.name}</FieldError>
                 </Field>
 
                 <Field>
                   <FieldLabel htmlFor="profile-description">
-                    {dict.table.form.description_label}
+                    {formDict.description.label}
                   </FieldLabel>
                   <Textarea
                     id="profile-description"
                     name="description"
                     defaultValue={initialData?.description}
-                    placeholder={dict.table.form.description_placeholder}
+                    placeholder={formDict.description.placeholder}
                     rows={4}
                   />
-                  <FieldDescription>{dict.table.form.description_description}</FieldDescription>
+                  <FieldDescription>{formDict.description.description}</FieldDescription>
                   <FieldError>{state.fieldErrors?.description}</FieldError>
                 </Field>
 
                 <Field className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                   <div className="space-y-0.5">
                     <FieldLabel htmlFor="profile-status" className="text-base">
-                      {dict.table.form.status_label}
+                      {common.form.is_active.label}
                     </FieldLabel>
-                    <FieldDescription>{dict.table.form.status_description}</FieldDescription>
+                    <FieldDescription>{formDict.is_active.description}</FieldDescription>
                   </div>
                   <Switch
                     id="profile-status"
@@ -171,17 +181,20 @@ export function AccessProfileForm({
         {/* Permissions Column */}
         <Card className="min-w-0">
           <CardHeader>
-            <CardTitle>{dict.table.form.permissions_section_title}</CardTitle>
-            <CardDescription>{dict.table.form.permissions_section_description}</CardDescription>
+            <CardTitle>{permissionsCardDict.title}</CardTitle>
+            <CardDescription>{permissionsCardDict.description}</CardDescription>
           </CardHeader>
           <CardContent className="overflow-visible">
             <ItemGroup>
               {screens.map(screen => {
-                const allowedActionIds = SCREEN_PERMISSIONS[screen.id] || []
-                const availableActions = actions.filter(a => allowedActionIds.includes(a.id))
+                const allowedActionIds =
+                  SCREEN_PERMISSIONS[screen.id as keyof typeof SCREEN_PERMISSIONS] || []
+                const availableActions = actions.filter(a =>
+                  (allowedActionIds as readonly string[]).includes(a.id),
+                )
                 const activeCount = getScreenPermissionsCount(screen.id)
-                const screenTitle =
-                  (dict.sidebar.nav_main as Record<string, string>)[screen.id] || screen.title
+                // Use the screenTitle from common or fallback
+                const screenTitle = screen.title
 
                 const Trigger = (
                   <Button variant="ghost" size="icon-sm" className="relative">
@@ -222,7 +235,7 @@ export function AccessProfileForm({
                           ))}
                           {availableActions.length === 0 && (
                             <div className="p-2 text-xs italic text-muted-foreground">
-                              {dict.common.table.no_results}
+                              {common.table.no_results}
                             </div>
                           )}
                         </DropdownMenuContent>
@@ -237,10 +250,10 @@ export function AccessProfileForm({
       </div>
 
       <FormActions
-        saveLabel={initialData ? dict.common.actions.save : dict.common.actions.create}
-        discardLabel={dict.common.actions.discard}
-        savingLabel={dict.common.actions.saving}
-        backLabel={dict.common.actions.back}
+        saveLabel={common.form.actions.save}
+        discardLabel={common.form.actions.discard}
+        savingLabel={common.form.actions.saving}
+        backLabel={common.form.actions.back}
         isPending={isPending}
         onDiscard={() => (onSuccess ? onSuccess() : router.back())}
         onBack={() => (onSuccess ? onSuccess() : router.back())}

@@ -45,7 +45,7 @@ public class ScreensController : ControllerBase
         if (clientId == null) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
 
         var screens = await _context.Screens
-            .Where(s => s.ClientId == clientId)
+            .Where(s => s.ClientId == clientId && s.DeletedAt == null)
             .OrderByDescending(s => s.CreatedAt)
             .Select(s => new
             {
@@ -54,7 +54,8 @@ public class ScreensController : ControllerBase
                 title = s.Title,
                 description = s.Description,
                 isActive = s.IsActive,
-                updatedAt = s.UpdatedAt
+                created_at = s.CreatedAt,
+                updated_at = s.UpdatedAt
             })
             .ToListAsync();
 
@@ -64,11 +65,12 @@ public class ScreensController : ControllerBase
         {
             status = "success",
             data = screens,
-            screen = screenParameter != null ? new
+            screen_screen_parameters = screenParameter != null ? new
             {
-                title = screenParameter.Title,
+                id = screenParameter.Id,
                 description = screenParameter.Description,
-                screenKey = screenParameter.ScreenKey
+                key = screenParameter.ScreenKey,
+                title = screenParameter.Title
             } : null
         });
     }
@@ -79,7 +81,7 @@ public class ScreensController : ControllerBase
         var clientId = await GetClientIdFromSession();
         if (clientId == null) return Unauthorized(new { error = new { code = "UNAUTHORIZED", message = "Invalid session." } });
 
-        var screen = await _context.Screens.FirstOrDefaultAsync(s => s.Id == id && s.ClientId == clientId);
+        var screen = await _context.Screens.FirstOrDefaultAsync(s => s.Id == id && s.ClientId == clientId && s.DeletedAt == null);
         if (screen == null) return NotFound(new { error = new { code = "SCREEN_NOT_FOUND", message = "Screen not found." } });
 
         screen.Title = request.Title;
@@ -100,7 +102,8 @@ public class ScreensController : ControllerBase
                 title = screen.Title,
                 description = screen.Description,
                 isActive = screen.IsActive,
-                updatedAt = screen.UpdatedAt
+                created_at = screen.CreatedAt,
+                updated_at = screen.UpdatedAt
             }
         });
     }

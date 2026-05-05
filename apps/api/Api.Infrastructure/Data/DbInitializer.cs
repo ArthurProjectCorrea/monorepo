@@ -103,6 +103,21 @@ public static class DbInitializer
             await context.SaveChangesAsync();
         }
 
+        var dashboardScreen = context.Screens.FirstOrDefault(s => s.ScreenKey == "dashboard" && s.ClientId == defaultClient.Id);
+        if (dashboardScreen == null)
+        {
+            dashboardScreen = new Screen
+            {
+                Title = "Dashboard",
+                Description = "Visão geral e indicadores do sistema.",
+                ScreenKey = "dashboard",
+                ClientId = defaultClient.Id,
+                IsActive = true
+            };
+            context.Screens.Add(dashboardScreen);
+            await context.SaveChangesAsync();
+        }
+
         // Seed Default Access Profile (Admin)
         var adminProfile = context.AccessProfiles.FirstOrDefault(ap => ap.Name == "Administrador" && ap.ClientId == defaultClient.Id);
         if (adminProfile == null)
@@ -121,6 +136,7 @@ public static class DbInitializer
             var allScreens = context.Screens.Where(s => s.ClientId == defaultClient.Id).ToList();
             var screenPermissions = new Dictionary<string, string[]>
             {
+                { "dashboard", new[] { "view" } },
                 { "general", new[] { "view", "update" } },
                 { "screen_parameters", new[] { "view", "update" } },
                 { "teams", new[] { "view", "create", "update", "delete" } },

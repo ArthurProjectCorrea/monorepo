@@ -75,7 +75,7 @@ public class AppDbContext : IdentityDbContext<User>
                   .WithMany()
                   .HasForeignKey(ap => ap.ClientId)
                   .OnDelete(DeleteBehavior.Restrict);
-            
+
             entity.HasIndex(ap => new { ap.Name, ap.ClientId }).IsUnique();
         });
 

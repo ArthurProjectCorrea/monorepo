@@ -10,27 +10,14 @@ import { Field, FieldContent, FieldLabel, FieldTitle } from '@/components/ui/fie
 import { Spinner } from '@/components/ui/spinner'
 import { forgotPasswordAction } from '@/lib/action/auth'
 import { notifyFromApi } from '@/lib/notifications'
-import type { NotificationDictionary, CommonNotificationDictionary } from '@/types/api'
+import type { Dictionary } from '@/types/i18n'
 
 interface ForgotPasswordFormProps {
-  dict: {
-    title: string
-    description: string
-    email_label: string
-    email_placeholder: string
-    submit_button: string
-    loading_button: string
-    back_to_login: string
-  }
-  notificationsDict: NotificationDictionary
-  commonNotificationsDict: CommonNotificationDictionary
+  dict: Dictionary['forgot_password']
+  common: Dictionary['common']
 }
 
-export function ForgotPasswordForm({
-  dict,
-  notificationsDict,
-  commonNotificationsDict,
-}: ForgotPasswordFormProps) {
+export function ForgotPasswordForm({ dict, common }: ForgotPasswordFormProps) {
   const [state, formAction, isPending] = React.useActionState(forgotPasswordAction, {
     status: 'idle',
   })
@@ -39,6 +26,9 @@ export function ForgotPasswordForm({
   const params = useParams()
   const lang = params.lang as string
 
+  const formDict = dict.form
+  const infoDict = formDict.cards.information
+
   React.useEffect(() => {
     if (!state.notificationToken || !state.httpStatus) {
       return
@@ -46,43 +36,44 @@ export function ForgotPasswordForm({
 
     notifyFromApi({
       httpStatus: state.httpStatus,
-      dictionary: notificationsDict,
-      commonDictionary: commonNotificationsDict,
+      dictionary: dict.notifications,
+      commonDictionary: common.notifications,
       lang,
     })
 
     if (state.nextStep === 'otp_verification') {
       setIsRedirecting(true)
-      router.push(`/${lang}/verify-otp`)
+      router.push(`/${lang}/verify-otp?identifier=${state.identifier}`)
     }
   }, [
     lang,
-    notificationsDict,
-    commonNotificationsDict,
+    dict.notifications,
+    common.notifications,
     router,
     state.httpStatus,
     state.nextStep,
     state.notificationToken,
+    state.identifier,
   ])
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2 text-center">
-        <h1 className="text-2xl font-bold tracking-tight">{dict.title}</h1>
-        <p className="text-sm text-muted-foreground">{dict.description}</p>
+        <h1 className="text-2xl font-bold tracking-tight">{infoDict.title}</h1>
+        <p className="text-sm text-muted-foreground">{infoDict.description}</p>
       </div>
 
       <form action={formAction} className="grid gap-4">
         <input type="hidden" name="lang" value={lang} />
         <Field data-invalid={!!state.fieldErrors?.identifier}>
           <FieldLabel htmlFor="email">
-            <FieldTitle>{dict.email_label}</FieldTitle>
+            <FieldTitle>{formDict.email.label}</FieldTitle>
           </FieldLabel>
           <FieldContent>
             <Input
               id="email"
               name="identifier"
-              placeholder={dict.email_placeholder}
+              placeholder={formDict.email.placeholder}
               type="email"
               autoCapitalize="none"
               autoComplete="email"
@@ -92,21 +83,18 @@ export function ForgotPasswordForm({
               aria-invalid={!!state.fieldErrors?.identifier}
               className="bg-background/50"
             />
-            {state.fieldErrors?.identifier ? (
-              <p className="mt-1 text-xs text-destructive">{state.fieldErrors.identifier}</p>
-            ) : null}
           </FieldContent>
         </Field>
 
         <SubmitButton
-          submitLabel={dict.submit_button}
-          loadingLabel={dict.loading_button}
+          submitLabel={formDict.submit.label}
+          loadingLabel={formDict.submit.loading_text}
           isRedirecting={isRedirecting}
         />
       </form>
 
       <Button variant="link" size="sm" className="mx-auto h-auto p-0 text-xs font-medium" asChild>
-        <Link href={`/${lang}/sign-in`}>{dict.back_to_login}</Link>
+        <Link href={`/${lang}/sign-in`}>{formDict.back_to_login.label}</Link>
       </Button>
     </div>
   )

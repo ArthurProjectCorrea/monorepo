@@ -26,6 +26,8 @@ public class Client
 
     public DateTime? UpdatedAt { get; set; }
 
+    public DateTime? DeletedAt { get; set; }
+
     // Navigation
     public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

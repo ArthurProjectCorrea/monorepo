@@ -72,7 +72,7 @@ public abstract class BaseIntegrationTest : IDisposable
         // Prepare a fresh test database
         using var scope = Factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        
+
         db.Database.EnsureDeleted();
         db.Database.Migrate();
     }
@@ -83,7 +83,7 @@ public abstract class BaseIntegrationTest : IDisposable
         using var scope = Factory.Services.CreateScope();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        
+
         var effectiveClientId = clientId ?? Guid.NewGuid();
 
         // Ensure Client exists
@@ -127,7 +127,36 @@ public abstract class BaseIntegrationTest : IDisposable
             user_id = user.Id,
             email = user.Email,
             display_name = user.DisplayName,
-            client_id = user.ClientId
+            client_id = user.ClientId,
+            me = new
+            {
+                id = user.Id,
+                name = user.DisplayName,
+                email = user.Email,
+                accesses = new[]
+                {
+                    new
+                    {
+                        team_id = Guid.NewGuid(),
+                        access_profiles = new[]
+                        {
+                            new
+                            {
+                                id = Guid.NewGuid(),
+                                name = "Admin",
+                                permissions = new[]
+                                {
+                                    new { screen_key = "users", actions = new[] { new { key = "view" }, new { key = "create" }, new { key = "update" }, new { key = "delete" } } },
+                                    new { screen_key = "teams", actions = new[] { new { key = "view" }, new { key = "create" }, new { key = "update" }, new { key = "delete" } } },
+                                    new { screen_key = "access_profiles", actions = new[] { new { key = "view" }, new { key = "create" }, new { key = "update" }, new { key = "delete" } } },
+                                    new { screen_key = "general", actions = new[] { new { key = "view" }, new { key = "update" } } },
+                                    new { screen_key = "dashboard", actions = new[] { new { key = "view" } } }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         };
 
         RedisDbMock.Setup(db => db.StringGetAsync($"session:{sessionId}", It.IsAny<CommandFlags>()))

@@ -104,7 +104,7 @@ program
     const fileName = `${code}.json`
     const filePath = path.join(DICT_DIR, fileName)
 
-    if (code === 'en' || code === 'pt') {
+    if (code === 'en') {
       console.error(chalk.red(`Error: Cannot remove core language "${code}".`))
       process.exit(1)
     }

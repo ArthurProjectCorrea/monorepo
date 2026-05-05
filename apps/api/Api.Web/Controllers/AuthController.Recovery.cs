@@ -13,12 +13,20 @@ public partial class AuthController
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
     {
-        var user = await _userManager.FindByEmailAsync(request.Identifier);
+        // Rate limiting: limitar tentativas por IP/usuário (exemplo simples, ideal usar middleware)
+        var recentRequest = await _context.PasswordRecoveryRequests
+            .Where(r => r.Identifier == request.Identifier && r.Status == "PENDING" && r.CreatedAt > DateTime.UtcNow.AddMinutes(-1))
+            .FirstOrDefaultAsync();
+        if (recentRequest != null)
+        {
+            // Sempre resposta padronizada
+            return Ok(new { status = "accepted", expires_in = 900 });
+        }
 
+        var user = await _userManager.FindByEmailAsync(request.Identifier);
         if (user != null)
         {
             var otp = new Random().Next(100000, 999999).ToString();
-
             var recoveryRequest = new PasswordRecoveryRequest
             {
                 Id = Guid.NewGuid(),
@@ -26,18 +34,17 @@ public partial class AuthController
                 Identifier = user.Email!,
                 OtpHash = otp,
                 OtpExpiresAt = DateTime.UtcNow.AddMinutes(15),
-                Status = "PENDING"
+                Status = "PENDING",
+                CreatedAt = DateTime.UtcNow
             };
-
             _context.PasswordRecoveryRequests.Add(recoveryRequest);
             await _context.SaveChangesAsync();
-
             await _emailService.SendEmailAsync(
                 user.Email!,
                 "Recuperação de Senha",
                 $"<p>Seu código de recuperação é: <strong>{otp}</strong></p><p>Este código expira em 15 minutos.</p>");
         }
-
+        // Sempre resposta padronizada, nunca expor existência do usuário
         return Ok(new { status = "accepted", expires_in = 900 });
     }
 
@@ -82,6 +89,16 @@ public partial class AuthController
     [HttpPost("verify-otp")]
     public async Task<IActionResult> VerifyOtp([FromBody] VerifyRecoveryOtpRequest request)
     {
+        // Rate limiting: limitar tentativas por IP/usuário (exemplo simples)
+        var recentAttempts = await _context.PasswordRecoveryRequests
+            .Where(r => r.Identifier == request.Identifier && r.Status == "PENDING" && r.CreatedAt > DateTime.UtcNow.AddMinutes(-1))
+            .CountAsync();
+        if (recentAttempts > 5)
+        {
+            // Mensagem genérica
+            return BadRequest(new { error = new { code = "TOO_MANY_ATTEMPTS", message = "Aguarde antes de tentar novamente." } });
+        }
+
         var recoveryRequest = await _context.PasswordRecoveryRequests
             .Where(r => r.Identifier == request.Identifier && r.Status == "PENDING")
             .OrderByDescending(r => r.CreatedAt)
@@ -89,6 +106,7 @@ public partial class AuthController
 
         if (recoveryRequest == null || recoveryRequest.OtpHash != request.OtpCode || recoveryRequest.OtpExpiresAt < DateTime.UtcNow)
         {
+            // Mensagem genérica
             return BadRequest(new { error = new { code = "INVALID_OTP", message = "Código inválido ou expirado." } });
         }
 
@@ -101,7 +119,6 @@ public partial class AuthController
 
         return Ok(new
         {
-            status = "verified",
             reset_token = resetToken,
             reset_token_expires_in = 1800
         });
@@ -116,11 +133,18 @@ public partial class AuthController
 
         if (recoveryRequest == null || recoveryRequest.ResetTokenExpiresAt < DateTime.UtcNow)
         {
+            // Mensagem genérica
             return BadRequest(new { error = new { code = "INVALID_TOKEN", message = "Token inválido ou expirado." } });
         }
 
         var user = await _userManager.FindByIdAsync(recoveryRequest.UserId);
-        if (user == null) return NotFound();
+        if (user == null) return BadRequest(new { error = new { code = "RESET_FAILED", message = "Não foi possível atualizar a senha." } });
+
+        // Validação de força de senha (exemplo simples, ideal usar serviço dedicado)
+        if (string.IsNullOrWhiteSpace(request.NewPassword) || request.NewPassword.Length < 8)
+        {
+            return BadRequest(new { error = new { code = "WEAK_PASSWORD", message = "A senha deve ter pelo menos 8 caracteres." } });
+        }
 
         var result = await _userManager.RemovePasswordAsync(user);
         if (result.Succeeded)
@@ -133,7 +157,11 @@ public partial class AuthController
             recoveryRequest.Status = "COMPLETED";
             recoveryRequest.CompletedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
-            return Ok(new { status = "password_updated" });
+
+            // Invalidar todas as sessões/tokens antigos do usuário (exemplo: remover do Redis, etc)
+            // ... implementar lógica de invalidação de sessão/token aqui ...
+
+            return Ok(new { status = "success" });
         }
 
         return BadRequest(new { error = new { code = "RESET_FAILED", message = "Não foi possível atualizar a senha." } });

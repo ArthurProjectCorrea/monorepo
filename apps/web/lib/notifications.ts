@@ -10,9 +10,10 @@ import type {
 
 interface NotifyFromApiParams {
   httpStatus: number
-  dictionary: NotificationDictionary
+  dictionary?: NotificationDictionary
   commonDictionary: CommonNotificationDictionary
   lang?: string
+  actionType?: 'create' | 'update' | 'delete'
 }
 
 function getActiveLanguage(lang?: string) {
@@ -58,6 +59,7 @@ function resolveMessage(
   httpStatus: number,
   dictionary: NotificationDictionary,
   commonDictionary: CommonNotificationDictionary,
+  actionType?: 'create' | 'update' | 'delete',
 ) {
   const key = String(httpStatus)
 
@@ -67,7 +69,7 @@ function resolveMessage(
   }
 
   // 2. Try common http_status
-  if (commonDictionary.http_status[key]) {
+  if (commonDictionary.http_status?.[key]) {
     return commonDictionary.http_status[key]
   }
 
@@ -78,11 +80,21 @@ function resolveMessage(
   if (variant === 'error' && dictionary.error) return dictionary.error
 
   // 4. Fallback to common defaults
-  if (variant === 'success') return commonDictionary.success
-  if (variant === 'warning') return commonDictionary.warning
-  if (variant === 'error') return commonDictionary.error
+  if (variant === 'success') {
+    if (actionType === 'create' && commonDictionary.success_create)
+      return commonDictionary.success_create
+    if (actionType === 'update' && commonDictionary.success_update)
+      return commonDictionary.success_update
+    if (actionType === 'delete' && commonDictionary.success_delete)
+      return commonDictionary.success_delete
+    if (commonDictionary.success) return commonDictionary.success
+  }
+  if (variant === 'warning' && commonDictionary.warning) return commonDictionary.warning
+  if (variant === 'error' && commonDictionary.error) return commonDictionary.error
+  if (commonDictionary.info) return commonDictionary.info
 
-  return commonDictionary.info
+  // Final fallback
+  return `Operation completed (${httpStatus})`
 }
 
 export function notifyFromApi({
@@ -90,9 +102,15 @@ export function notifyFromApi({
   dictionary,
   commonDictionary,
   lang,
+  actionType,
 }: NotifyFromApiParams) {
   const activeLang = getActiveLanguage(lang)
-  const message = resolveMessage(httpStatus, dictionary, commonDictionary)
+  const message = resolveMessage(
+    httpStatus,
+    dictionary || ({} as NotificationDictionary),
+    commonDictionary,
+    actionType,
+  )
   const variant = getVariantFromHttpStatus(httpStatus)
 
   // Log to Terminal (Server Side) via Server Action

@@ -22,6 +22,11 @@ public class UsersControllerTests : BaseIntegrationTest
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
+        Assert.True(result.TryGetProperty("screen_users", out _));
+        Assert.True(result.TryGetProperty("other", out var other));
+        Assert.True(other.TryGetProperty("teams", out _));
+        Assert.True(other.TryGetProperty("access_profiles", out _));
     }
 
     [Fact]

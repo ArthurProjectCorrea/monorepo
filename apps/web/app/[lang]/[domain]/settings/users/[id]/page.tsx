@@ -2,9 +2,14 @@ import { getDictionary, hasLocale, type Locale } from '@/app/[lang]/dictionaries
 import { notFound } from 'next/navigation'
 import { PageHeader } from '@/components/layout/page-header'
 import { UserForm } from '@/components/forms/user-form'
-import { getTeamsData } from '@/lib/action/teams'
-import { getAccessProfilesData } from '@/lib/action/access-profiles'
-import { getUserByIdData } from '@/lib/action/users'
+import {
+  getTeamsData,
+  getAccessProfilesData,
+  getUserByIdData,
+  getUsersData,
+} from '@/lib/action/settings'
+import { cookies } from 'next/headers'
+import { AUTH_SESSION_COOKIE, getScreenPermissions } from '@/lib/session'
 
 export default async function EditUserPage({
   params,
@@ -17,8 +22,17 @@ export default async function EditUserPage({
     notFound()
   }
 
-  const [dict, user, teamsResponse, profilesResponse] = await Promise.all([
-    getDictionary(lang as Locale),
+  const dict = await getDictionary(lang as Locale)
+  const cookieStore = await cookies()
+  const sessionId = cookieStore.get(AUTH_SESSION_COOKIE)?.value || ''
+
+  const permissions = await getScreenPermissions(sessionId, 'users')
+  if (!permissions.view || !permissions.update) {
+    notFound()
+  }
+
+  const [pageData, user, teamsResponse, profilesResponse] = await Promise.all([
+    getUsersData(),
     getUserByIdData(id),
     getTeamsData(),
     getAccessProfilesData(),
@@ -35,36 +49,22 @@ export default async function EditUserPage({
     <>
       <PageHeader
         breadcrumbs={[
-          { label: dict.general_form.breadcrumb_settings },
+          { label: dict.common.breadcrumb.settings },
           {
-            label: dict.sidebar.nav_main.users,
+            label: pageData?.screen_users?.title || '',
             href: `/${lang}/${domain}/settings/users`,
           },
           { label: user.name },
         ]}
-        title={dict.common.actions.edit + ': ' + user.name}
-        description={dict.users_page.description}
+        title={dict.common.table.actions.update + ': ' + user.name}
+        description={pageData?.screen_users?.description || ''}
       />
 
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0 md:gap-6 md:p-6 md:pt-0">
         <UserForm
           initialData={user}
-          dict={{
-            table: {
-              ...dict.users_page.table,
-              column_status: dict.common.table.column_status,
-              column_updated_at: dict.common.table.column_updated_at,
-              column_created_at: dict.common.table.column_created_at,
-              no_results: dict.common.table.no_results,
-            },
-            notifications: dict.notifications.users,
-            common: {
-              ...dict.common,
-              notifications: dict.common.notifications,
-              table: dict.common.table,
-            },
-            sidebar: dict.sidebar,
-          }}
+          dict={dict.users}
+          common={dict.common}
           teams={teams}
           accessProfiles={accessProfiles}
         />

@@ -34,8 +34,8 @@ export interface ResetPasswordRequest {
 }
 
 export interface AuthSession {
-  access_token: string
-  token_type: string
+  access_token?: string
+  token_type?: string
   expires_in: number
   refresh_token?: string
   refresh_expires_in?: number
@@ -51,9 +51,9 @@ export interface User {
   id: string
   name: string
   email: string
-  isActive: boolean
+  is_active: boolean
   teams: UserTeamAccess[]
-  updatedAt: string
+  updated_at: string
 }
 
 export interface AuthUser {
@@ -79,9 +79,7 @@ export interface ForgotPasswordResponse {
 }
 
 export interface VerifyRecoveryOtpResponse {
-  status: 'verified'
   reset_token: string
-  reset_token_expires_in: number
 }
 
 export interface ResendRecoveryOtpResponse {
@@ -90,7 +88,7 @@ export interface ResendRecoveryOtpResponse {
 }
 
 export interface ResetPasswordResponse {
-  status: 'password_updated'
+  status: 'success'
 }
 
 export interface ApiErrorPayload {
@@ -134,161 +132,34 @@ export interface ResetPasswordActionState extends ActionState {
   nextStep?: 'signed_in'
 }
 
-export type ClientActionState = ActionState<{ logo_url?: string }>
-
+export type GeneralActionState = ActionState
 export type ScreenActionState = ActionState
 export type TeamActionState = ActionState
 export type UserActionState = ActionState
+export type AccessProfileActionState = ActionState
 
 export interface Screen {
   id: string
-  screenKey: string
+  screen_key: string
   title: string
   description: string
-  isActive: boolean
-  updatedAt: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
 }
 
-export interface CommonNotificationDictionary {
-  success: string
-  error: string
-  info: string
-  warning: string
-  deleted: string
-  saved: string
-  http_status: Record<string, string>
-}
-
-export type NotificationVariant = 'success' | 'info' | 'warning' | 'error'
-
-export interface NotificationDictionary {
-  success?: string
-  error?: string
-  http_status?: Record<string, string>
-}
-
-export interface ScreenFormDict {
-  common: {
-    actions: {
-      discard: string
-      save: string
-      saving: string
-      create: string
-      cancel: string
-      edit: string
-      delete: string
-      back: string
-    }
-    dialogs: {
-      delete_confirm: {
-        title: string
-        description: string
-        cancel: string
-        confirm: string
-      }
-      edit_dialog: {
-        title: string
-        description: string
-        cancel: string
-        save: string
-      }
-    }
-    notifications: CommonNotificationDictionary
-    table: {
-      status_active: string
-      status_inactive: string
-      column_status: string
-      column_updated_at: string
-      column_created_at: string
-      no_results: string
-    }
-  }
-  table: {
-    column_key: string
-    column_title: string
-    column_description: string
-    column_status: string
-    column_updated_at: string
-    form: {
-      title_label: string
-      title_placeholder: string
-      title_description: string
-      description_label: string
-      description_placeholder: string
-      description_description: string
-      status_label: string
-      status_description: string
-    }
-  }
-  notifications: {
-    success: string
-    error: string
-  }
+export interface UpdateScreenRequest {
+  name: string
+  description: string
+  is_active: boolean
 }
 
 export interface Team {
   id: string
   name: string
-  status: boolean
-  updated_at: string
   icon?: string
-}
-
-export interface TeamFormDict {
-  common: {
-    actions: {
-      discard: string
-      save: string
-      saving: string
-      create: string
-      cancel: string
-      edit: string
-      delete: string
-      back: string
-    }
-    dialogs: {
-      delete_confirm: {
-        title: string
-        description: string
-        cancel: string
-        confirm: string
-      }
-      edit_dialog: {
-        title: string
-        description: string
-        cancel: string
-        save: string
-      }
-    }
-    notifications: CommonNotificationDictionary
-    table: {
-      status_active: string
-      status_inactive: string
-      column_status: string
-      column_updated_at: string
-      column_created_at: string
-      no_results: string
-    }
-  }
-  table: {
-    column_icon: string
-    column_name: string
-    action_copy_key: string
-    form: {
-      title_label: string
-      title_placeholder: string
-      title_description: string
-      icon_label: string
-      icon_placeholder: string
-      icon_description: string
-      status_label: string
-      status_description: string
-    }
-  }
-  notifications: {
-    success: string
-    error: string
-  }
+  is_active: boolean
+  updated_at: string
 }
 
 export interface PermissionAction {
@@ -305,156 +176,25 @@ export interface AccessProfilePermission {
 export interface AccessProfile {
   id: string
   name: string
-  description: string
-  isActive: boolean
-  updatedAt: string
+  description?: string
+  is_active: boolean
   permissions: AccessProfilePermission[]
+  updated_at: string
 }
 
-export interface AccessProfileFormDict {
-  common: {
-    actions: {
-      discard: string
-      save: string
-      saving: string
-      create: string
-      cancel: string
-      edit: string
-      delete: string
-      back: string
-    }
-    dialogs: {
-      delete_confirm: {
-        title: string
-        description: string
-        cancel: string
-        confirm: string
-      }
-    }
-    notifications: CommonNotificationDictionary
-    table: {
-      status_active: string
-      status_inactive: string
-      column_status: string
-      column_updated_at: string
-      column_created_at: string
-      no_results: string
-    }
-  }
-  table: {
-    column_name: string
-    column_description: string
-    form: {
-      title_label: string
-      title_placeholder: string
-      title_description: string
-      description_label: string
-      description_placeholder: string
-      description_description: string
-      status_label: string
-      status_description: string
-      permissions_section_title: string
-      permissions_section_description: string
-      permission_view: string
-      permission_create: string
-      permission_update: string
-      permission_delete: string
-    }
-  }
-  notifications: {
-    success: string
-    error: string
-  }
-  screens_page: {
-    table: {
-      column_title: string
-      form: {
-        description_description: string
-      }
-    }
-  }
-  sidebar: {
-    nav_main: {
-      dashboard: string
-      teams: string
-      screens: string
-      access_profiles: string
-      parameters: string
-    }
-  }
+export interface NotificationDictionary {
+  success?: string
+  success_create?: string
+  success_update?: string
+  success_delete?: string
+  success_reset_password?: string
+  success_resend_reset?: string
+  error?: string
+  info?: string
+  warning?: string
+  http_status?: Record<string, string>
 }
 
-export interface UserFormDict {
-  common: {
-    actions: {
-      discard: string
-      save: string
-      saving: string
-      create: string
-      cancel: string
-      edit: string
-      delete: string
-      back: string
-      resend_reset: string
-    }
-    dialogs: {
-      delete_confirm: {
-        title: string
-        description: string
-        cancel: string
-        confirm: string
-      }
-    }
-    notifications: CommonNotificationDictionary
-    table: {
-      status_active: string
-      status_inactive: string
-      column_status: string
-      column_updated_at: string
-      column_created_at: string
-      no_results: string
-    }
-  }
-  table: {
-    column_name: string
-    column_email: string
-    column_status: string
-    column_updated_at: string
-    column_created_at: string
-    no_results: string
-    form: {
-      title_label: string
-      title_description: string
-      name_label: string
-      name_placeholder: string
-      name_description: string
-      email_label: string
-      email_placeholder: string
-      email_description: string
-      status_label: string
-      status_description: string
-      teams_section_title: string
-      teams_section_description: string
-      add_team_button: string
-      select_team_placeholder: string
-      select_profile_placeholder: string
-      column_team: string
-      column_profile: string
-      empty_teams: string
-    }
-  }
-  notifications: {
-    success: string
-    error: string
-  }
-  sidebar: {
-    nav_main: {
-      dashboard: string
-      teams: string
-      screens: string
-      access_profiles: string
-      parameters: string
-      users: string
-    }
-  }
-}
+export type CommonNotificationDictionary = NotificationDictionary
+
+export type NotificationVariant = 'success' | 'info' | 'warning' | 'error'

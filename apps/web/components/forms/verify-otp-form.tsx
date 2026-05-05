@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useFormStatus } from 'react-dom'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -11,36 +11,27 @@ import { Field, FieldContent } from '@/components/ui/field'
 import { Spinner } from '@/components/ui/spinner'
 import { resendRecoveryOtpAction, verifyOtpAction } from '@/lib/action/auth'
 import { notifyFromApi } from '@/lib/notifications'
-import type { NotificationDictionary, CommonNotificationDictionary } from '@/types/api'
+import type { Dictionary } from '@/types/i18n'
 
 interface VerifyOTPFormProps {
   identifier: string
-  dict: {
-    title: string
-    description: string
-    submit_button: string
-    loading_button: string
-    resend_button: string
-    back_to_login: string
-    resend_success: string
-  }
-  notificationsDict: NotificationDictionary
-  commonNotificationsDict: CommonNotificationDictionary
+  dict: Dictionary['verify_otp']
+  common: Dictionary['common']
 }
 
-export function VerifyOTPForm({
-  identifier,
-  dict,
-  notificationsDict,
-  commonNotificationsDict,
-}: VerifyOTPFormProps) {
+export function VerifyOTPForm({ identifier, dict, common }: VerifyOTPFormProps) {
   const [state, formAction, isPending] = React.useActionState(verifyOtpAction, { status: 'idle' })
   const [value, setValue] = React.useState('')
   const [countdown, setCountdown] = React.useState<number>(20)
   const [isResending, startResendTransition] = React.useTransition()
   const [resendStatus, setResendStatus] = React.useState<number | null>(null)
+  const [isRedirecting, setIsRedirecting] = React.useState(false)
   const params = useParams()
+  const router = useRouter()
   const lang = params.lang as string
+
+  const formDict = dict.form
+  const infoDict = formDict.cards.information
 
   React.useEffect(() => {
     let timer: NodeJS.Timeout
@@ -57,11 +48,28 @@ export function VerifyOTPForm({
 
     notifyFromApi({
       httpStatus: state.httpStatus,
-      dictionary: notificationsDict,
-      commonDictionary: commonNotificationsDict,
+      dictionary: dict.notifications,
+      commonDictionary: common.notifications,
       lang,
     })
-  }, [lang, notificationsDict, commonNotificationsDict, state.httpStatus, state.notificationToken])
+
+    if (state.nextStep === 'password_reset') {
+      setIsRedirecting(true)
+      router.push(
+        `/${lang}/reset-password?identifier=${identifier}&reset_token=${state.resetToken}`,
+      )
+    }
+  }, [
+    lang,
+    dict.notifications,
+    common.notifications,
+    state.httpStatus,
+    state.notificationToken,
+    state.nextStep,
+    state.resetToken,
+    identifier,
+    router,
+  ])
 
   React.useEffect(() => {
     if (!resendStatus) {
@@ -69,16 +77,16 @@ export function VerifyOTPForm({
     }
 
     if (resendStatus === 200) {
-      toast.success(dict.resend_success)
+      toast.success(dict.notifications.success_resend_otp)
     } else {
       notifyFromApi({
         httpStatus: resendStatus,
-        dictionary: notificationsDict,
-        commonDictionary: commonNotificationsDict,
+        dictionary: dict.notifications,
+        commonDictionary: common.notifications,
         lang,
       })
     }
-  }, [lang, notificationsDict, commonNotificationsDict, resendStatus, dict.resend_success])
+  }, [lang, dict.notifications, common.notifications, resendStatus])
 
   function handleResend() {
     if (countdown > 0 || isPending || isResending) return
@@ -97,8 +105,8 @@ export function VerifyOTPForm({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2 text-center">
-        <h1 className="text-2xl font-bold tracking-tight">{dict.title}</h1>
-        <p className="text-sm text-muted-foreground">{dict.description}</p>
+        <h1 className="text-2xl font-bold tracking-tight">{infoDict.title}</h1>
+        <p className="text-sm text-muted-foreground">{infoDict.description}</p>
       </div>
 
       <form action={formAction} className="flex flex-col gap-4">
@@ -111,7 +119,7 @@ export function VerifyOTPForm({
               maxLength={6}
               value={value}
               onChange={value => setValue(value)}
-              disabled={isPending}
+              disabled={isPending || isRedirecting}
             >
               <InputOTPGroup>
                 <InputOTPSlot
@@ -156,10 +164,10 @@ export function VerifyOTPForm({
         </Field>
 
         <SubmitButton
-          submitLabel={dict.submit_button}
-          loadingLabel={dict.loading_button}
+          submitLabel={formDict.submit.label}
+          loadingLabel={formDict.submit.loading_text}
           canSubmit={value.length === 6}
-          isRedirecting={isPending}
+          isRedirecting={isPending || isRedirecting}
         />
       </form>
 
@@ -168,13 +176,13 @@ export function VerifyOTPForm({
           variant="outline"
           className="w-full bg-transparent text-primary transition-all active:scale-[0.98]"
           onClick={handleResend}
-          disabled={isPending || isResending || countdown > 0}
+          disabled={isPending || isResending || countdown > 0 || isRedirecting}
         >
-          {countdown > 0 ? `${dict.resend_button} (${countdown}s)` : dict.resend_button}
+          {countdown > 0 ? `${formDict.resend.label} (${countdown}s)` : formDict.resend.label}
         </Button>
 
         <Button variant="link" size="sm" className="mx-auto h-auto p-0 text-xs font-medium" asChild>
-          <Link href={`/${lang}/sign-in`}>{dict.back_to_login}</Link>
+          <Link href={`/${lang}/sign-in`}>{formDict.back_to_login.label}</Link>
         </Button>
       </div>
     </div>

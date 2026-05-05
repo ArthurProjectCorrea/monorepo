@@ -25,18 +25,28 @@ import {
 } from '@/components/ui/select'
 import { Item, ItemActions, ItemContent, ItemGroup } from '@/components/ui/item'
 import { FormActions } from '@/components/layout/form-actions'
-import { saveUserAction } from '@/lib/action/users'
-import type { User, UserTeamAccess, UserFormDict } from '@/types/api'
+import { saveUserAction } from '@/lib/action/settings'
+import { notifyFromApi } from '@/lib/notifications'
+import type { Dictionary } from '@/types/i18n'
+import type { User, UserTeamAccess } from '@/types/api'
 
 interface UserFormProps {
   initialData?: User
   onSuccess?: () => void
-  dict: UserFormDict
+  dict: Dictionary['users']
+  common: Dictionary['common']
   teams: { id: string; name: string }[]
   accessProfiles: { id: string; name: string }[]
 }
 
-export function UserForm({ initialData, onSuccess, dict, teams, accessProfiles }: UserFormProps) {
+export function UserForm({
+  initialData,
+  onSuccess,
+  dict,
+  common,
+  teams,
+  accessProfiles,
+}: UserFormProps) {
   const router = useRouter()
   const params = useParams()
   const [state, formAction, isPending] = React.useActionState(saveUserAction, {
@@ -47,6 +57,10 @@ export function UserForm({ initialData, onSuccess, dict, teams, accessProfiles }
   const [userTeams, setUserTeams] = React.useState<UserTeamAccess[]>(
     initialData?.teams || [{ teamId: '', profileId: '' }],
   )
+
+  const formDict = dict.form
+  const infoCardDict = formDict.cards.information
+  const teamsCardDict = formDict.cards.teams_profiles
 
   const addTeamAssociation = () => {
     if (userTeams.length >= teams.length) {
@@ -75,26 +89,34 @@ export function UserForm({ initialData, onSuccess, dict, teams, accessProfiles }
       formRef.current.reset()
     }
     setUserTeams(initialData?.teams || [{ teamId: '', profileId: '' }])
-    toast.info(dict.common.actions.discard)
-  }, [initialData, dict.common.actions])
+    toast.info(common.form.actions.discard)
+  }, [initialData, common.form.actions])
 
   // Handle Action State notifications
   React.useEffect(() => {
-    if (state.status === 'success') {
-      toast.success(dict.notifications.success)
+    if (state.status !== 'idle' && state.notificationToken) {
+      notifyFromApi({
+        httpStatus: state.httpStatus || (state.status === 'success' ? 200 : 500),
+        dictionary: dict.notifications,
+        commonDictionary: common.notifications,
+        lang: (params.lang as string) || 'en',
+        actionType: initialData ? 'update' : 'create',
+      })
 
-      if (onSuccess) {
-        onSuccess()
-      } else {
-        router.push(`/${params.lang}/${params.domain}/settings/users`)
+      if (state.status === 'success') {
+        if (onSuccess) {
+          onSuccess()
+        } else {
+          router.push(`/${params.lang}/${params.domain}/settings/users`)
+        }
       }
-    } else if (state.status === 'error') {
-      toast.error(dict.notifications.error)
     }
   }, [
     state.status,
     state.notificationToken,
+    state.httpStatus,
     dict.notifications,
+    common.notifications,
     onSuccess,
     router,
     params.lang,
@@ -110,45 +132,45 @@ export function UserForm({ initialData, onSuccess, dict, teams, accessProfiles }
         {/* Basic Info Column */}
         <Card className="min-w-0">
           <CardHeader>
-            <CardTitle>{dict.table.form.title_label}</CardTitle>
-            <CardDescription>{dict.table.form.title_description}</CardDescription>
+            <CardTitle>{infoCardDict.title}</CardTitle>
+            <CardDescription>{infoCardDict.description}</CardDescription>
           </CardHeader>
           <CardContent>
             <FieldSet>
               <FieldGroup>
                 <Field>
-                  <FieldLabel htmlFor="user-name">{dict.table.form.name_label}</FieldLabel>
+                  <FieldLabel htmlFor="user-name">{formDict.name.label}</FieldLabel>
                   <Input
                     id="user-name"
                     name="name"
                     defaultValue={initialData?.name}
-                    placeholder={dict.table.form.name_placeholder}
+                    placeholder={formDict.name.placeholder}
                     required
                   />
-                  <FieldDescription>{dict.table.form.name_description}</FieldDescription>
+                  <FieldDescription>{formDict.name.description}</FieldDescription>
                   <FieldError>{state.fieldErrors?.name}</FieldError>
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="user-email">{dict.table.form.email_label}</FieldLabel>
+                  <FieldLabel htmlFor="user-email">{formDict.email.label}</FieldLabel>
                   <Input
                     id="user-email"
                     name="email"
                     type="email"
                     defaultValue={initialData?.email}
-                    placeholder={dict.table.form.email_placeholder}
+                    placeholder={formDict.email.placeholder}
                     required
                   />
-                  <FieldDescription>{dict.table.form.email_description}</FieldDescription>
+                  <FieldDescription>{formDict.email.description}</FieldDescription>
                   <FieldError>{state.fieldErrors?.email}</FieldError>
                 </Field>
 
                 <Field className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                   <div className="space-y-0.5">
                     <FieldLabel htmlFor="user-status" className="text-base">
-                      {dict.table.form.status_label}
+                      {common.form.is_active.label}
                     </FieldLabel>
-                    <FieldDescription>{dict.table.form.status_description}</FieldDescription>
+                    <FieldDescription>{formDict.is_active.description}</FieldDescription>
                   </div>
                   <Switch
                     id="user-status"
@@ -164,8 +186,8 @@ export function UserForm({ initialData, onSuccess, dict, teams, accessProfiles }
         {/* Teams & Access Profiles Column */}
         <Card className="min-w-0">
           <CardHeader>
-            <CardTitle>{dict.table.form.teams_section_title}</CardTitle>
-            <CardDescription>{dict.table.form.teams_section_description}</CardDescription>
+            <CardTitle>{teamsCardDict.title}</CardTitle>
+            <CardDescription>{teamsCardDict.description}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Button
@@ -176,13 +198,15 @@ export function UserForm({ initialData, onSuccess, dict, teams, accessProfiles }
               className="w-full gap-1 sm:w-auto"
             >
               <Plus className="size-4" />
-              {dict.table.form.add_team_button}
+              {formDict.table_teams_profiles.add_button}
             </Button>
 
             <ItemGroup>
               {userTeams.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-8 text-center border-2 border-dashed rounded-lg bg-muted/10">
-                  <p className="text-sm text-muted-foreground">{dict.table.form.empty_teams}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {formDict.table_teams_profiles.empty_teams_profiles}
+                  </p>
                 </div>
               )}
               {userTeams.map((assoc, index) => (
@@ -194,14 +218,16 @@ export function UserForm({ initialData, onSuccess, dict, teams, accessProfiles }
                   <ItemContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <Field>
                       <FieldLabel className="text-[10px] uppercase tracking-wider text-muted-foreground/80 font-bold">
-                        {dict.table.form.column_team}
+                        {formDict.table_teams_profiles.column_teams}
                       </FieldLabel>
                       <Select
                         value={assoc.teamId}
                         onValueChange={val => updateTeamAssociation(index, 'teamId', val)}
                       >
                         <SelectTrigger className="w-full bg-background">
-                          <SelectValue placeholder={dict.table.form.select_team_placeholder} />
+                          <SelectValue
+                            placeholder={formDict.table_teams_profiles.select_team_placeholder}
+                          />
                         </SelectTrigger>
                         <SelectContent>
                           {teams
@@ -220,14 +246,18 @@ export function UserForm({ initialData, onSuccess, dict, teams, accessProfiles }
                     </Field>
                     <Field>
                       <FieldLabel className="text-[10px] uppercase tracking-wider text-muted-foreground/80 font-bold">
-                        {dict.table.form.column_profile}
+                        {formDict.table_teams_profiles.column_access_profiles}
                       </FieldLabel>
                       <Select
                         value={assoc.profileId}
                         onValueChange={val => updateTeamAssociation(index, 'profileId', val)}
                       >
                         <SelectTrigger className="w-full bg-background">
-                          <SelectValue placeholder={dict.table.form.select_profile_placeholder} />
+                          <SelectValue
+                            placeholder={
+                              formDict.table_teams_profiles.select_access_profile_placeholder
+                            }
+                          />
                         </SelectTrigger>
                         <SelectContent>
                           {accessProfiles.map(profile => (
@@ -259,10 +289,10 @@ export function UserForm({ initialData, onSuccess, dict, teams, accessProfiles }
       </div>
 
       <FormActions
-        saveLabel={initialData ? dict.common.actions.save : dict.common.actions.create}
-        discardLabel={dict.common.actions.discard}
-        savingLabel={dict.common.actions.saving}
-        backLabel={dict.common.actions.back}
+        saveLabel={common.form.actions.save}
+        discardLabel={common.form.actions.discard}
+        savingLabel={common.form.actions.saving}
+        backLabel={common.form.actions.back}
         isPending={isPending}
         onDiscard={handleDiscard}
         onBack={() => router.push(`/${params.lang}/${params.domain}/settings/users`)}

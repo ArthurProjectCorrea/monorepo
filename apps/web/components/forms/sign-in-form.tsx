@@ -11,39 +11,23 @@ import { InputPassword } from '@/components/input-password'
 import { Spinner } from '@/components/ui/spinner'
 import { signInAction } from '@/lib/action/auth'
 import { notifyFromApi } from '@/lib/notifications'
-import type { NotificationDictionary, CommonNotificationDictionary } from '@/types/api'
+import type { Dictionary } from '@/types/i18n'
 
 interface SignInFormProps {
-  dict: {
-    title: string
-    description: string
-    email_label: string
-    email_placeholder: string
-    password_label: string
-    password_placeholder: string
-    forgot_password: string
-    submit_button: string
-    loading_button: string
-  }
-  notificationsDict: NotificationDictionary
-  resetNotificationsDict: NotificationDictionary
-  signOutNotificationsDict: NotificationDictionary
-  commonNotificationsDict: CommonNotificationDictionary
+  dict: Dictionary['sign_in']
+  common: Dictionary['common']
 }
 
-export function SignInForm({
-  dict,
-  notificationsDict,
-  resetNotificationsDict,
-  signOutNotificationsDict,
-  commonNotificationsDict,
-}: SignInFormProps) {
+export function SignInForm({ dict, common }: SignInFormProps) {
   const [state, formAction, isPending] = React.useActionState(signInAction, { status: 'idle' })
   const [isRedirecting, setIsRedirecting] = React.useState(false)
   const router = useRouter()
   const params = useParams()
   const searchParams = useSearchParams()
   const lang = params.lang as string
+
+  const formDict = dict.form
+  const infoDict = formDict.cards.information
 
   React.useEffect(() => {
     if (!state.notificationToken || !state.httpStatus) {
@@ -52,8 +36,8 @@ export function SignInForm({
 
     notifyFromApi({
       httpStatus: state.httpStatus,
-      dictionary: notificationsDict,
-      commonDictionary: commonNotificationsDict,
+      dictionary: dict.notifications,
+      commonDictionary: common.notifications,
       lang,
     })
 
@@ -64,8 +48,8 @@ export function SignInForm({
     }
   }, [
     lang,
-    notificationsDict,
-    commonNotificationsDict,
+    dict.notifications,
+    common.notifications,
     router,
     state.domain,
     state.httpStatus,
@@ -77,37 +61,29 @@ export function SignInForm({
     if (searchParams.get('reset') === 'true') {
       notifyFromApi({
         httpStatus: 200,
-        dictionary: resetNotificationsDict,
-        commonDictionary: commonNotificationsDict,
+        dictionary: dict.notifications,
+        commonDictionary: common.notifications,
         lang,
       })
-
-      // Clean up the URL to prevent showing the toast again on refresh
       window.history.replaceState({}, '', `/${lang}/sign-in`)
     } else if (searchParams.get('logout') === 'true') {
       notifyFromApi({
         httpStatus: 200,
-        dictionary: signOutNotificationsDict,
-        commonDictionary: commonNotificationsDict,
+        dictionary: dict.notifications,
+        commonDictionary: common.notifications,
         lang,
       })
       window.history.replaceState({}, '', `/${lang}/sign-in`)
     }
-  }, [
-    lang,
-    resetNotificationsDict,
-    signOutNotificationsDict,
-    commonNotificationsDict,
-    searchParams,
-  ])
+  }, [lang, common.notifications, searchParams])
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2 text-center">
         <h1 className="text-2xl font-bold tracking-tight">
-          {dict.title} {process.env.NEXT_PUBLIC_APP_NAME}
+          {infoDict.title} {process.env.NEXT_PUBLIC_APP_NAME}
         </h1>
-        <p className="text-sm text-muted-foreground">{dict.description}</p>
+        <p className="text-sm text-muted-foreground">{infoDict.description}</p>
       </div>
 
       <form action={formAction} className="grid gap-4">
@@ -115,13 +91,13 @@ export function SignInForm({
 
         <Field data-invalid={!!state.fieldErrors?.identifier}>
           <FieldLabel htmlFor="email">
-            <FieldTitle>{dict.email_label}</FieldTitle>
+            <FieldTitle>{formDict.email.label}</FieldTitle>
           </FieldLabel>
           <FieldContent>
             <Input
               id="email"
               name="identifier"
-              placeholder={dict.email_placeholder}
+              placeholder={formDict.email.placeholder}
               type="email"
               autoCapitalize="none"
               autoComplete="email"
@@ -138,17 +114,17 @@ export function SignInForm({
         <Field data-invalid={!!state.fieldErrors?.password}>
           <div className="flex items-center justify-between">
             <FieldLabel htmlFor="password">
-              <FieldTitle>{dict.password_label}</FieldTitle>
+              <FieldTitle>{formDict.password.label}</FieldTitle>
             </FieldLabel>
             <Button variant="link" size="sm" className="h-auto p-0 text-xs font-medium" asChild>
-              <Link href={`/${lang}/forgot-password`}>{dict.forgot_password}</Link>
+              <Link href={`/${lang}/forgot-password`}>{formDict.forgot_password.label}</Link>
             </Button>
           </div>
           <FieldContent>
             <InputPassword
               id="password"
               name="password"
-              placeholder={dict.password_placeholder}
+              placeholder={formDict.password.placeholder}
               autoCapitalize="none"
               autoComplete="current-password"
               required
@@ -161,8 +137,8 @@ export function SignInForm({
         </Field>
 
         <SubmitButton
-          submitLabel={dict.submit_button}
-          loadingLabel={dict.loading_button}
+          submitLabel={formDict.submit.label}
+          loadingLabel={formDict.submit.loading_text}
           isRedirecting={isRedirecting}
         />
       </form>

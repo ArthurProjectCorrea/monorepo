@@ -1,6 +1,0 @@
-[
-  { "id": "admin-team", "name": "Administração" },
-  { "id": "sales-team", "name": "Vendas" },
-  { "id": "support-team", "name": "Suporte" },
-  { "id": "marketing-team", "name": "Marketing" }
-]

@@ -1,7 +1,8 @@
 import type { ColumnDef, HeaderContext, CellContext } from '@tanstack/react-table'
 import { Badge } from '@/components/ui/badge'
-import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
-import type { Team, TeamFormDict } from '@/types/api'
+import { DataTableColumnHeader } from '@/components/custom/data-table/data-table-column-header'
+import type { Team } from '@/types/api'
+import type { Dictionary } from '@/types/i18n'
 import * as LucideIcons from 'lucide-react'
 
 const formatIconName = (name: string) => {
@@ -12,7 +13,10 @@ const formatIconName = (name: string) => {
     .join('')
 }
 
-export const getColumns = (dict: TeamFormDict): ColumnDef<Team>[] => [
+export const getColumns = (
+  dict: Dictionary['teams'],
+  common: Dictionary['common'],
+): ColumnDef<Team>[] => [
   {
     accessorKey: 'name',
     header: ({ column }: HeaderContext<Team, unknown>) => (
@@ -41,24 +45,24 @@ export const getColumns = (dict: TeamFormDict): ColumnDef<Team>[] => [
     meta: { title: dict.table.column_icon },
   },
   {
-    accessorKey: 'status',
+    accessorKey: 'is_active',
     header: ({ column }: HeaderContext<Team, unknown>) => (
-      <DataTableColumnHeader column={column} title={dict.common.table.column_status} />
+      <DataTableColumnHeader column={column} title={common.table.column_status} />
     ),
     cell: ({ row }: CellContext<Team, unknown>) => {
-      const status = !!row.getValue('status')
+      const isActive = row.getValue('is_active') as boolean
       return (
-        <Badge variant={status ? 'default' : 'secondary'} className="capitalize">
-          {status ? dict.common.table.status_active : dict.common.table.status_inactive}
+        <Badge variant={isActive ? 'default' : 'secondary'} className="capitalize">
+          {isActive ? common.table.status_active : common.table.status_inactive}
         </Badge>
       )
     },
-    meta: { title: dict.common.table.column_status },
+    meta: { title: common.table.column_status },
   },
   {
     accessorKey: 'updated_at',
     header: ({ column }: HeaderContext<Team, unknown>) => (
-      <DataTableColumnHeader column={column} title={dict.common.table.column_updated_at} />
+      <DataTableColumnHeader column={column} title={common.table.column_updated_at} />
     ),
     cell: ({ row }: CellContext<Team, unknown>) => {
       const dateValue = row.getValue('updated_at') as string
@@ -69,6 +73,6 @@ export const getColumns = (dict: TeamFormDict): ColumnDef<Team>[] => [
         </span>
       )
     },
-    meta: { title: dict.common.table.column_updated_at },
+    meta: { title: common.table.column_updated_at },
   },
 ]

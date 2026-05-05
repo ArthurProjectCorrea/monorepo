@@ -1,7 +1,11 @@
 import { getDictionary, hasLocale, type Locale } from '@/app/[lang]/dictionaries'
+import type { Dictionary } from '@/types/i18n'
 import { notFound } from 'next/navigation'
 import { PageHeader } from '@/components/layout/page-header'
 import { AccessProfileForm } from '@/components/forms/access-profile-form'
+import { fetchScreensData } from '@/lib/action/settings'
+import { cookies } from 'next/headers'
+import { AUTH_SESSION_COOKIE, getScreenPermissions } from '@/lib/session'
 
 export default async function NewAccessProfilePage({
   params,
@@ -14,58 +18,51 @@ export default async function NewAccessProfilePage({
     notFound()
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const dict = (await getDictionary(lang as Locale)) as any
+  const dict = (await getDictionary(lang as Locale)) as Dictionary
+  const cookieStore = await cookies()
+  const sessionId = cookieStore.get(AUTH_SESSION_COOKIE)?.value || ''
 
-  const mockScreens = [
-    { id: 'teams', title: 'Equipes' },
-    { id: 'screen_parameters', title: 'Parâmetros de Telas' },
-    { id: 'general', title: 'Geral' },
-    { id: 'access_profiles', title: 'Perfil de Acesso' },
-  ]
+  const permissions = await getScreenPermissions(sessionId, 'access_profiles')
+  if (!permissions.view || !permissions.create) {
+    notFound()
+  }
 
-  const mockActions = [
-    { id: 'view', name: dict.access_profiles_page.table.form.permission_view },
-    { id: 'create', name: dict.access_profiles_page.table.form.permission_create },
-    { id: 'update', name: dict.access_profiles_page.table.form.permission_update },
-    { id: 'delete', name: dict.access_profiles_page.table.form.permission_delete },
+  const screensData = await fetchScreensData()
+  if (!screensData) {
+    notFound()
+  }
+
+  const screens = screensData.data.map(s => ({ id: s.id, title: s.title }))
+  const moduleScreen = screensData.data.find(s => s.screenKey === 'access_profiles')
+
+  const actions = [
+    { id: 'view', name: dict.access_profiles.form.table_permissions.permission_view },
+    { id: 'create', name: dict.access_profiles.form.table_permissions.permission_create },
+    { id: 'update', name: dict.access_profiles.form.table_permissions.permission_update },
+    { id: 'delete', name: dict.access_profiles.form.table_permissions.permission_delete },
   ]
 
   return (
     <>
       <PageHeader
         breadcrumbs={[
-          { label: dict.general_form.breadcrumb_settings },
+          { label: dict.common.breadcrumb.settings },
           {
-            label: dict.sidebar.nav_main.access_profiles,
+            label: moduleScreen?.title || '',
             href: `/${lang}/${domain}/settings/access-profiles`,
           },
-          { label: dict.common.actions.create },
+          { label: dict.common.table.actions.create },
         ]}
-        title={dict.common.actions.create + ' ' + dict.sidebar.nav_main.access_profiles}
-        description={dict.access_profiles_page.description}
+        title={dict.common.table.actions.create + ' ' + (moduleScreen?.title || '')}
+        description={moduleScreen?.description || ''}
       />
 
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0 md:gap-6 md:p-6 md:pt-0">
         <AccessProfileForm
-          dict={{
-            table: {
-              ...dict.access_profiles_page.table,
-              column_status: dict.common.table.column_status,
-              column_updated_at: dict.common.table.column_updated_at,
-              column_created_at: dict.common.table.column_created_at,
-            },
-            notifications: dict.notifications.access_profiles,
-            common: {
-              ...dict.common,
-              notifications: dict.common.notifications,
-              table: dict.common.table,
-            },
-            screens_page: dict.screens_page,
-            sidebar: dict.sidebar,
-          }}
-          screens={mockScreens}
-          actions={mockActions}
+          dict={dict.access_profiles}
+          common={dict.common}
+          screens={screens}
+          actions={actions}
         />
       </div>
     </>

@@ -1,8 +1,8 @@
 'use server'
 
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { api, ApiRequestError } from '@/lib/api'
-import { AUTH_SESSION_COOKIE } from '@/lib/auth-session'
+import { AUTH_SESSION_COOKIE } from '@/lib/session-constants'
 import { getDictionary, type Locale } from '@/app/[lang]/dictionaries'
 import type {
   ActionState,
@@ -34,14 +34,14 @@ export async function signInAction(
 ): Promise<SignInActionState> {
   const identifier = getStringField(formData, 'identifier')
   const password = getStringField(formData, 'password')
-  const lang = (getStringField(formData, 'lang') || 'pt') as Locale
+  const lang = (getStringField(formData, 'lang') || 'en') as Locale
   const dict = await getDictionary(lang)
   const fields = { identifier, password }
 
   const fieldErrors: SignInActionState['fieldErrors'] = {}
 
-  if (!identifier) fieldErrors.identifier = dict.validation.required_email
-  if (!password) fieldErrors.password = dict.validation.required_password
+  if (!identifier) fieldErrors.identifier = dict.common.notifications.http_status['400']
+  if (!password) fieldErrors.password = dict.common.notifications.http_status['400']
 
   if (Object.keys(fieldErrors).length > 0) {
     return {
@@ -54,9 +54,20 @@ export async function signInAction(
   }
 
   try {
-    const payload: SignInRequest = { identifier, password }
-    const response = await api.post<SignInResponse>('/v1/auth/sign-in', payload)
+    const headersList = await headers()
+    const userAgent = headersList.get('user-agent') || undefined
+    const ip = headersList.get('x-forwarded-for')?.split(',')[0] || undefined
 
+    const payload: SignInRequest = {
+      identifier,
+      password,
+      device: {
+        user_agent: userAgent,
+        ip: ip,
+        platform: 'web', // Default platform for this client
+      },
+    }
+    const response = await api.post<SignInResponse>('/v1/auth/sign-in', payload)
     const cookieStore = await cookies()
     cookieStore.set(AUTH_SESSION_COOKIE, response.session.session_id, {
       httpOnly: true,
@@ -77,19 +88,14 @@ export async function signInAction(
   } catch (error) {
     if (error instanceof ApiRequestError) {
       if (error.code === 'INVALID_CREDENTIALS' || error.status === 401) {
-        fieldErrors.identifier = dict.validation.invalid_credentials
-        fieldErrors.password = dict.validation.invalid_credentials
-        return {
-          status: 'error',
-          fields,
-          fieldErrors,
-          httpStatus: error.status,
-          notificationToken: crypto.randomUUID(),
-        }
+        fieldErrors.identifier = dict.sign_in.notifications.http_status['401']
+        fieldErrors.password = dict.sign_in.notifications.http_status['401']
+        // We'll let notifyFromApi handle the global message via dict.sign_in.notifications.http_status.401
       }
       return {
         status: 'error',
         fields,
+        fieldErrors: Object.keys(fieldErrors).length > 0 ? fieldErrors : undefined,
         httpStatus: error.status,
         notificationToken: crypto.randomUUID(),
       }
@@ -106,13 +112,13 @@ export async function forgotPasswordAction(
   formData: FormData,
 ): Promise<ForgotPasswordActionState> {
   const identifier = getStringField(formData, 'identifier')
-  const lang = (getStringField(formData, 'lang') || 'pt') as Locale
+  const lang = (getStringField(formData, 'lang') || 'en') as Locale
   const dict = await getDictionary(lang)
 
   if (!identifier) {
     return {
       status: 'error',
-      fieldErrors: { identifier: dict.validation.required_email },
+      fieldErrors: { identifier: dict.forgot_password.notifications.http_status['400'] },
       httpStatus: 400,
       notificationToken: crypto.randomUUID(),
     }
@@ -129,11 +135,15 @@ export async function forgotPasswordAction(
       httpStatus: 202,
       notificationToken: crypto.randomUUID(),
     }
-  } catch (error) {
-    if (error instanceof ApiRequestError) {
-      return { status: 'error', httpStatus: error.status, notificationToken: crypto.randomUUID() }
+  } catch {
+    // Always return success to avoid user enumeration as per passwords.md
+    return {
+      status: 'success',
+      nextStep: 'otp_verification',
+      identifier,
+      httpStatus: 202,
+      notificationToken: crypto.randomUUID(),
     }
-    return { status: 'error', httpStatus: 500, notificationToken: crypto.randomUUID() }
   }
 }
 
@@ -146,12 +156,12 @@ export async function verifyOtpAction(
 ): Promise<VerifyOtpActionState> {
   const identifier = getStringField(formData, 'identifier')
   const otp_code = getStringField(formData, 'otp_code')
-  const lang = (getStringField(formData, 'lang') || 'pt') as Locale
+  const lang = (getStringField(formData, 'lang') || 'en') as Locale
   const dict = await getDictionary(lang)
 
   const fieldErrors: VerifyOtpActionState['fieldErrors'] = {}
-  if (!identifier) fieldErrors.identifier = dict.validation.required_email
-  if (!otp_code) fieldErrors.otp_code = dict.validation.required_otp
+  if (!identifier) fieldErrors.identifier = dict.common.notifications.http_status['400']
+  if (!otp_code) fieldErrors.otp_code = dict.verify_otp.notifications.http_status['400']
 
   if (Object.keys(fieldErrors).length > 0) {
     return { status: 'error', fieldErrors, httpStatus: 400, notificationToken: crypto.randomUUID() }
@@ -177,7 +187,7 @@ export async function verifyOtpAction(
       if (error.status === 400) {
         return {
           status: 'error',
-          fieldErrors: { otp_code: dict.validation.invalid_otp },
+          fieldErrors: { otp_code: dict.verify_otp.notifications.http_status['400'] },
           httpStatus: 400,
           notificationToken: crypto.randomUUID(),
         }
@@ -199,14 +209,14 @@ export async function resetPasswordAction(
   const reset_token = getStringField(formData, 'resetToken')
   const new_password = getStringField(formData, 'password')
   const confirm_password = getStringField(formData, 'confirmPassword')
-  const lang = (getStringField(formData, 'lang') || 'pt') as Locale
+  const lang = (getStringField(formData, 'lang') || 'en') as Locale
   const dict = await getDictionary(lang)
 
   const fieldErrors: ResetPasswordActionState['fieldErrors'] = {}
 
-  if (!new_password) fieldErrors.new_password = dict.validation.required_password
+  if (!new_password) fieldErrors.new_password = dict.reset_password.notifications.http_status['400']
   if (new_password !== confirm_password)
-    fieldErrors.confirm_password = dict.validation.passwords_dont_match
+    fieldErrors.confirm_password = dict.reset_password.notifications.http_status['400']
 
   if (Object.keys(fieldErrors).length > 0) {
     return { status: 'error', fieldErrors, httpStatus: 400, notificationToken: crypto.randomUUID() }
@@ -253,7 +263,6 @@ export async function resendRecoveryOtpAction(
 /**
  * Sign Out Action
  */
-
 export async function signOutAction() {
   const cookieStore = await cookies()
   cookieStore.delete(AUTH_SESSION_COOKIE)

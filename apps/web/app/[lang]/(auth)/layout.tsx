@@ -37,8 +37,8 @@ export default async function AuthLayout({
             />
           </Link>
           <div className="flex items-center gap-4">
-            <LocaleSwitcher dict={dict.locale_switcher} />
-            <ThemeToggle dict={dict.theme_toggle} variant="toggle" />
+            <LocaleSwitcher dict={dict.common.components.locale_switcher} />
+            <ThemeToggle dict={dict.common.components.theme_toggle} variant="toggle" />
           </div>
         </header>
 
@@ -51,22 +51,22 @@ export default async function AuthLayout({
         {/* Footer */}
         <footer className="p-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px] uppercase tracking-widest font-medium text-muted-foreground/60 w-full">
           <p>
-            {dict.footer.rights
+            {dict.auth_layout.footer.rights
               .replace('{year}', new Date().getFullYear().toString())
               .replace('{name}', process.env.NEXT_PUBLIC_APP_NAME || '')}
           </p>
           <div className="flex items-center gap-6">
             <AuthDrawer
-              triggerText={dict.footer.privacy_terms}
-              title={dict.footer.privacy_terms}
-              content={dict.footer.privacy_content}
-              closeText={dict.footer.close}
+              triggerText={dict.auth_layout.footer.privacy_terms}
+              title={dict.auth_layout.footer.privacy_terms}
+              content={dict.auth_layout.footer.privacy_content}
+              closeText={dict.auth_layout.footer.close}
             />
             <AuthDrawer
-              triggerText={dict.footer.system_policies}
-              title={dict.footer.system_policies}
-              content={dict.footer.policies_content}
-              closeText={dict.footer.close}
+              triggerText={dict.auth_layout.footer.system_policies}
+              title={dict.auth_layout.footer.system_policies}
+              content={dict.auth_layout.footer.policies_content}
+              closeText={dict.auth_layout.footer.close}
             />
           </div>
         </footer>
@@ -85,7 +85,7 @@ export default async function AuthLayout({
 
         {/* Typewriter Animation */}
         <div className="relative z-10 p-12 text-center w-full max-w-2xl">
-          <Typewriter phrases={Object.values(dict.auth.typewriter_phrases) as string[]} />
+          <Typewriter phrases={dict.auth_layout.typewriter_phrases} />
         </div>
 
         {/* Grid Pattern Overlay */}
